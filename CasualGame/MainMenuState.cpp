@@ -45,11 +45,11 @@ MainMenuState::MainMenuState()
 	}
 
 	// followers vector
-	for (int i = 0; i < 300; ++i)
+	for (int i = 0; i < 200; ++i)
 	{
-		sf::CircleShape circle(1.f);
+		sf::CircleShape circle(1.5f);
 		circle.setFillColor(sf::Color::White);
-		circle.setPosition(gen.randomInt(0, GameConfig::windowWidth), gen.randomInt(0, GameConfig::windowHeight));
+		circle.setPosition(gen.randomInt(0, GameConfig::windowWidth), gen.randomInt(0, GameConfig::windowWidth));
 		m_followers.push_back(circle);
 	}
 
@@ -62,25 +62,20 @@ MainMenuState::~MainMenuState()
 void MainMenuState::update(float ft)
 {
 
-	int changePlace = gen.randomInt(0, m_followers.size());
-	float dirX = gen.randomFloat(-5.0f, 5.0f);
-	float dirY = gen.randomFloat(-5.0f, 5.0f);
-	
+	sf::Transform rotation;
+	rotation.rotate(0.01f, GameConfig::windowWidth / 2.0f, GameConfig::windowHeight / 2.0f);
 	for (int i = 0; i < m_followers.size(); ++i)
 	{
-		if (i == changePlace)
-		{
-				m_followers[i].move(dirX, dirY);
-		}			
+		m_followers[i].setPosition(rotation.transformPoint(m_followers[i].getPosition()));
 	}
-	
+
 	const int colorMax = 100;
 	
 	//slight bg color update
 	for (int i = 0; i < m_bgColors.size(); ++i)
 	{
 
-		if (gen.randomInt(0, 100) < 40)
+		if (gen.randomInt(0, 100) < 10)
 		{
 			m_bgColors[i].r += gen.randomInt(-2, 2);
 			m_bgColors[i].g += gen.randomInt(-2, 2);

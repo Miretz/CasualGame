@@ -3,10 +3,7 @@
 Game::Game()
 {
 	
-	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
-	
-	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(GameConfig::windowWidth, GameConfig::windowHeight), GameConfig::gameTitle, sf::Style::Default, settings);
+	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(GameConfig::windowWidth, GameConfig::windowHeight), GameConfig::gameTitle);
 	m_clock = std::make_unique<sf::Clock>();
 	m_currentState = std::make_unique<MainMenuState>();
 
@@ -68,8 +65,7 @@ void Game::updateTimers()
 	
 	if (m_fpsShowTimer == 0)
 	{
-		//show fps every 60 frames - very naive approach
-		m_fpsShowTimer = 60;
+		m_fpsShowTimer = 5;
 		float ftSeconds = ft / 1000.f;
 		if (ftSeconds > 0.f)
 		{

@@ -5,6 +5,13 @@
 #include "RandomGenerator.h"
 #include "VectorUtils.h"
 
+struct LineData {
+	int x;
+	int drawStart;
+	int drawEnd;
+	sf::Color color;
+};
+
 class PlayState : public GameState
 {
 public:
@@ -16,12 +23,23 @@ public:
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game) override;
 
 private:
+
 	static RandomGenerator gen;
 
-	sf::Vector2f m_mousePos;
+	const static int m_level[24][24];
+	
+	sf::Vector2f m_pos;
+	sf::Vector2f m_dir;
+	sf::Vector2f m_plane;
 
+	std::vector<LineData> m_lines;
+	sf::Vector2f m_mousePos;
 	std::vector<sf::Color> m_bgColors;
-	std::vector<sf::CircleShape> m_followers;
+
+	float m_moveSpeed;
+	float m_rotSpeed;
+
+	bool m_movement[4] = {false, false, false, false};
 
 };
 
