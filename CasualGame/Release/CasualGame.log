@@ -1,18 +1,15 @@
-﻿  Game.cpp
-  main.cpp
-  MainMenuState.cpp
-MainMenuState.cpp(54): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-MainMenuState.cpp(71): warning C4018: '<': signed/unsigned mismatch
-MainMenuState.cpp(82): warning C4018: '<': signed/unsigned mismatch
-MainMenuState.cpp(117): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-MainMenuState.cpp(118): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-MainMenuState.cpp(119): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-MainMenuState.cpp(125): warning C4018: '<': signed/unsigned mismatch
-MainMenuState.cpp(175): warning C4018: '<': signed/unsigned mismatch
-  RandomGenerator.cpp
+﻿  MainMenuState.cpp
+MainMenuState.cpp(52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+MainMenuState.cpp(67): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(75): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(110): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(111): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(112): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(118): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(168): warning C4018: '<': signed/unsigned mismatch
   Generating code
-  597 of 597 functions (100.0%) were compiled, the rest were copied from previous compilation.
-    567 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  0 of 873 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    7 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   CasualGame.vcxproj -> C:\sfml\projects\CasualGame\Release\CasualGame.exe

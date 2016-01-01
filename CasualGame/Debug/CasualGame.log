@@ -1,13 +1,10 @@
-﻿  PlayState.cpp
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(175): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(176): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(184): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(187): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(194): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(197): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(220): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(221): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(222): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(232): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\sfml\projects\casualgame\casualgame\playstate.cpp(233): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  MainMenuState.cpp
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(67): warning C4018: '<': signed/unsigned mismatch
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(75): warning C4018: '<': signed/unsigned mismatch
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(110): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(111): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(112): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(118): warning C4018: '<': signed/unsigned mismatch
+c:\sfml\projects\casualgame\casualgame\mainmenustate.cpp(168): warning C4018: '<': signed/unsigned mismatch
   CasualGame.vcxproj -> C:\sfml\projects\CasualGame\Debug\CasualGame.exe
