@@ -87,9 +87,9 @@ void Game::changeState(GameStateName newState)
 	case GameStateName::MAINMENU:
 		m_currentState = std::move(std::unique_ptr<MainMenuState>(new MainMenuState));
 		break;
-	//case GameStateName::PLAY:
-	//	m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState));
-	//	break;
+	case GameStateName::PLAY:
+		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState));
+		break;
 	case GameStateName::QUIT:
 		m_running = false;
 		break;

@@ -1,7 +1,5 @@
 #include "MainMenuState.h"
 
-#define PI 3.14159265
-
 RandomGenerator MainMenuState::gen = RandomGenerator();
 
 MainMenuState::MainMenuState()

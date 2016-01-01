@@ -5,6 +5,7 @@
 
 #include "GameState.h"
 #include "MainMenuState.h"
+#include "PlayState.h"
 
 struct GameConfig {
 	static constexpr auto windowWidth = 1024;

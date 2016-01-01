@@ -23,10 +23,6 @@ private:
 	std::vector<sf::Text> m_menuItems;
 	sf::Text m_titleText;
 	
-	sf::RenderTexture m_myRenderTexture;
-	sf::Sprite m_spriteWorld;
-	sf::Shader m_shader;
-
 	sf::Vector2f m_mousePos;
 
 	float m_padding = 20.0f;
