@@ -2,6 +2,8 @@
 
 #include "GameState.h"
 #include "Game.h"
+#include "RandomGenerator.h"
+#include "VectorUtils.h"
 
 class MainMenuState : public GameState
 {
@@ -15,6 +17,8 @@ public:
 
 private:
 
+	static RandomGenerator gen;
+
 	sf::Font m_font;
 	std::vector<sf::Text> m_menuItems;
 	sf::Text m_titleText;
@@ -27,6 +31,9 @@ private:
 
 	float m_padding = 20.0f;
 	int m_mouseOverIndex = 0;
+
+	std::vector<sf::Color> m_bgColors;
+	std::vector<sf::CircleShape> m_followers;
 
 };
 

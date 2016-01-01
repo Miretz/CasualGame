@@ -1,5 +1,18 @@
-﻿  main.cpp
+﻿  Game.cpp
+  main.cpp
+  MainMenuState.cpp
+MainMenuState.cpp(54): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+MainMenuState.cpp(71): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(82): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(117): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(118): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(119): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+MainMenuState.cpp(125): warning C4018: '<': signed/unsigned mismatch
+MainMenuState.cpp(175): warning C4018: '<': signed/unsigned mismatch
+  RandomGenerator.cpp
   Generating code
-  All 30 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  597 of 597 functions (100.0%) were compiled, the rest were copied from previous compilation.
+    567 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   CasualGame.vcxproj -> C:\sfml\projects\CasualGame\Release\CasualGame.exe
