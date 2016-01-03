@@ -27,14 +27,19 @@ private:
 	static RandomGenerator gen;
 
 	const static int m_level[24][24];
-	
+
 	sf::Vector2f m_pos;
 	sf::Vector2f m_dir;
 	sf::Vector2f m_plane;
+	
+	std::vector<sf::Uint32> m_texture[8];
+	
+	sf::Texture m_screenTex;
+	sf::Sprite m_screenSprite;
+	std::vector<std::vector<sf::Uint32> > m_buffer;
+	sf::Uint8* m_screenPix;
 
-	std::vector<LineData> m_lines;
 	sf::Vector2f m_mousePos;
-	std::vector<sf::Color> m_bgColors;
 
 	float m_moveSpeed;
 	float m_rotSpeed;
