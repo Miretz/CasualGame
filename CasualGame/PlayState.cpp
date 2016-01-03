@@ -1,8 +1,5 @@
 #include "PlayState.h"
 
-#include <stdlib.h>
-#include <math.h>
-
 #define texWidth 64
 #define texHeight 64
 
@@ -59,6 +56,13 @@ PlayState::PlayState() : m_pos(22.0f, 11.5f), m_dir(-1.0f, 0.0f), m_plane(0.0f, 
 		}
 	}
 
+	//swap texture X/Y
+	//only works with square textures
+	for (size_t i = 0; i < 8; i++)
+		for (size_t x = 0; x < texWidth; x++)
+			for (size_t y = 0; y < x; y++)
+				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
+
 	//rendering texture
 	m_screenTex.create(GameConfig::windowWidth, GameConfig::windowHeight);
 	m_screenSprite.setTexture(m_screenTex);
@@ -87,16 +91,16 @@ void PlayState::update(float ft)
 		sf::Vector2f rayDir(m_dir.x + m_plane.x * cameraX, m_dir.y + m_plane.y * cameraX);
 		sf::Vector2i map(static_cast<int>(rayPos.x), static_cast<int>(rayPos.y));
 		
+		float rayDirYsq = rayDir.y * rayDir.y;
+		float rayDirXsq = rayDir.x * rayDir.x;
+
 		sf::Vector2f deltaDist;
-		deltaDist.x = sqrt(1 + (rayDir.y * rayDir.y) / (rayDir.x * rayDir.x));
-		deltaDist.y = sqrt(1 + (rayDir.x * rayDir.x) / (rayDir.y * rayDir.y));
+		deltaDist.x = sqrt(1 + rayDirYsq / rayDirXsq);
+		deltaDist.y = sqrt(1 + rayDirXsq / rayDirYsq);
 		
 		sf::Vector2f sideDist;
 		sf::Vector2i stepDir;
 
-		bool hit = false;
-		int side;
-		
 		if (rayDir.x < 0.0f)
 		{
 			stepDir.x = -1;
@@ -119,6 +123,9 @@ void PlayState::update(float ft)
 			sideDist.y = (map.y + 1.0f - rayPos.y) * deltaDist.y;
 		}
 
+		bool hit = false;
+		int side;
+
 		while (!hit)
 		{
 			//jump to next map square, OR in x-direction, OR in y-direction
@@ -137,7 +144,7 @@ void PlayState::update(float ft)
 			if (m_level[map.x][map.y] > 0) hit = true;
 		}
 
-		double perpWallDist;
+		float perpWallDist;
 		if (side == 0)
 			perpWallDist = fabs((map.x - rayPos.x + (1 - stepDir.x) / 2) / rayDir.x);
 		else
@@ -154,7 +161,7 @@ void PlayState::update(float ft)
 		//texturing calculations
 		int texNum = m_level[map.x][map.y] - 1; //1 subtracted from it so that texture 0 can be used!
 
-		double wallX; //where exactly the wall was hit
+		float wallX; //where exactly the wall was hit
 		if (side == 1)
 		{
 			wallX = rayPos.x + ((map.y - rayPos.y + (1 - stepDir.y) / 2) / rayDir.y) * rayDir.x;
@@ -163,10 +170,10 @@ void PlayState::update(float ft)
 		{
 			wallX = rayPos.y + ((map.x - rayPos.x + (1 - stepDir.x) / 2) / rayDir.x) * rayDir.y;
 		}
-		wallX -= floor((wallX));
+		wallX -= floor(wallX);
 
 		//x coordinate on the texture
-		int texX = int(wallX * double(texWidth));
+		int texX = static_cast<int>(wallX * texWidth);
 		if (side == 0 && rayDir.x > 0) texX = texWidth - texX - 1;
 		if (side == 1 && rayDir.y < 0) texX = texWidth - texX - 1;
 
@@ -175,7 +182,8 @@ void PlayState::update(float ft)
 		{
 			int d = y * 256 - GameConfig::windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			int texY = ((d * texHeight) / lineHeight) / 256;
-			sf::Uint32 color = m_texture[texNum][texHeight * texY + texX];
+			sf::Uint32 color = m_texture[texNum][texHeight * texX + texY];
+			
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if (side == 1) color = (color >> 1) & 8355711;
 			//fill the rest
@@ -201,7 +209,7 @@ void PlayState::update(float ft)
 		m_plane.x = m_plane.x * cos(m_rotSpeed) - m_plane.y * sin(m_rotSpeed);
 		m_plane.y = oldPlaneX * sin(m_rotSpeed) + m_plane.y * cos(m_rotSpeed);
 	}
-	else if (m_movement[1]) 
+	if (m_movement[1]) 
 	{
 		//both camera direction and camera plane must be rotated
 		float oldDirX = m_dir.x;
@@ -211,12 +219,12 @@ void PlayState::update(float ft)
 		m_plane.x = m_plane.x * cos(-m_rotSpeed) - m_plane.y * sin(-m_rotSpeed);
 		m_plane.y = oldPlaneX * sin(-m_rotSpeed) + m_plane.y * cos(-m_rotSpeed);
 	}
-	else if (m_movement[2])
+	if (m_movement[2])
 	{
 		if (m_level[int(m_pos.x + m_dir.x * m_moveSpeed)][int(m_pos.y)] == false) m_pos.x += m_dir.x * m_moveSpeed;
 		if (m_level[int(m_pos.x)][int(m_pos.y + m_dir.y * m_moveSpeed)] == false) m_pos.y += m_dir.y * m_moveSpeed;
 	}
-	else if (m_movement[3])
+	if (m_movement[3])
 	{
 		if (m_level[int(m_pos.x - m_dir.x * m_moveSpeed)][int(m_pos.y)] == false) m_pos.x -= m_dir.x * m_moveSpeed;
 		if (m_level[int(m_pos.x)][int(m_pos.y - m_dir.y * m_moveSpeed)] == false) m_pos.y -= m_dir.y * m_moveSpeed;
@@ -290,15 +298,15 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		{
 			m_movement[0] = false;
 		}
-		else if (event.key.code == sf::Keyboard::Right)
+		if (event.key.code == sf::Keyboard::Right)
 		{
 			m_movement[1] = false;
 		}
-		else if (event.key.code == sf::Keyboard::Up)
+		if (event.key.code == sf::Keyboard::Up)
 		{
 			m_movement[2] = false;
 		}
-		else if (event.key.code == sf::Keyboard::Down)
+		if (event.key.code == sf::Keyboard::Down)
 		{
 			m_movement[3] = false;
 		}
