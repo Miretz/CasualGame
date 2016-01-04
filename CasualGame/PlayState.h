@@ -5,13 +5,6 @@
 #include "RandomGenerator.h"
 #include "VectorUtils.h"
 
-struct LineData {
-	int x;
-	int drawStart;
-	int drawEnd;
-	sf::Color color;
-};
-
 class PlayState : public GameState
 {
 public:
@@ -24,22 +17,20 @@ public:
 
 private:
 
-	static RandomGenerator gen;
-
 	const static int m_level[24][24];
 
-	sf::Vector2f m_pos;
-	sf::Vector2f m_dir;
-	sf::Vector2f m_plane;
+	std::unique_ptr<sf::Vector2f> m_pos;
+	std::unique_ptr<sf::Vector2f> m_dir;
+	std::unique_ptr<sf::Vector2f> m_plane;
 	
 	std::vector<sf::Uint32> m_texture[8];
 	
-	sf::Texture m_screenTex;
-	sf::Sprite m_screenSprite;
-	std::vector<std::vector<sf::Uint32> > m_buffer;
+	std::unique_ptr<sf::Texture> m_screenTex;
+	std::unique_ptr<sf::Sprite> m_screenSprite;
+	
 	sf::Uint8* m_screenPix;
-
-	sf::Vector2f m_mousePos;
+	
+	std::vector<std::vector<sf::Uint32> > m_buffer;
 
 	float m_moveSpeed;
 	float m_rotSpeed;

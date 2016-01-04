@@ -3,8 +3,6 @@
 #define texWidth 64
 #define texHeight 64
 
-RandomGenerator PlayState::gen = RandomGenerator();
-
 const int PlayState::m_level[24][24] =
 {
 	{ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7 },
@@ -33,8 +31,13 @@ const int PlayState::m_level[24][24] =
 	{ 4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3 }
 };
 
-PlayState::PlayState() : m_pos(22.0f, 11.5f), m_dir(-1.0f, 0.0f), m_plane(0.0f, 0.66f)
+PlayState::PlayState() 
 {
+	//position vectors
+	m_pos = std::make_unique<sf::Vector2f>(22.0f, 11.5f);
+	m_dir = std::make_unique<sf::Vector2f>(-1.0f, 0.0f);
+	m_plane = std::make_unique<sf::Vector2f>(0.0f, 0.66f);
+		
 	//texture generator 
 	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
 	for (int x = 0; x < texWidth; x++)
@@ -64,13 +67,18 @@ PlayState::PlayState() : m_pos(22.0f, 11.5f), m_dir(-1.0f, 0.0f), m_plane(0.0f, 
 				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
 
 	//rendering texture
-	m_screenTex.create(GameConfig::windowWidth, GameConfig::windowHeight);
-	m_screenSprite.setTexture(m_screenTex);
+	m_screenTex = std::make_unique<sf::Texture>();
+	m_screenTex->create(GameConfig::windowWidth, GameConfig::windowHeight);
+	
+	m_screenSprite = std::make_unique<sf::Sprite>();
+	m_screenSprite->setTexture(*m_screenTex);
+	
 	m_screenPix = new sf::Uint8[GameConfig::windowWidth * GameConfig::windowHeight * 4];
 
 	//initialize 2d vector
 	m_buffer.resize(GameConfig::windowWidth);
 	for (int i = 0; i < GameConfig::windowWidth; ++i) m_buffer[i].resize(GameConfig::windowHeight);
+
 }
 
 
@@ -80,15 +88,15 @@ PlayState::~PlayState()
 
 void PlayState::update(float ft)
 {
-
+	
 	//2d raycaster update
-	const int casts = 8; // must be multiple of 8
+	const int casts = 4; // must be multiple of 8
 	for (int x = 0; x < GameConfig::windowWidth; x+=casts)
 	{
 		
 		float cameraX = 2 * x / static_cast<float>(GameConfig::windowWidth) - 1;
-		sf::Vector2f rayPos(m_pos.x, m_pos.y);
-		sf::Vector2f rayDir(m_dir.x + m_plane.x * cameraX, m_dir.y + m_plane.y * cameraX);
+		sf::Vector2f rayPos(m_pos->x, m_pos->y);
+		sf::Vector2f rayDir(m_dir->x + m_plane->x * cameraX, m_dir->y + m_plane->y * cameraX);
 		sf::Vector2i map(static_cast<int>(rayPos.x), static_cast<int>(rayPos.y));
 		
 		float rayDirYsq = rayDir.y * rayDir.y;
@@ -202,32 +210,32 @@ void PlayState::update(float ft)
 	if (m_movement[0])
 	{
 		//both camera direction and camera plane must be rotated
-		float oldDirX = m_dir.x;
-		m_dir.x = m_dir.x * cos(m_rotSpeed) - m_dir.y * sin(m_rotSpeed);
-		m_dir.y = oldDirX * sin(m_rotSpeed) + m_dir.y * cos(m_rotSpeed);
-		float oldPlaneX = m_plane.x;
-		m_plane.x = m_plane.x * cos(m_rotSpeed) - m_plane.y * sin(m_rotSpeed);
-		m_plane.y = oldPlaneX * sin(m_rotSpeed) + m_plane.y * cos(m_rotSpeed);
+		float oldDirX = m_dir->x;
+		m_dir->x = m_dir->x * cos(m_rotSpeed) - m_dir->y * sin(m_rotSpeed);
+		m_dir->y = oldDirX * sin(m_rotSpeed) + m_dir->y * cos(m_rotSpeed);
+		float oldPlaneX = m_plane->x;
+		m_plane->x = m_plane->x * cos(m_rotSpeed) - m_plane->y * sin(m_rotSpeed);
+		m_plane->y = oldPlaneX * sin(m_rotSpeed) + m_plane->y * cos(m_rotSpeed);
 	}
 	if (m_movement[1]) 
 	{
 		//both camera direction and camera plane must be rotated
-		float oldDirX = m_dir.x;
-		m_dir.x = m_dir.x * cos(-m_rotSpeed) - m_dir.y * sin(-m_rotSpeed);
-		m_dir.y = oldDirX * sin(-m_rotSpeed) + m_dir.y * cos(-m_rotSpeed);
-		float oldPlaneX = m_plane.x;
-		m_plane.x = m_plane.x * cos(-m_rotSpeed) - m_plane.y * sin(-m_rotSpeed);
-		m_plane.y = oldPlaneX * sin(-m_rotSpeed) + m_plane.y * cos(-m_rotSpeed);
+		float oldDirX = m_dir->x;
+		m_dir->x = m_dir->x * cos(-m_rotSpeed) - m_dir->y * sin(-m_rotSpeed);
+		m_dir->y = oldDirX * sin(-m_rotSpeed) + m_dir->y * cos(-m_rotSpeed);
+		float oldPlaneX = m_plane->x;
+		m_plane->x = m_plane->x * cos(-m_rotSpeed) - m_plane->y * sin(-m_rotSpeed);
+		m_plane->y = oldPlaneX * sin(-m_rotSpeed) + m_plane->y * cos(-m_rotSpeed);
 	}
 	if (m_movement[2])
 	{
-		if (m_level[int(m_pos.x + m_dir.x * m_moveSpeed)][int(m_pos.y)] == false) m_pos.x += m_dir.x * m_moveSpeed;
-		if (m_level[int(m_pos.x)][int(m_pos.y + m_dir.y * m_moveSpeed)] == false) m_pos.y += m_dir.y * m_moveSpeed;
+		if (m_level[int(m_pos->x + m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x += m_dir->x * m_moveSpeed;
+		if (m_level[int(m_pos->x)][int(m_pos->y + m_dir->y * m_moveSpeed)] == false) m_pos->y += m_dir->y * m_moveSpeed;
 	}
 	if (m_movement[3])
 	{
-		if (m_level[int(m_pos.x - m_dir.x * m_moveSpeed)][int(m_pos.y)] == false) m_pos.x -= m_dir.x * m_moveSpeed;
-		if (m_level[int(m_pos.x)][int(m_pos.y - m_dir.y * m_moveSpeed)] == false) m_pos.y -= m_dir.y * m_moveSpeed;
+		if (m_level[int(m_pos->x - m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x -= m_dir->x * m_moveSpeed;
+		if (m_level[int(m_pos->x)][int(m_pos->y - m_dir->y * m_moveSpeed)] == false) m_pos->y -= m_dir->y * m_moveSpeed;
 	}
 
 }
@@ -235,26 +243,26 @@ void PlayState::update(float ft)
 void PlayState::draw(sf::RenderWindow & window)
 {
 	window.clear();
-	
+
+	// convert buffer to specific texture pixels
 	int pixelPos = 0;
 	for (int y = 0; y < GameConfig::windowHeight; y++)
 	{
 		for (int x = 0; x < GameConfig::windowWidth; x++)
 		{
-			sf::Uint32 color = m_buffer[x][y];
-			m_screenPix[pixelPos++] = color & 0x000000ff;
-			m_screenPix[pixelPos++] = (color & 0x0000ff00) >> 8;
-			m_screenPix[pixelPos++] = (color & 0x00ff0000) >> 16;
+			m_screenPix[pixelPos++] = m_buffer[x][y] & 0x000000ff;
+			m_screenPix[pixelPos++] = (m_buffer[x][y] & 0x0000ff00) >> 8;
+			m_screenPix[pixelPos++] = (m_buffer[x][y] & 0x00ff0000) >> 16;
 			m_screenPix[pixelPos++] = 255;//sf::Uint8((value & 0xff000000) >> 24);
 		}
 	}
-	
-	m_screenTex.update(m_screenPix);
-	window.draw(m_screenSprite);
+
+	m_screenTex->update(m_screenPix);
+	window.draw(*m_screenSprite);
 	window.display();
 
 	//clear the buffer
-	for (int x = 0; x < GameConfig::windowWidth; x++) for (int y = 0; y < GameConfig::windowHeight; y++) m_buffer[x][y] = 0; //clear the buffer instead of cls()
+	for (int x = 0; x < GameConfig::windowWidth; x++) for (int y = 0; y < GameConfig::windowHeight; y++) m_buffer[x][y] = 0;
 	for (int x = 0; x < (GameConfig::windowHeight * GameConfig::windowWidth * 4); x++) m_screenPix[x] = 0;
 
 }
@@ -262,16 +270,9 @@ void PlayState::draw(sf::RenderWindow & window)
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)
 {
 
-	m_mousePos = mousepPosition;
-
 	//escape go to main menu
 	if (event.type == sf::Event::KeyPressed) 
 	{
-		if (event.key.code == sf::Keyboard::Escape)
-		{
-			game.changeState(Game::GameStateName::MAINMENU);
-		}
-
 		// handle controls
 		if (event.key.code == sf::Keyboard::Left)
 		{
@@ -289,6 +290,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		{
 			m_movement[3] = true;
 		}
+			
 	}
 
 	if (event.type == sf::Event::KeyReleased)
@@ -310,6 +312,12 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		{
 			m_movement[3] = false;
 		}
+
+		if (event.key.code == sf::Keyboard::Escape)
+		{
+			game.changeState(Game::GameStateName::MAINMENU);
+		}
+
 	}
 	
 }
