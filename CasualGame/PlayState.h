@@ -17,18 +17,20 @@ public:
 
 private:
 
+	void loadTexture(int index, const std::string& fileName);
+
 	const static int m_level[24][24];
 
-	std::unique_ptr<sf::Vector2f> m_pos;
-	std::unique_ptr<sf::Vector2f> m_dir;
-	std::unique_ptr<sf::Vector2f> m_plane;
-	
-	std::vector<sf::Uint32> m_texture[8];
+	double m_posX;
+	double m_posY;
+	double m_dirX;
+	double m_dirY;
+	double m_planeX;
+	double m_planeY;
+
+	std::vector<sf::Uint32> m_texture[10];
 
 	sf::Vertex* m_buffer;
-
-	float m_moveSpeed;
-	float m_rotSpeed;
 
 	bool m_movement[4] = {false, false, false, false};
 
