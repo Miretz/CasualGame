@@ -2,18 +2,19 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <chrono>
 
 #include "GameState.h"
 #include "MainMenuState.h"
 #include "PlayState.h"
 
-struct GameConfig {
-	static constexpr auto windowWidth = 1024;
-	static constexpr auto windowHeight = 768;
-	static constexpr auto gameTitle = "Casual Game by Miretz";
-	static constexpr auto ftStep = 1.f;
-	static constexpr auto ftSlice = 1.f;
-};
+typedef float FrameTime;
+
+static constexpr auto windowWidth = 1024;
+static constexpr auto windowHeight = 768;
+static constexpr auto gameTitle = "Casual Game by Miretz";
+static constexpr auto ftStep = 1.f;
+static constexpr auto ftSlice = 1.f;
 
 class Game
 {

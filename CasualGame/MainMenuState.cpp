@@ -12,7 +12,7 @@ MainMenuState::MainMenuState()
 	m_titleText.setFont(m_font);
 	m_titleText.setString("Casual Game");
 	m_titleText.setCharacterSize(50);
-	m_titleText.setPosition(GameConfig::windowWidth / 2.0f, 200);
+	m_titleText.setPosition(windowWidth / 2.0f, 200);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2.0f, m_titleText.getGlobalBounds().height / 2.0f);
 	m_titleText.setColor(textColor);
 
@@ -22,7 +22,7 @@ MainMenuState::MainMenuState()
 	startGame.setFont(m_font);
 	startGame.setString("Start");
 	startGame.setCharacterSize(30);
-	startGame.setPosition(GameConfig::windowWidth / 2.0f, 300);
+	startGame.setPosition(windowWidth / 2.0f, 300);
 	startGame.setOrigin(startGame.getGlobalBounds().width / 2.0f, startGame.getGlobalBounds().height / 2.0f);
 	startGame.setColor(textColor);
 
@@ -32,7 +32,7 @@ MainMenuState::MainMenuState()
 	quitGame.setFont(m_font);
 	quitGame.setString("Quit");
 	quitGame.setCharacterSize(30);
-	quitGame.setPosition(GameConfig::windowWidth / 2.0f, 350);
+	quitGame.setPosition(windowWidth / 2.0f, 350);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
 	quitGame.setColor(textColor);
 
@@ -49,7 +49,7 @@ MainMenuState::MainMenuState()
 	{
 		sf::CircleShape circle(1.5f);
 		circle.setFillColor(sf::Color::White);
-		circle.setPosition(gen.randomInt(0, GameConfig::windowWidth), gen.randomInt(0, GameConfig::windowWidth));
+		circle.setPosition(gen.randomInt(0, windowWidth), gen.randomInt(0, windowWidth));
 		m_followers.push_back(circle);
 	}
 
@@ -63,7 +63,7 @@ void MainMenuState::update(float ft)
 {
 
 	sf::Transform rotation;
-	rotation.rotate(0.01f, GameConfig::windowWidth / 2.0f, GameConfig::windowHeight / 2.0f);
+	rotation.rotate(0.01f, windowWidth / 2.0f, windowHeight / 2.0f);
 	for (int i = 0; i < m_followers.size(); ++i)
 	{
 		m_followers[i].setPosition(rotation.transformPoint(m_followers[i].getPosition()));
@@ -107,9 +107,9 @@ void MainMenuState::draw(sf::RenderWindow& window)
 	sf::Vertex bgRect[] =
 	{
 		sf::Vertex(sf::Vector2f(0.f,0.f), m_bgColors[0]),
-		sf::Vertex(sf::Vector2f(0.f,GameConfig::windowHeight), m_bgColors[1]),
-		sf::Vertex(sf::Vector2f(GameConfig::windowWidth, GameConfig::windowHeight), m_bgColors[2]),
-		sf::Vertex(sf::Vector2f(GameConfig::windowWidth, 0.0f), m_bgColors[3])
+		sf::Vertex(sf::Vector2f(0.f,windowHeight), m_bgColors[1]),
+		sf::Vertex(sf::Vector2f(windowWidth, windowHeight), m_bgColors[2]),
+		sf::Vertex(sf::Vector2f(windowWidth, 0.0f), m_bgColors[3])
 	};
 	window.draw(bgRect, 4, sf::Quads);
 	

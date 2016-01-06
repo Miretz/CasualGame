@@ -31,7 +31,7 @@ const int PlayState::m_level[24][24] =
 	{ 4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3 }
 };
 
-PlayState::PlayState() 
+PlayState::PlayState()
 {
 	//position vectors
 	m_pos = std::make_unique<sf::Vector2f>(22.0f, 11.5f);
@@ -66,19 +66,9 @@ PlayState::PlayState()
 			for (size_t y = 0; y < x; y++)
 				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
 
-	//rendering texture
-	m_screenTex = std::make_unique<sf::Texture>();
-	m_screenTex->create(GameConfig::windowWidth, GameConfig::windowHeight);
+		
+	m_buffer = new sf::Vertex[windowWidth];
 	
-	m_screenSprite = std::make_unique<sf::Sprite>();
-	m_screenSprite->setTexture(*m_screenTex);
-	
-	m_screenPix = new sf::Uint8[GameConfig::windowWidth * GameConfig::windowHeight * 4];
-
-	//initialize 2d vector
-	m_buffer.resize(GameConfig::windowWidth);
-	for (int i = 0; i < GameConfig::windowWidth; ++i) m_buffer[i].resize(GameConfig::windowHeight);
-
 }
 
 
@@ -88,24 +78,64 @@ PlayState::~PlayState()
 
 void PlayState::update(float ft)
 {
+	// inputs
+	m_moveSpeed = ft/1000 * 5.0f; //the constant value is in squares/second
+	m_rotSpeed = ft/1000 * 3.0f; //the constant value is in radians/second
 	
-	//2d raycaster update
-	const int casts = 4; // must be multiple of 8
-	for (int x = 0; x < GameConfig::windowWidth; x+=casts)
+	// process movement
+	if (m_movement[0])
 	{
-		
-		float cameraX = 2 * x / static_cast<float>(GameConfig::windowWidth) - 1;
+		//both camera direction and camera plane must be rotated
+		float oldDirX = m_dir->x;
+		m_dir->x = m_dir->x * cos(m_rotSpeed) - m_dir->y * sin(m_rotSpeed);
+		m_dir->y = oldDirX * sin(m_rotSpeed) + m_dir->y * cos(m_rotSpeed);
+		float oldPlaneX = m_plane->x;
+		m_plane->x = m_plane->x * cos(m_rotSpeed) - m_plane->y * sin(m_rotSpeed);
+		m_plane->y = oldPlaneX * sin(m_rotSpeed) + m_plane->y * cos(m_rotSpeed);
+	}
+	if (m_movement[1]) 
+	{
+		//both camera direction and camera plane must be rotated
+		float oldDirX = m_dir->x;
+		m_dir->x = m_dir->x * cos(-m_rotSpeed) - m_dir->y * sin(-m_rotSpeed);
+		m_dir->y = oldDirX * sin(-m_rotSpeed) + m_dir->y * cos(-m_rotSpeed);
+		float oldPlaneX = m_plane->x;
+		m_plane->x = m_plane->x * cos(-m_rotSpeed) - m_plane->y * sin(-m_rotSpeed);
+		m_plane->y = oldPlaneX * sin(-m_rotSpeed) + m_plane->y * cos(-m_rotSpeed);
+	}
+	if (m_movement[2])
+	{
+		if (m_level[int(m_pos->x + m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x += m_dir->x * m_moveSpeed;
+		if (m_level[int(m_pos->x)][int(m_pos->y + m_dir->y * m_moveSpeed)] == false) m_pos->y += m_dir->y * m_moveSpeed;
+	}
+	if (m_movement[3])
+	{
+		if (m_level[int(m_pos->x - m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x -= m_dir->x * m_moveSpeed;
+		if (m_level[int(m_pos->x)][int(m_pos->y - m_dir->y * m_moveSpeed)] == false) m_pos->y -= m_dir->y * m_moveSpeed;
+	}
+
+}
+
+void PlayState::draw(sf::RenderWindow& window)
+{
+	window.clear();
+
+	//2d raycaster update
+	for (int x = 0; x < windowWidth; x++)
+	{
+
+		float cameraX = 2 * x / static_cast<float>(windowWidth) - 1;
 		sf::Vector2f rayPos(m_pos->x, m_pos->y);
 		sf::Vector2f rayDir(m_dir->x + m_plane->x * cameraX, m_dir->y + m_plane->y * cameraX);
 		sf::Vector2i map(static_cast<int>(rayPos.x), static_cast<int>(rayPos.y));
-		
+
 		float rayDirYsq = rayDir.y * rayDir.y;
 		float rayDirXsq = rayDir.x * rayDir.x;
 
 		sf::Vector2f deltaDist;
 		deltaDist.x = sqrt(1 + rayDirYsq / rayDirXsq);
 		deltaDist.y = sqrt(1 + rayDirXsq / rayDirYsq);
-		
+
 		sf::Vector2f sideDist;
 		sf::Vector2i stepDir;
 
@@ -158,13 +188,13 @@ void PlayState::update(float ft)
 		else
 			perpWallDist = fabs((map.y - rayPos.y + (1 - stepDir.y) / 2) / rayDir.y);
 
-		int lineHeight = abs(static_cast<int>(GameConfig::windowHeight / perpWallDist));
+		int lineHeight = abs(static_cast<int>(windowHeight / perpWallDist));
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + GameConfig::windowHeight / 2;
+		int drawStart = -lineHeight / 2 + windowHeight / 2;
 		if (drawStart < 0) drawStart = 0;
-		int drawEnd = lineHeight / 2 + GameConfig::windowHeight / 2;
-		if (drawEnd >= GameConfig::windowHeight) drawEnd = GameConfig::windowHeight - 1;
+		int drawEnd = lineHeight / 2 + windowHeight / 2;
+		if (drawEnd >= windowHeight) drawEnd = windowHeight - 1;
 
 		//texturing calculations
 		int texNum = m_level[map.x][map.y] - 1; //1 subtracted from it so that texture 0 can be used!
@@ -186,85 +216,27 @@ void PlayState::update(float ft)
 		if (side == 1 && rayDir.y < 0) texX = texWidth - texX - 1;
 
 		//darker sides
-		for (int y = drawStart; y<drawEnd; y++)
+		int index = 0;
+		for (int y = drawStart; y < drawEnd; y++)
 		{
-			int d = y * 256 - GameConfig::windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+			int d = y * 256 - windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			int texY = ((d * texHeight) / lineHeight) / 256;
 			sf::Uint32 color = m_texture[texNum][texHeight * texX + texY];
-			
+
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if (side == 1) color = (color >> 1) & 8355711;
-			//fill the rest
-			for (int k = 0; k < casts; k++)
-			{
-				m_buffer[x + k][y] = color;
-			}
+
+			m_buffer[index++] = sf::Vertex{ sf::Vector2f(x, y),
+						 sf::Color(color & 0x000000ff, (color & 0x0000ff00) >> 8, (color & 0x00ff0000) >> 16, 255) };
+
 		}
-	}
 
-	// inputs
-	m_moveSpeed = ft/1000 * 5.0f; //the constant value is in squares/second
-	m_rotSpeed = ft/1000 * 3.0f; //the constant value is in radians/second
-	
-	// process movement
-	if (m_movement[0])
-	{
-		//both camera direction and camera plane must be rotated
-		float oldDirX = m_dir->x;
-		m_dir->x = m_dir->x * cos(m_rotSpeed) - m_dir->y * sin(m_rotSpeed);
-		m_dir->y = oldDirX * sin(m_rotSpeed) + m_dir->y * cos(m_rotSpeed);
-		float oldPlaneX = m_plane->x;
-		m_plane->x = m_plane->x * cos(m_rotSpeed) - m_plane->y * sin(m_rotSpeed);
-		m_plane->y = oldPlaneX * sin(m_rotSpeed) + m_plane->y * cos(m_rotSpeed);
-	}
-	if (m_movement[1]) 
-	{
-		//both camera direction and camera plane must be rotated
-		float oldDirX = m_dir->x;
-		m_dir->x = m_dir->x * cos(-m_rotSpeed) - m_dir->y * sin(-m_rotSpeed);
-		m_dir->y = oldDirX * sin(-m_rotSpeed) + m_dir->y * cos(-m_rotSpeed);
-		float oldPlaneX = m_plane->x;
-		m_plane->x = m_plane->x * cos(-m_rotSpeed) - m_plane->y * sin(-m_rotSpeed);
-		m_plane->y = oldPlaneX * sin(-m_rotSpeed) + m_plane->y * cos(-m_rotSpeed);
-	}
-	if (m_movement[2])
-	{
-		if (m_level[int(m_pos->x + m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x += m_dir->x * m_moveSpeed;
-		if (m_level[int(m_pos->x)][int(m_pos->y + m_dir->y * m_moveSpeed)] == false) m_pos->y += m_dir->y * m_moveSpeed;
-	}
-	if (m_movement[3])
-	{
-		if (m_level[int(m_pos->x - m_dir->x * m_moveSpeed)][int(m_pos->y)] == false) m_pos->x -= m_dir->x * m_moveSpeed;
-		if (m_level[int(m_pos->x)][int(m_pos->y - m_dir->y * m_moveSpeed)] == false) m_pos->y -= m_dir->y * m_moveSpeed;
-	}
+		window.draw(&m_buffer[0], windowWidth, sf::Points);
 
-}
-
-void PlayState::draw(sf::RenderWindow & window)
-{
-	window.clear();
-
-	// convert buffer to specific texture pixels
-	int pixelPos = 0;
-	for (int y = 0; y < GameConfig::windowHeight; y++)
-	{
-		for (int x = 0; x < GameConfig::windowWidth; x++)
-		{
-			m_screenPix[pixelPos++] = m_buffer[x][y] & 0x000000ff;
-			m_screenPix[pixelPos++] = (m_buffer[x][y] & 0x0000ff00) >> 8;
-			m_screenPix[pixelPos++] = (m_buffer[x][y] & 0x00ff0000) >> 16;
-			m_screenPix[pixelPos++] = 255;//sf::Uint8((value & 0xff000000) >> 24);
-		}
 	}
-
-	m_screenTex->update(m_screenPix);
-	window.draw(*m_screenSprite);
+		
 	window.display();
-
-	//clear the buffer
-	for (int x = 0; x < GameConfig::windowWidth; x++) for (int y = 0; y < GameConfig::windowHeight; y++) m_buffer[x][y] = 0;
-	for (int x = 0; x < (GameConfig::windowHeight * GameConfig::windowWidth * 4); x++) m_screenPix[x] = 0;
-
+		
 }
 
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)

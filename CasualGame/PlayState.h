@@ -11,7 +11,7 @@ public:
 	PlayState();
 	~PlayState();
 
-	void update(float ft) override;
+	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game) override;
 
@@ -24,13 +24,8 @@ private:
 	std::unique_ptr<sf::Vector2f> m_plane;
 	
 	std::vector<sf::Uint32> m_texture[8];
-	
-	std::unique_ptr<sf::Texture> m_screenTex;
-	std::unique_ptr<sf::Sprite> m_screenSprite;
-	
-	sf::Uint8* m_screenPix;
-	
-	std::vector<std::vector<sf::Uint32> > m_buffer;
+
+	sf::Vertex* m_buffer;
 
 	float m_moveSpeed;
 	float m_rotSpeed;

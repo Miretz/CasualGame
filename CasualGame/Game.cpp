@@ -2,17 +2,17 @@
 
 Game::Game()
 {
-	
-	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(GameConfig::windowWidth, GameConfig::windowHeight), GameConfig::gameTitle);
+	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(windowWidth, windowHeight), gameTitle);
 	m_clock = std::make_unique<sf::Clock>();
 	m_currentState = std::make_unique<MainMenuState>();
 
-	m_window->setFramerateLimit(500);
+	m_window->setFramerateLimit(100);
 	m_window->setVerticalSyncEnabled(true);
 }
 
 void Game::run()
 {
+	//Main Loop
 	while (m_running &&  m_window->isOpen())
 	{
 		checkInput();
@@ -20,9 +20,7 @@ void Game::run()
 		draw();
 		updateTimers();
 	}
-
 	m_window->close();
-
 }
 
 void Game::checkInput()
@@ -46,9 +44,9 @@ void Game::update()
 {
 	m_currentSlice += m_lastFt;
 
-	for (; m_currentSlice >= GameConfig::ftSlice; m_currentSlice -= GameConfig::ftSlice)
+	for (; m_currentSlice >= ftSlice; m_currentSlice -= ftSlice)
 	{
-		m_currentState->update(GameConfig::ftStep);
+		m_currentState->update(ftStep);
 	}
 }
 
@@ -65,12 +63,12 @@ void Game::updateTimers()
 	
 	if (m_fpsShowTimer == 0)
 	{
-		m_fpsShowTimer = 5;
+		m_fpsShowTimer = 10;
 		float ftSeconds = ft / 1000.f;
 		if (ftSeconds > 0.f)
 		{
 			int fps = static_cast<int>(1.f / ftSeconds);
-			m_window->setTitle("FPS: " + std::to_string(fps) + " " + GameConfig::gameTitle);
+			m_window->setTitle("FPS: " + std::to_string(fps) + " " + gameTitle);
 		}
 	}
 	m_fpsShowTimer--;
