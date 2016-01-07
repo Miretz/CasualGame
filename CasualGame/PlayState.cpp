@@ -5,30 +5,58 @@
 
 const int PlayState::m_level[24][24] =
 {
-	{ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7 },
-	{ 4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7 },
-	{ 4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7 },
-	{ 4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7 },
-	{ 4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7 },
-	{ 4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7 },
-	{ 4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1 },
-	{ 4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8 },
-	{ 4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1 },
-	{ 4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8 },
-	{ 4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1 },
-	{ 4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1 },
-	{ 6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6 },
-	{ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4 },
-	{ 6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6 },
-	{ 4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3 },
-	{ 4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2 },
-	{ 4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2 },
-	{ 4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2 },
-	{ 4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2 },
-	{ 4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2 },
-	{ 4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2 },
-	{ 4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2 },
-	{ 4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3 }
+	{ 8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4 },
+	{ 8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4 },
+	{ 8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6 },
+	{ 8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6 },
+	{ 8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4 },
+	{ 8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6 },
+	{ 8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6 },
+	{ 7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6 },
+	{ 7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6 },
+	{ 7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4 },
+	{ 7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6 },
+	{ 7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6 },
+	{ 7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3 },
+	{ 2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3 },
+	{ 2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3 },
+	{ 2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3 },
+	{ 1,0,0,0,0,0,0,0,1,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3 },
+	{ 2,0,0,0,0,0,0,0,2,2,2,1,2,2,2,6,6,0,0,5,0,5,0,5 },
+	{ 2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5 },
+	{ 2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5 },
+	{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5 },
+	{ 2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5 },
+	{ 2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5 },
+	{ 2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,5,5,5,5,5,5,5,5,5 }
+};
+
+const Sprite PlayState::m_sprites[numSprites] =
+{
+	{ 20.5, 11.5, 12 }, //green light in front of playerstart
+						//green lights in every room
+	{ 18.5,4.5, 12 },
+	{ 10.0,4.5, 12 },
+	{ 10.0,12.5,12 },
+	{ 3.5, 6.5, 12 },
+	{ 3.5, 20.5,12 },
+	{ 3.5, 14.5,12 },
+	{ 14.5,20.5,12 },
+
+	//row of pillars in front of wall: fisheye test
+	{ 18.5, 10.5, 11 },
+	{ 18.5, 11.5, 11 },
+	{ 18.5, 12.5, 11 },
+
+	//some barrels around the map
+	{ 21.5, 1.5, 10 },
+	{ 15.5, 1.5, 10 },
+	{ 16.0, 1.8, 10 },
+	{ 16.2, 1.2, 10 },
+	{ 3.5,  2.5, 10 },
+	{ 9.5, 15.5, 10 },
+	{ 10.0, 15.1,10 },
+	{ 10.5, 15.8,10 },
 };
 
 PlayState::PlayState() : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), m_planeX(0.0), m_planeY(0.66)
@@ -68,9 +96,13 @@ PlayState::PlayState() : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), 
 	loadTexture(8, "resources/textures/diagonal.png");
 	loadTexture(9, "resources/textures/stoneblocks.png");
 
+	loadTexture(10, "resources/sprites/barrel.png");
+	loadTexture(11, "resources/sprites/pillar.png");
+	loadTexture(12, "resources/sprites/greenlight.png");
+
 	//swap texture X/Y
 	//only works with square textures
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < numTextures; i++)
 		for (size_t x = 0; x < texWidth; x++)
 			for (size_t y = 0; y < x; y++)
 				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
@@ -276,6 +308,9 @@ void PlayState::draw(sf::RenderWindow& window)
 			}
 		}
 
+		//SET THE ZBUFFER FOR THE SPRITE CASTING
+		m_ZBuffer[x] = perpWallDist; //perpendicular distance is used
+
 		//FLOOR CASTING
 		double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
 
@@ -341,6 +376,93 @@ void PlayState::draw(sf::RenderWindow& window)
 		}
 
 	}
+
+	//SPRITE CASTING
+	//sort sprites from far to close
+	for (int i = 0; i < numSprites; i++)
+	{
+		spriteOrder[i] = i;
+		spriteDistance[i] = ((m_posX - m_sprites[i].x) * (m_posX - m_sprites[i].x) + (m_posY - m_sprites[i].y) * (m_posY - m_sprites[i].y)); //sqrt not taken, unneeded
+	}
+	combSort(spriteOrder, spriteDistance, numSprites);
+
+	//after sorting the sprites, do the projection and draw them
+	for (int i = 0; i < numSprites; i++)
+	{
+		//translate sprite position to relative to camera
+		double spriteX = m_sprites[spriteOrder[i]].x - m_posX;
+		double spriteY = m_sprites[spriteOrder[i]].y - m_posY;
+
+		//transform sprite with the inverse camera matrix
+		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
+		// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
+		// [ planeY   dirY ]                                          [ -planeY  planeX ]
+
+		double invDet = 1.0 / (m_planeX * m_dirY - m_dirX * m_planeY); //required for correct matrix multiplication
+
+		double transformX = invDet * (m_dirY * spriteX - m_dirX * spriteY);
+		double transformY = invDet * (-m_planeY * spriteX + m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
+
+		int spriteScreenX = int((windowWidth / 2) * (1 + transformX / transformY));
+
+		//calculate height of the sprite on screen
+		int spriteHeight = abs(int(windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
+		
+		//calculate lowest and highest pixel to fill in current stripe
+		int drawStartY = -spriteHeight / 2 + windowHeight / 2;
+		if (drawStartY < 0) drawStartY = 0;
+		int drawEndY = spriteHeight / 2 + windowHeight / 2;
+		if (drawEndY >= windowHeight) drawEndY = windowHeight - 1;
+
+		//calculate width of the sprite
+		int spriteWidth = abs(int(windowHeight / (transformY)));
+		int drawStartX = -spriteWidth / 2 + spriteScreenX;
+		if (drawStartX < 0) drawStartX = 0;
+		int drawEndX = spriteWidth / 2 + spriteScreenX;
+		if (drawEndX >= windowWidth) drawEndX = windowWidth - 1;
+
+		//loop through every vertical stripe of the sprite on screen
+		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
+		{
+			int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+			//the conditions in the if are:
+			//1) it's in front of camera plane so you don't see things behind you
+			//2) it's on the screen (left)
+			//3) it's on the screen (right)
+			//4) ZBuffer, with perpendicular distance
+			if (transformY > 0 && stripe > 0 && stripe < windowWidth && transformY < m_ZBuffer[stripe])
+			{
+				for (int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+				{
+					int d = (y)* 256 - windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+					int texY = ((d * texHeight) / spriteHeight) / 256;
+
+					int texPix = texWidth * texX + texY;
+					int texNr = m_sprites[spriteOrder[i]].texture;
+					if (texPix < m_texture[texNr].size()) // prevent exception when accessing tex pixel out of range
+					{
+						sf::Uint32 color = m_texture[texNr][texPix]; //get current color from the texture
+						if ((color & 0x00FFFFFF) != 0) // black is invisible!!!
+						{
+							m_buffer[y] = sf::Vertex{ sf::Vector2f(stripe, y),
+								sf::Color(color & 0x000000ff, (color & 0x0000ff00) >> 8, (color & 0x00ff0000) >> 16, 255) };
+						}
+					}
+				}
+								
+			}
+
+			window.draw(m_buffer, windowHeight, sf::Points);
+
+			//clear
+			for (int i = 0; i < windowHeight; i++)
+			{
+				m_buffer[i].color = sf::Color::Black;
+			}
+		}
+	}
+
+
 	window.display();
 }
 
@@ -397,4 +519,29 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 
 	}
 	
+}
+
+//sort algorithm
+void PlayState::combSort(int* order, double* dist, int amount)
+{
+	int gap = amount;
+	bool swapped = false;
+	while (gap > 1 || swapped)
+	{
+		//shrink factor 1.3
+		gap = (gap * 10) / 13;
+		if (gap == 9 || gap == 10) gap = 11;
+		if (gap < 1) gap = 1;
+		swapped = false;
+		for (int i = 0; i < amount - gap; i++)
+		{
+			int j = i + gap;
+			if (dist[i] < dist[j])
+			{
+				std::swap(dist[i], dist[j]);
+				std::swap(order[i], order[j]);
+				swapped = true;
+			}
+		}
+	}
 }

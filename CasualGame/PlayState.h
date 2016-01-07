@@ -5,6 +5,16 @@
 #include "RandomGenerator.h"
 #include "VectorUtils.h"
 
+struct Sprite
+{
+	double x;
+	double y;
+	int texture;
+};
+
+static constexpr int numSprites = 19;
+static constexpr int numTextures = 13;
+
 class PlayState : public GameState
 {
 public:
@@ -18,8 +28,10 @@ public:
 private:
 
 	void loadTexture(int index, const std::string& fileName);
+	void combSort(int* order, double* dist, int amount);
 
 	const static int m_level[24][24];
+	const static Sprite m_sprites[numSprites];
 
 	double m_posX;
 	double m_posY;
@@ -28,7 +40,13 @@ private:
 	double m_planeX;
 	double m_planeY;
 
-	std::vector<sf::Uint32> m_texture[10];
+	double m_ZBuffer[1024];
+
+	//arrays used to sort the sprites
+	int spriteOrder[numSprites];
+	double spriteDistance[numSprites];
+
+	std::vector<sf::Uint32> m_texture[numTextures];
 
 	sf::Vertex* m_buffer;
 
