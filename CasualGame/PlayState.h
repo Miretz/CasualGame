@@ -14,6 +14,8 @@ struct Sprite
 
 static constexpr int numSprites = 19;
 static constexpr int numTextures = 13;
+static constexpr int mapSize = 24;
+static constexpr int minimapScale = 4;
 
 class PlayState : public GameState
 {
@@ -30,7 +32,7 @@ private:
 	void loadTexture(int index, const std::string& fileName);
 	void combSort(int* order, double* dist, int amount);
 
-	const static int m_level[24][24];
+	const static int m_level[mapSize][mapSize];
 	const static Sprite m_sprites[numSprites];
 
 	double m_posX;

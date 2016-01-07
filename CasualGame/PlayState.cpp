@@ -3,7 +3,7 @@
 #define texWidth 512
 #define texHeight 512
 
-const int PlayState::m_level[24][24] =
+const int PlayState::m_level[mapSize][mapSize] =
 {
 	{ 8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4 },
 	{ 8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4 },
@@ -462,6 +462,34 @@ void PlayState::draw(sf::RenderWindow& window)
 		}
 	}
 
+	//Render minimap
+	sf::RectangleShape minimapBg(sf::Vector2f(mapSize * minimapScale, mapSize * minimapScale));
+	minimapBg.setPosition(0, 0);
+	minimapBg.setFillColor(sf::Color::White);
+	window.draw(minimapBg);
+	for (int x = 0; x < mapSize; x++)
+	{
+		for (int y = 0; y < mapSize; y++) 
+		{
+			//draw walls
+			if (m_level[x][y] > 0 && m_level[x][y] < 9)
+			{
+				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
+				wall.setPosition(x * minimapScale, y * minimapScale);
+				wall.setFillColor(sf::Color::Black);
+				window.draw(wall);
+			} 
+
+			//draw player
+			if (x == static_cast<int>(m_posX) && y == static_cast<int>(m_posY))
+			{
+				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
+				wall.setPosition(x * minimapScale, y * minimapScale);
+				wall.setFillColor(sf::Color::Red);
+				window.draw(wall);
+			}
+		}
+	}
 
 	window.display();
 }
