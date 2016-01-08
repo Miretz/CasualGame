@@ -5,6 +5,14 @@
 #include "RandomGenerator.h"
 #include "VectorUtils.h"
 
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
+
 struct Sprite
 {
 	double x;
@@ -15,7 +23,11 @@ struct Sprite
 static constexpr int numSprites = 19;
 static constexpr int numTextures = 13;
 static constexpr int mapSize = 24;
-static constexpr int minimapScale = 4;
+static constexpr int minimapScale = 8;
+static constexpr int minimapTransparency = 140;
+static constexpr auto levelFile = "resources/levels/level1.txt";
+
+static const double PI = 3.141592653589793238463;
 
 class PlayState : public GameState
 {
@@ -29,10 +41,13 @@ public:
 
 private:
 
+	void loadLevel();
+	void generateTextures();
 	void loadTexture(int index, const std::string& fileName);
 	void combSort(int* order, double* dist, int amount);
 
-	const static int m_level[mapSize][mapSize];
+	int m_level[mapSize][mapSize];
+	
 	const static Sprite m_sprites[numSprites];
 
 	double m_posX;

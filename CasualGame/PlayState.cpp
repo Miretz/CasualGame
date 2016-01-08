@@ -3,34 +3,6 @@
 #define texWidth 512
 #define texHeight 512
 
-const int PlayState::m_level[mapSize][mapSize] =
-{
-	{ 8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4 },
-	{ 8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4 },
-	{ 8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6 },
-	{ 8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6 },
-	{ 8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4 },
-	{ 8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6 },
-	{ 8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6 },
-	{ 7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6 },
-	{ 7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6 },
-	{ 7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4 },
-	{ 7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6 },
-	{ 7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6 },
-	{ 7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3 },
-	{ 2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3 },
-	{ 2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3 },
-	{ 2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3 },
-	{ 1,0,0,0,0,0,0,0,1,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3 },
-	{ 2,0,0,0,0,0,0,0,2,2,2,1,2,2,2,6,6,0,0,5,0,5,0,5 },
-	{ 2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5 },
-	{ 2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5 },
-	{ 2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5 },
-	{ 2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5 },
-	{ 2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,5,5,5,5,5,5,5,5,5 }
-};
-
 const Sprite PlayState::m_sprites[numSprites] =
 {
 	{ 20.5, 11.5, 12 }, //green light in front of playerstart
@@ -62,28 +34,11 @@ const Sprite PlayState::m_sprites[numSprites] =
 PlayState::PlayState() : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), m_planeX(0.0), m_planeY(0.66)
 {
 
+	// load the level
+	loadLevel();
+	
 	//texture generator 
-	/*
-	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
-	for (int x = 0; x < texWidth; x++)
-	{
-		for (int y = 0; y < texHeight; y++)
-		{
-			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
-			//int xcolor = x * 256 / texWidth;
-			int ycolor = y * 256 / texHeight;
-			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
-			m_texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
-			m_texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-			m_texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-			m_texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-			m_texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
-			m_texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-			m_texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
-			m_texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
-		}
-	}
-	*/
+	//generateTextures();
 
 	loadTexture(0, "resources/textures/stonebricks.png");
 	loadTexture(1, "resources/textures/concbase.png");
@@ -117,6 +72,57 @@ PlayState::~PlayState()
 	//Empty
 }
 
+// loads the level from txt file
+void PlayState::loadLevel()
+{
+	std::ifstream file(levelFile);
+	for (int row = 0; row < mapSize; row++)
+	{
+		std::string line;
+		std::getline(file, line);
+		if (!file.good())
+			break;
+
+		std::stringstream iss(line);
+
+		for (int col = 0; col < mapSize; col++)
+		{
+			std::string val;
+			std::getline(iss, val, ',');
+			if (!iss.good())
+				break;
+
+			std::stringstream convertor(val);
+			convertor >> m_level[row][col];
+		}
+	}
+}
+
+// generates some textures for testing
+void PlayState::generateTextures()
+{
+	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
+	for (int x = 0; x < texWidth; x++)
+	{
+		for (int y = 0; y < texHeight; y++)
+		{
+			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
+			//int xcolor = x * 256 / texWidth;
+			int ycolor = y * 256 / texHeight;
+			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
+			m_texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
+			m_texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+			m_texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+			m_texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+			m_texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
+			m_texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+			m_texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
+			m_texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+		}
+	}
+}
+
+// loads texture data from a file
 void PlayState::loadTexture(int index, const std::string& fileName)
 {
 	sf::Image image;
@@ -465,7 +471,7 @@ void PlayState::draw(sf::RenderWindow& window)
 	//Render minimap
 	sf::RectangleShape minimapBg(sf::Vector2f(mapSize * minimapScale, mapSize * minimapScale));
 	minimapBg.setPosition(0, 0);
-	minimapBg.setFillColor(sf::Color::White);
+	minimapBg.setFillColor(sf::Color(150,150,150, minimapTransparency));
 	window.draw(minimapBg);
 	for (int x = 0; x < mapSize; x++)
 	{
@@ -476,20 +482,40 @@ void PlayState::draw(sf::RenderWindow& window)
 			{
 				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
 				wall.setPosition(x * minimapScale, y * minimapScale);
-				wall.setFillColor(sf::Color::Black);
+				wall.setFillColor(sf::Color(0, 0, 0, minimapTransparency));
 				window.draw(wall);
 			} 
-
-			//draw player
-			if (x == static_cast<int>(m_posX) && y == static_cast<int>(m_posY))
-			{
-				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
-				wall.setPosition(x * minimapScale, y * minimapScale);
-				wall.setFillColor(sf::Color::Red);
-				window.draw(wall);
-			}
 		}
 	}
+	// Render entities on minimap
+	for (int i = 0; i < numSprites; i++)
+	{
+		sf::CircleShape object(minimapScale/4.0f);
+		object.setPosition(m_sprites[i].x * minimapScale, m_sprites[i].y * minimapScale);
+		object.setOrigin(minimapScale / 2.0f, minimapScale / 2.0f);
+		object.setFillColor(sf::Color(0, 0, 255, minimapTransparency));
+		window.draw(object);
+	}
+	// Render Player on minimap
+	{
+		sf::CircleShape player(minimapScale, 3);
+		player.setPosition(m_posX * minimapScale, m_posY * minimapScale);
+		player.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
+		player.setOrigin(minimapScale, minimapScale);
+
+		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
+		player2.setPosition(m_posX * minimapScale, m_posY * minimapScale);
+		player2.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
+		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
+
+		float angle = std::atan2f(m_dirY, m_dirX);
+		player.setRotation((angle * 57.2957795f) + 90);
+		player2.setRotation((angle * 57.2957795f) + 90);
+
+		window.draw(player);
+		window.draw(player2);
+	}
+
 
 	window.display();
 }
