@@ -3,10 +3,12 @@
 Game::Game()
 {
 	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(1024, 768), gameTitle, sf::Style::Close);
+	m_currentState = std::make_unique<MainMenuState>(1024, 768);
 	m_clock = std::make_unique<sf::Clock>();
-	m_currentState = std::make_unique<MainMenuState>(m_window->getSize().x, m_window->getSize().y);
+	
+	m_levelReader = std::make_shared<LevelReaderWriter>();
 
-	m_window->setFramerateLimit(100);
+	m_window->setFramerateLimit(500);
 	m_window->setVerticalSyncEnabled(true);
 }
 
@@ -44,9 +46,9 @@ void Game::update()
 {
 	m_currentSlice += m_lastFt;
 
-	for (; m_currentSlice >= ftSlice; m_currentSlice -= ftSlice)
+	for (; m_currentSlice >= 1.0f; m_currentSlice -= 1.0f)
 	{
-		m_currentState->update(ftStep);
+		m_currentState->update(1.0f);
 	}
 }
 
@@ -57,8 +59,7 @@ void Game::draw()
 
 void Game::updateTimers()
 {
-	sf::Int32 elapsedTime = m_clock->restart().asMilliseconds();
-	float ft = static_cast<float>(elapsedTime);
+	float ft = static_cast<float>(m_clock->restart().asMilliseconds());
 	m_lastFt = ft;
 	
 	if (m_fpsShowTimer == 0)
@@ -82,10 +83,10 @@ void Game::changeState(GameStateName newState)
 		m_currentState = std::move(std::unique_ptr<MainMenuState>(new MainMenuState(m_window->getSize().x, m_window->getSize().y)));
 		break;
 	case GameStateName::PLAY:
-		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y)));
+		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_levelReader)));
 		break;
 	case GameStateName::LEVEL_EDITOR:
-		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y)));
+		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y, m_levelReader)));
 		break;
 	case GameStateName::SWITCH_FULLSCREEN:
 		switchFullscreen();

@@ -161,6 +161,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="LevelEditorState.cpp" />
+    <ClCompile Include="LevelReaderWriter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="LevelEditorState.h" />
+    <ClInclude Include="LevelReaderWriter.h" />
     <ClInclude Include="MainMenuState.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="RandomGenerator.h" />

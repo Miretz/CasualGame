@@ -8,15 +8,11 @@
 #include "MainMenuState.h"
 #include "PlayState.h"
 #include "LevelEditorState.h"
+#include "LevelReaderWriter.h"
 
 typedef float FrameTime;
 
 static constexpr auto gameTitle = "Casual Game by Miretz";
-static constexpr auto ftStep = 1.f;
-static constexpr auto ftSlice = 1.f;
-
-static constexpr auto levelFile = "resources/levels/level1.txt";
-static constexpr auto levelSpriteFile = "resources/levels/level1_sprites.txt";
 
 class Game
 {
@@ -49,6 +45,8 @@ private:
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;
 	std::unique_ptr<GameState> m_currentState;
+	
+	std::shared_ptr<LevelReaderWriter> m_levelReader;
 
 	void checkInput();
 	void update();

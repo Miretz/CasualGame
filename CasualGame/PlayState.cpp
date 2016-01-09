@@ -3,18 +3,17 @@
 #define texWidth 512
 #define texHeight 512
 
-PlayState::PlayState(const int w, const int h) : m_posX(22.0), m_posY(11.5),
+PlayState::PlayState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader) : m_posX(22.0), m_posY(11.5),
 m_dirX(-1.0), m_dirY(0.0),
 m_planeX(0.0), m_planeY(0.66),
-m_windowWidth(w), m_windowHeight(h)
+m_windowWidth(w), m_windowHeight(h),
+m_levelReader(move(levelReader))
 {
-		
-	// load the level
-	loadLevel();
-	loadLevelSprites();
 	
 	//texture generator 
 	//generateTextures();
+
+	//load textures
 	auto numTextures = 13;
 	m_texture.resize(numTextures);
 
@@ -45,8 +44,8 @@ m_windowWidth(w), m_windowHeight(h)
 	m_buffer.resize(h);
 	m_ZBuffer.resize(w);
 
-	m_spriteOrder.resize(m_sprites.size());
-	m_spriteDistance.resize(m_sprites.size());
+	m_spriteOrder.resize(m_levelReader->getSprites().size());
+	m_spriteDistance.resize(m_levelReader->getSprites().size());
 
 }
 
@@ -54,72 +53,6 @@ m_windowWidth(w), m_windowHeight(h)
 PlayState::~PlayState()
 {
 	//Empty
-}
-
-// loads the level from txt file
-void PlayState::loadLevel()
-{
-	std::ifstream file(levelFile);
-
-	std::string line;
-	while (std::getline(file, line))
-	{
-		if (!file.good())
-			break;
-
-		std::stringstream iss(line);
-		std::string val;
-
-		std::vector<int> rowVec;
-
-		while (std::getline(iss, val, ','))
-		{
-			if (!iss.good())
-				break;
-
-			int converted = 0;
-			std::stringstream convertor(val);
-			convertor >> converted;
-			rowVec.push_back(converted);
-		}
-
-		m_level.push_back(rowVec);
-	}
-}
-
-// loads the sprite entities for this level
-void PlayState::loadLevelSprites()
-{
-	int row = 0;
-	std::ifstream file(levelSpriteFile);
-	std::string line;
-	while (std::getline(file, line))
-	{
-		if (!file.good())
-			break;
-
-		std::stringstream iss(line);
-
-		Sprite spr;
-		for (int col = 0; col < 3; col++)
-		{
-			std::string val;
-			std::getline(iss, val, ',');
-			if (!iss.good())
-				break;
-
-			std::stringstream convertor(val);
-			
-			switch (col) 
-			{
-				case 0: convertor >> spr.x; break;
-				case 1: convertor >> spr.y; break;
-				case 2: convertor >> spr.texture; break;
-				default: break;
-			}
-		}
-		m_sprites.push_back(spr);
-	}
 }
 
 // generates some textures for testing
@@ -168,7 +101,7 @@ void PlayState::update(const float ft)
 {
 	if (m_forward || m_backward || m_left || m_right)
 	{
-		// inputs
+		// convert ms to seconds
 		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
@@ -195,13 +128,13 @@ void PlayState::update(const float ft)
 		}
 		if (m_forward)
 		{
-			if (m_level[int(m_posX + m_dirX * moveSpeed)][int(m_posY)] == false) m_posX += m_dirX * moveSpeed;
-			if (m_level[int(m_posX)][int(m_posY + m_dirY * moveSpeed)] == false) m_posY += m_dirY * moveSpeed;
+			if (m_levelReader->getLevel()[int(m_posX + m_dirX * moveSpeed)][int(m_posY)] == false) m_posX += m_dirX * moveSpeed;
+			if (m_levelReader->getLevel()[int(m_posX)][int(m_posY + m_dirY * moveSpeed)] == false) m_posY += m_dirY * moveSpeed;
 		}
 		if (m_backward)
 		{
-			if (m_level[int(m_posX - m_dirX * moveSpeed)][int(m_posY)] == false) m_posX -= m_dirX * moveSpeed;
-			if (m_level[int(m_posX)][int(m_posY - m_dirY * moveSpeed)] == false) m_posY -= m_dirY * moveSpeed;
+			if (m_levelReader->getLevel()[int(m_posX - m_dirX * moveSpeed)][int(m_posY)] == false) m_posX -= m_dirX * moveSpeed;
+			if (m_levelReader->getLevel()[int(m_posX)][int(m_posY - m_dirY * moveSpeed)] == false) m_posY -= m_dirY * moveSpeed;
 		}
 	}
 	
@@ -211,7 +144,7 @@ void PlayState::update(const float ft)
 void PlayState::draw(sf::RenderWindow& window)
 {
 	window.clear();
-	
+		
 	//2d raycaster
 	for (int x = 0; x < m_windowWidth; x++)
 	{
@@ -282,7 +215,7 @@ void PlayState::draw(sf::RenderWindow& window)
 				side = 1;
 			}
 			//Check if ray has hit a wall
-			if (m_level[mapX][mapY] > 0) hit = 1;
+			if (m_levelReader->getLevel()[mapX][mapY] > 0) hit = 1;
 		}
 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
@@ -302,7 +235,7 @@ void PlayState::draw(sf::RenderWindow& window)
 		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
 
 		//texturing calculations
-		int texNum = m_level[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		int texNum = m_levelReader->getLevel()[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
 		double wallX; //where exactly the wall was hit
 		if (side == 1)
@@ -411,19 +344,20 @@ void PlayState::draw(sf::RenderWindow& window)
 
 	//SPRITE CASTING
 	//sort sprites from far to close
-	for (size_t i = 0; i < m_sprites.size(); i++)
+	const size_t spriteSize = m_levelReader->getSprites().size();
+	for (size_t i = 0; i < spriteSize; i++)
 	{
 		m_spriteOrder[i] = i;
-		m_spriteDistance[i] = ((m_posX - m_sprites[i].x) * (m_posX - m_sprites[i].x) + (m_posY - m_sprites[i].y) * (m_posY - m_sprites[i].y)); //sqrt not taken, unneeded
+		m_spriteDistance[i] = ((m_posX - m_levelReader->getSprites()[i].x) * (m_posX - m_levelReader->getSprites()[i].x) + (m_posY - m_levelReader->getSprites()[i].y) * (m_posY - m_levelReader->getSprites()[i].y)); //sqrt not taken, unneeded
 	}
-	combSort(m_spriteOrder, m_spriteDistance, m_sprites.size());
+	combSort(m_spriteOrder, m_spriteDistance, m_levelReader->getSprites().size());
 
 	//after sorting the sprites, do the projection and draw them
-	for (size_t i = 0; i < m_sprites.size(); i++)
+	for (size_t i = 0; i < m_levelReader->getSprites().size(); i++)
 	{
 		//translate sprite position to relative to camera
-		double spriteX = m_sprites[m_spriteOrder[i]].x - m_posX;
-		double spriteY = m_sprites[m_spriteOrder[i]].y - m_posY;
+		double spriteX = m_levelReader->getSprites()[m_spriteOrder[i]].x - m_posX;
+		double spriteY = m_levelReader->getSprites()[m_spriteOrder[i]].y - m_posY;
 
 		//transform sprite with the inverse camera matrix
 		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
@@ -470,7 +404,7 @@ void PlayState::draw(sf::RenderWindow& window)
 					int texY = ((d * texHeight) / spriteHeight) / 256;
 
 					int texPix = texWidth * texX + texY;
-					int texNr = m_sprites[m_spriteOrder[i]].texture;
+					int texNr = m_levelReader->getSprites()[m_spriteOrder[i]].texture;
 					if (texPix < m_texture[texNr].size()) // prevent exception when accessing tex pixel out of range
 					{
 						sf::Uint32 color = m_texture[texNr][texPix]; //get current color from the texture
@@ -495,16 +429,17 @@ void PlayState::draw(sf::RenderWindow& window)
 	}
 
 	//Render minimap
-	sf::RectangleShape minimapBg(sf::Vector2f(m_level.size() * minimapScale, m_level.size() * minimapScale));
+	const size_t levelSize = m_levelReader->getLevel().size();
+	sf::RectangleShape minimapBg(sf::Vector2f(levelSize * minimapScale, levelSize * minimapScale));
 	minimapBg.setPosition(0, 0);
 	minimapBg.setFillColor(sf::Color(150,150,150, minimapTransparency));
 	window.draw(minimapBg);
-	for (int x = 0; x < m_level.size(); x++)
+	for (int x = 0; x < levelSize; x++)
 	{
-		for (int y = 0; y < m_level.size(); y++)
+		for (int y = 0; y < levelSize; y++)
 		{
 			//draw walls
-			if (m_level[x][y] > 0 && m_level[x][y] < 9)
+			if (m_levelReader->getLevel()[x][y] > 0 && m_levelReader->getLevel()[x][y] < 9)
 			{
 				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
 				wall.setPosition(x * minimapScale, y * minimapScale);
@@ -514,10 +449,10 @@ void PlayState::draw(sf::RenderWindow& window)
 		}
 	}
 	// Render entities on minimap
-	for (size_t i = 0; i < m_sprites.size(); i++)
+	for (size_t i = 0; i < spriteSize; i++)
 	{
 		sf::CircleShape object(minimapScale/4.0f);
-		object.setPosition(m_sprites[i].x * minimapScale, m_sprites[i].y * minimapScale);
+		object.setPosition(m_levelReader->getSprites()[i].x * minimapScale, m_levelReader->getSprites()[i].y * minimapScale);
 		object.setOrigin(minimapScale / 2.0f, minimapScale / 2.0f);
 		object.setFillColor(sf::Color(0, 0, 255, minimapTransparency));
 		window.draw(object);
