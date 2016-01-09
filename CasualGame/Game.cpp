@@ -84,6 +84,9 @@ void Game::changeState(GameStateName newState)
 	case GameStateName::PLAY:
 		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y)));
 		break;
+	case GameStateName::LEVEL_EDITOR:
+		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y)));
+		break;
 	case GameStateName::SWITCH_FULLSCREEN:
 		switchFullscreen();
 		break;

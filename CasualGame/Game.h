@@ -7,12 +7,16 @@
 #include "GameState.h"
 #include "MainMenuState.h"
 #include "PlayState.h"
+#include "LevelEditorState.h"
 
 typedef float FrameTime;
 
 static constexpr auto gameTitle = "Casual Game by Miretz";
 static constexpr auto ftStep = 1.f;
 static constexpr auto ftSlice = 1.f;
+
+static constexpr auto levelFile = "resources/levels/level1.txt";
+static constexpr auto levelSpriteFile = "resources/levels/level1_sprites.txt";
 
 class Game
 {
@@ -23,6 +27,7 @@ public:
 	enum class GameStateName {
 		MAINMENU,
 		PLAY,
+		LEVEL_EDITOR,
 		SWITCH_FULLSCREEN,
 		QUIT
 	};

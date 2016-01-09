@@ -3,7 +3,9 @@
 #define texWidth 512
 #define texHeight 512
 
-PlayState::PlayState(const int w, const int h) : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), m_planeX(0.0), m_planeY(0.66),
+PlayState::PlayState(const int w, const int h) : m_posX(22.0), m_posY(11.5),
+m_dirX(-1.0), m_dirY(0.0),
+m_planeX(0.0), m_planeY(0.66),
 m_windowWidth(w), m_windowHeight(h)
 {
 		
@@ -13,6 +15,8 @@ m_windowWidth(w), m_windowHeight(h)
 	
 	//texture generator 
 	//generateTextures();
+	auto numTextures = 13;
+	m_texture.resize(numTextures);
 
 	// load all textures
 	loadTexture(0, "resources/textures/stonebricks.png");
@@ -23,8 +27,8 @@ m_windowWidth(w), m_windowHeight(h)
 	loadTexture(5, "resources/textures/redbricks.png");
 	loadTexture(6, "resources/textures/metalwall.png");
 	loadTexture(7, "resources/textures/redbricks2.png");
-	loadTexture(8, "resources/textures/diagonal.png");
-	loadTexture(9, "resources/textures/stoneblocks.png");
+	loadTexture(8, "resources/textures/diagonal.png"); //floor
+	loadTexture(9, "resources/textures/stoneblocks.png"); //ceiling
 
 	loadTexture(10, "resources/sprites/barrel.png");
 	loadTexture(11, "resources/sprites/pillar.png");
@@ -40,6 +44,10 @@ m_windowWidth(w), m_windowHeight(h)
 
 	m_buffer.resize(h);
 	m_ZBuffer.resize(w);
+
+	m_spriteOrder.resize(m_sprites.size());
+	m_spriteDistance.resize(m_sprites.size());
+
 }
 
 
@@ -52,36 +60,41 @@ PlayState::~PlayState()
 void PlayState::loadLevel()
 {
 	std::ifstream file(levelFile);
-	for (int row = 0; row < mapSize; row++)
+
+	std::string line;
+	while (std::getline(file, line))
 	{
-		std::string line;
-		std::getline(file, line);
 		if (!file.good())
 			break;
 
 		std::stringstream iss(line);
+		std::string val;
 
-		for (int col = 0; col < mapSize; col++)
+		std::vector<int> rowVec;
+
+		while (std::getline(iss, val, ','))
 		{
-			std::string val;
-			std::getline(iss, val, ',');
 			if (!iss.good())
 				break;
 
+			int converted = 0;
 			std::stringstream convertor(val);
-			convertor >> m_level[row][col];
+			convertor >> converted;
+			rowVec.push_back(converted);
 		}
+
+		m_level.push_back(rowVec);
 	}
 }
 
 // loads the sprite entities for this level
 void PlayState::loadLevelSprites()
 {
+	int row = 0;
 	std::ifstream file(levelSpriteFile);
-	for (int row = 0; row < numSprites; row++)
+	std::string line;
+	while (std::getline(file, line))
 	{
-		std::string line;
-		std::getline(file, line);
 		if (!file.good())
 			break;
 
@@ -105,7 +118,7 @@ void PlayState::loadLevelSprites()
 				default: break;
 			}
 		}
-		m_sprites[row] = spr;
+		m_sprites.push_back(spr);
 	}
 }
 
@@ -151,43 +164,47 @@ void PlayState::loadTexture(int index, const std::string& fileName)
 }
 
 
-void PlayState::update(float ft)
+void PlayState::update(const float ft)
 {
-	// inputs
-	double moveSpeed = static_cast<double>(ft/1000) * 5.0; //the constant value is in squares/second
-	double rotSpeed = static_cast<double>(ft/1000) * 3.0; //the constant value is in radians/second
+	if (m_forward || m_backward || m_left || m_right)
+	{
+		// inputs
+		double fts = static_cast<double>(ft / 1000);
+		double moveSpeed = fts * 5.0; //the constant value is in squares/second
+		double rotSpeed = fts * 3.0; //the constant value is in radians/second
+											 // process movement
+		if (m_left)
+		{
+			//both camera direction and camera plane must be rotated
+			double oldDirX = m_dirX;
+			m_dirX = m_dirX * cos(rotSpeed) - m_dirY * sin(rotSpeed);
+			m_dirY = oldDirX * sin(rotSpeed) + m_dirY * cos(rotSpeed);
+			double oldPlaneX = m_planeX;
+			m_planeX = m_planeX * cos(rotSpeed) - m_planeY * sin(rotSpeed);
+			m_planeY = oldPlaneX * sin(rotSpeed) + m_planeY * cos(rotSpeed);
+		}
+		if (m_right)
+		{
+			//both camera direction and camera plane must be rotated
+			double oldDirX = m_dirX;
+			m_dirX = m_dirX * cos(-rotSpeed) - m_dirY * sin(-rotSpeed);
+			m_dirY = oldDirX * sin(-rotSpeed) + m_dirY * cos(-rotSpeed);
+			double oldPlaneX = m_planeX;
+			m_planeX = m_planeX * cos(-rotSpeed) - m_planeY * sin(-rotSpeed);
+			m_planeY = oldPlaneX * sin(-rotSpeed) + m_planeY * cos(-rotSpeed);
+		}
+		if (m_forward)
+		{
+			if (m_level[int(m_posX + m_dirX * moveSpeed)][int(m_posY)] == false) m_posX += m_dirX * moveSpeed;
+			if (m_level[int(m_posX)][int(m_posY + m_dirY * moveSpeed)] == false) m_posY += m_dirY * moveSpeed;
+		}
+		if (m_backward)
+		{
+			if (m_level[int(m_posX - m_dirX * moveSpeed)][int(m_posY)] == false) m_posX -= m_dirX * moveSpeed;
+			if (m_level[int(m_posX)][int(m_posY - m_dirY * moveSpeed)] == false) m_posY -= m_dirY * moveSpeed;
+		}
+	}
 	
-	// process movement
-	if (m_movement[0])
-	{
-		//both camera direction and camera plane must be rotated
-		double oldDirX = m_dirX;
-		m_dirX = m_dirX * cos(rotSpeed) - m_dirY * sin(rotSpeed);
-		m_dirY = oldDirX * sin(rotSpeed) + m_dirY * cos(rotSpeed);
-		double oldPlaneX = m_planeX;
-		m_planeX = m_planeX * cos(rotSpeed) - m_planeY * sin(rotSpeed);
-		m_planeY = oldPlaneX * sin(rotSpeed) + m_planeY * cos(rotSpeed);
-	}
-	if (m_movement[1]) 
-	{
-		//both camera direction and camera plane must be rotated
-		double oldDirX = m_dirX;
-		m_dirX = m_dirX * cos(-rotSpeed) - m_dirY * sin(-rotSpeed);
-		m_dirY = oldDirX * sin(-rotSpeed) + m_dirY * cos(-rotSpeed);
-		double oldPlaneX = m_planeX;
-		m_planeX = m_planeX * cos(-rotSpeed) - m_planeY * sin(-rotSpeed);
-		m_planeY = oldPlaneX * sin(-rotSpeed) + m_planeY * cos(-rotSpeed);
-	}
-	if (m_movement[2])
-	{
-		if (m_level[int(m_posX + m_dirX * moveSpeed)][int(m_posY)] == false) m_posX += m_dirX * moveSpeed;
-		if (m_level[int(m_posX)][int(m_posY + m_dirY * moveSpeed)] == false) m_posY += m_dirY * moveSpeed;
-	}
-	if (m_movement[3])
-	{
-		if (m_level[int(m_posX - m_dirX * moveSpeed)][int(m_posY)] == false) m_posX -= m_dirX * moveSpeed;
-		if (m_level[int(m_posX)][int(m_posY - m_dirY * moveSpeed)] == false) m_posY -= m_dirY * moveSpeed;
-	}
 
 }
 
@@ -199,7 +216,7 @@ void PlayState::draw(sf::RenderWindow& window)
 	for (int x = 0; x < m_windowWidth; x++)
 	{
 		//calculate ray position and direction
-		double cameraX = 2 * x / static_cast<double>(m_windowWidth) - 1; //x-coordinate in camera space
+		double cameraX = 2 * x / double(m_windowWidth) - 1; //x-coordinate in camera space
 		double rayPosX = m_posX;
 		double rayPosY = m_posY;
 		double rayDirX = m_dirX + m_planeX * cameraX;
@@ -296,7 +313,7 @@ void PlayState::draw(sf::RenderWindow& window)
 		{
 			wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2) / rayDirX) * rayDirY;
 		}
-		wallX -= floor((wallX));
+		wallX -= floor(wallX);
 
 		//x coordinate on the texture
 		int texX = static_cast<int>(wallX * texWidth);
@@ -319,7 +336,7 @@ void PlayState::draw(sf::RenderWindow& window)
 				//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 				if (side == 1) color = (color >> 1) & 8355711;
 
-				m_buffer[y] = sf::Vertex{ sf::Vector2f(x, y),
+				m_buffer[y] = sf::Vertex{ sf::Vector2f((float)x, (float)y),
 							  sf::Color(color & 0x000000ff, (color & 0x0000ff00) >> 8, (color & 0x00ff0000) >> 16, 255) };
 
 			}
@@ -353,17 +370,15 @@ void PlayState::draw(sf::RenderWindow& window)
 			floorYWall = mapY + 1.0;
 		}
 
-		double distWall, distPlayer, currentDist;
-
-		distWall = perpWallDist;
-		distPlayer = 0.0;
+		double distWall = perpWallDist;
+		double distPlayer = 0.0;
 
 		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
 		//draw the floor from drawEnd to the bottom of the screen
 		for (int y = drawEnd + 1; y < m_windowHeight; y++)
 		{
-			currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+			double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
 
 			double weight = (currentDist - distPlayer) / (distWall - distPlayer);
 
@@ -374,13 +389,13 @@ void PlayState::draw(sf::RenderWindow& window)
 			floorTexX = int(currentFloorX * texWidth) % texWidth;
 			floorTexY = int(currentFloorY * texHeight) % texHeight;
 
-			//floor
-			sf::Uint32 color1 = (m_texture[8][texWidth * floorTexY + floorTexX] >> 1) & 8355711;
-			sf::Uint32 color2 = (m_texture[9][texWidth * floorTexY + floorTexX] >> 1) & 8355711;
+			//floor textures
+			sf::Uint32 color1 = m_texture[8][texWidth * floorTexY + floorTexX];
+			sf::Uint32 color2 = m_texture[9][texWidth * floorTexY + floorTexX];
 
-			m_buffer[y] = sf::Vertex{ sf::Vector2f(x, y),
+			m_buffer[y] = sf::Vertex{ sf::Vector2f((float)x, (float)y),
 				sf::Color(color1 & 0x000000ff, (color1 & 0x0000ff00) >> 8, (color1 & 0x00ff0000) >> 16, 255) };
-			m_buffer[m_windowHeight - y] = sf::Vertex{ sf::Vector2f(x, m_windowHeight - y),
+			m_buffer[m_windowHeight - y] = sf::Vertex{ sf::Vector2f((float)x, (float)(m_windowHeight - y)),
 				sf::Color(color2 & 0x000000ff, (color2 & 0x0000ff00) >> 8, (color2 & 0x00ff0000) >> 16, 255) };
 		}
 
@@ -396,19 +411,19 @@ void PlayState::draw(sf::RenderWindow& window)
 
 	//SPRITE CASTING
 	//sort sprites from far to close
-	for (int i = 0; i < numSprites; i++)
+	for (size_t i = 0; i < m_sprites.size(); i++)
 	{
-		spriteOrder[i] = i;
-		spriteDistance[i] = ((m_posX - m_sprites[i].x) * (m_posX - m_sprites[i].x) + (m_posY - m_sprites[i].y) * (m_posY - m_sprites[i].y)); //sqrt not taken, unneeded
+		m_spriteOrder[i] = i;
+		m_spriteDistance[i] = ((m_posX - m_sprites[i].x) * (m_posX - m_sprites[i].x) + (m_posY - m_sprites[i].y) * (m_posY - m_sprites[i].y)); //sqrt not taken, unneeded
 	}
-	combSort(spriteOrder, spriteDistance, numSprites);
+	combSort(m_spriteOrder, m_spriteDistance, m_sprites.size());
 
 	//after sorting the sprites, do the projection and draw them
-	for (int i = 0; i < numSprites; i++)
+	for (size_t i = 0; i < m_sprites.size(); i++)
 	{
 		//translate sprite position to relative to camera
-		double spriteX = m_sprites[spriteOrder[i]].x - m_posX;
-		double spriteY = m_sprites[spriteOrder[i]].y - m_posY;
+		double spriteX = m_sprites[m_spriteOrder[i]].x - m_posX;
+		double spriteY = m_sprites[m_spriteOrder[i]].y - m_posY;
 
 		//transform sprite with the inverse camera matrix
 		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
@@ -455,13 +470,13 @@ void PlayState::draw(sf::RenderWindow& window)
 					int texY = ((d * texHeight) / spriteHeight) / 256;
 
 					int texPix = texWidth * texX + texY;
-					int texNr = m_sprites[spriteOrder[i]].texture;
+					int texNr = m_sprites[m_spriteOrder[i]].texture;
 					if (texPix < m_texture[texNr].size()) // prevent exception when accessing tex pixel out of range
 					{
 						sf::Uint32 color = m_texture[texNr][texPix]; //get current color from the texture
 						if ((color & 0x00FFFFFF) != 0) // black is invisible!!!
 						{
-							m_buffer[y] = sf::Vertex{ sf::Vector2f(stripe, y),
+							m_buffer[y] = sf::Vertex{ sf::Vector2f((float)stripe, (float)y),
 								sf::Color(color & 0x000000ff, (color & 0x0000ff00) >> 8, (color & 0x00ff0000) >> 16, 255) };
 						}
 					}
@@ -480,13 +495,13 @@ void PlayState::draw(sf::RenderWindow& window)
 	}
 
 	//Render minimap
-	sf::RectangleShape minimapBg(sf::Vector2f(mapSize * minimapScale, mapSize * minimapScale));
+	sf::RectangleShape minimapBg(sf::Vector2f(m_level.size() * minimapScale, m_level.size() * minimapScale));
 	minimapBg.setPosition(0, 0);
 	minimapBg.setFillColor(sf::Color(150,150,150, minimapTransparency));
 	window.draw(minimapBg);
-	for (int x = 0; x < mapSize; x++)
+	for (int x = 0; x < m_level.size(); x++)
 	{
-		for (int y = 0; y < mapSize; y++) 
+		for (int y = 0; y < m_level.size(); y++)
 		{
 			//draw walls
 			if (m_level[x][y] > 0 && m_level[x][y] < 9)
@@ -499,7 +514,7 @@ void PlayState::draw(sf::RenderWindow& window)
 		}
 	}
 	// Render entities on minimap
-	for (int i = 0; i < numSprites; i++)
+	for (size_t i = 0; i < m_sprites.size(); i++)
 	{
 		sf::CircleShape object(minimapScale/4.0f);
 		object.setPosition(m_sprites[i].x * minimapScale, m_sprites[i].y * minimapScale);
@@ -539,19 +554,19 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		// handle controls
 		if (event.key.code == sf::Keyboard::Left)
 		{
-			m_movement[0] = true;
+			m_left = true;
 		}
 		else if (event.key.code == sf::Keyboard::Right)
 		{
-			m_movement[1] = true;
+			m_right = true;
 		}
 		else if (event.key.code == sf::Keyboard::Up)
 		{
-			m_movement[2] = true;
+			m_forward = true;
 		}
 		else if (event.key.code == sf::Keyboard::Down)
 		{
-			m_movement[3] = true;
+			m_backward = true;
 		}
 			
 	}
@@ -561,19 +576,19 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		// handle controls
 		if (event.key.code == sf::Keyboard::Left)
 		{
-			m_movement[0] = false;
+			m_left = false;
 		}
 		if (event.key.code == sf::Keyboard::Right)
 		{
-			m_movement[1] = false;
+			m_right = false;
 		}
 		if (event.key.code == sf::Keyboard::Up)
 		{
-			m_movement[2] = false;
+			m_forward = false;
 		}
 		if (event.key.code == sf::Keyboard::Down)
 		{
-			m_movement[3] = false;
+			m_backward = false;
 		}
 
 		if (event.key.code == sf::Keyboard::Escape)
@@ -586,7 +601,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 }
 
 //sort algorithm
-void PlayState::combSort(int* order, double* dist, int amount)
+void PlayState::combSort(std::vector<int>& order, std::vector<double>& dist, int amount)
 {
 	int gap = amount;
 	bool swapped = false;

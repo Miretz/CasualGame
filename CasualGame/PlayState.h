@@ -2,8 +2,7 @@
 
 #include "GameState.h"
 #include "Game.h"
-#include "RandomGenerator.h"
-#include "VectorUtils.h"
+#include "Sprite.h"
 
 #include <algorithm>
 #include <fstream>
@@ -13,21 +12,8 @@
 #include <string>
 #include <vector>
 
-struct Sprite
-{
-	double x;
-	double y;
-	int texture;
-};
-
-static constexpr int numSprites = 19;
-static constexpr int numTextures = 13;
-static constexpr int mapSize = 24;
-static constexpr int minimapScale = 8;
-static constexpr int minimapTransparency = 140;
-static constexpr auto levelFile = "resources/levels/level1.txt";
-static constexpr auto levelSpriteFile = "resources/levels/level1_sprites.txt";
-
+static constexpr auto minimapScale = 8.0;
+static constexpr auto minimapTransparency = 140;
 static const double PI = 3.141592653589793238463;
 
 class PlayState : public GameState
@@ -42,15 +28,8 @@ public:
 
 private:
 
-	void loadLevel();
-	void loadLevelSprites();
-
-	void generateTextures();
-	void loadTexture(int index, const std::string& fileName);
-	void combSort(int* order, double* dist, int amount);
-
-	int m_level[mapSize][mapSize];
-	Sprite m_sprites[numSprites];
+	std::vector<std::vector<int> >m_level;
+	std::vector<Sprite> m_sprites;
 
 	double m_posX;
 	double m_posY;
@@ -65,14 +44,23 @@ private:
 	std::vector<double> m_ZBuffer;
 
 	//arrays used to sort the sprites
-	int spriteOrder[numSprites];
-	double spriteDistance[numSprites];
+	std::vector<int> m_spriteOrder;
+	std::vector<double> m_spriteDistance;
 
-	std::vector<sf::Uint32> m_texture[numTextures];
+	std::vector<std::vector<sf::Uint32> > m_texture;
 
 	std::vector<sf::Vertex> m_buffer;
 
-	bool m_movement[4] = {false, false, false, false};
+	bool m_forward = false;
+	bool m_backward = false;
+	bool m_left = false;
+	bool m_right = false;
 
+	void loadLevel();
+	void loadLevelSprites();
+	void generateTextures();
+	void loadTexture(int index, const std::string& fileName);
+	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
+	
 };
 
