@@ -1,45 +1,11 @@
 #include "PlayState.h"
 
-#define texWidth 512
-#define texHeight 512
-
 PlayState::PlayState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader) : m_posX(22.0), m_posY(11.5),
 m_dirX(-1.0), m_dirY(0.0),
 m_planeX(0.0), m_planeY(0.66),
 m_windowWidth(w), m_windowHeight(h),
 m_levelReader(move(levelReader))
 {
-	
-	//texture generator 
-	//generateTextures();
-
-	//load textures
-	auto numTextures = 13;
-	m_texture.resize(numTextures);
-
-	// load all textures
-	loadTexture(0, "resources/textures/stonebricks.png");
-	loadTexture(1, "resources/textures/concbase.png");
-	loadTexture(2, "resources/textures/metalblocks.png");
-	loadTexture(3, "resources/textures/concbricks.png");
-	loadTexture(4, "resources/textures/concblocks.png");
-	loadTexture(5, "resources/textures/redbricks.png");
-	loadTexture(6, "resources/textures/metalwall.png");
-	loadTexture(7, "resources/textures/redbricks2.png");
-	loadTexture(8, "resources/textures/diagonal.png"); //floor
-	loadTexture(9, "resources/textures/stoneblocks.png"); //ceiling
-
-	loadTexture(10, "resources/sprites/barrel.png");
-	loadTexture(11, "resources/sprites/pillar.png");
-	loadTexture(12, "resources/sprites/greenlight.png");
-
-	//swap texture X/Y
-	//only works with square textures
-	for (size_t i = 0; i < numTextures; i++)
-		for (size_t x = 0; x < texWidth; x++)
-			for (size_t y = 0; y < x; y++)
-				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
-
 
 	m_buffer.resize(h);
 	m_ZBuffer.resize(w);
@@ -55,46 +21,6 @@ PlayState::~PlayState()
 	//Empty
 }
 
-// generates some textures for testing
-void PlayState::generateTextures()
-{
-	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
-	for (int x = 0; x < texWidth; x++)
-	{
-		for (int y = 0; y < texHeight; y++)
-		{
-			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
-			//int xcolor = x * 256 / texWidth;
-			int ycolor = y * 256 / texHeight;
-			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
-			m_texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
-			m_texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-			m_texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-			m_texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-			m_texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
-			m_texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-			m_texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
-			m_texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
-		}
-	}
-}
-
-// loads texture data from a file
-void PlayState::loadTexture(int index, const std::string& fileName)
-{
-	sf::Image image;
-	image.loadFromFile(fileName);
-	const sf::Uint8* imagePtr = image.getPixelsPtr();
-
-	std::vector<sf::Uint32> texData;
-	for (int i = 0; i < (texHeight * texWidth * 4); i += 4)
-	{
-		texData.push_back(
-			imagePtr[i + 3] << 24 | imagePtr[i + 2] << 16 | imagePtr[i + 1] << 8 | imagePtr[i]);
-	}
-
-	m_texture[index] = texData;
-}
 
 
 void PlayState::update(const float ft)
@@ -262,9 +188,9 @@ void PlayState::draw(sf::RenderWindow& window)
 
 			int texNumY = texHeight * texX + texY;
 
-			if (texNumY < m_texture[texNum].size())
+			if (texNumY < m_levelReader->getTexture(texNum).size())
 			{
-				sf::Uint32 color = m_texture[texNum][texNumY];
+				sf::Uint32 color = m_levelReader->getTexture(texNum)[texNumY];
 
 				//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 				if (side == 1) color = (color >> 1) & 8355711;
@@ -323,8 +249,8 @@ void PlayState::draw(sf::RenderWindow& window)
 			floorTexY = int(currentFloorY * texHeight) % texHeight;
 
 			//floor textures
-			sf::Uint32 color1 = m_texture[8][texWidth * floorTexY + floorTexX];
-			sf::Uint32 color2 = m_texture[9][texWidth * floorTexY + floorTexX];
+			sf::Uint32 color1 = m_levelReader->getTexture(8)[texWidth * floorTexY + floorTexX];
+			sf::Uint32 color2 = m_levelReader->getTexture(9)[texWidth * floorTexY + floorTexX];
 
 			m_buffer[y] = sf::Vertex{ sf::Vector2f((float)x, (float)y),
 				sf::Color(color1 & 0x000000ff, (color1 & 0x0000ff00) >> 8, (color1 & 0x00ff0000) >> 16, 255) };
@@ -405,9 +331,10 @@ void PlayState::draw(sf::RenderWindow& window)
 
 					int texPix = texWidth * texX + texY;
 					int texNr = m_levelReader->getSprites()[m_spriteOrder[i]].texture;
-					if (texPix < m_texture[texNr].size()) // prevent exception when accessing tex pixel out of range
+					
+					if (texPix < m_levelReader->getTexture(texNr).size()) // prevent exception when accessing tex pixel out of range
 					{
-						sf::Uint32 color = m_texture[texNr][texPix]; //get current color from the texture
+						sf::Uint32 color = m_levelReader->getTexture(texNr)[texPix]; //get current color from the texture
 						if ((color & 0x00FFFFFF) != 0) // black is invisible!!!
 						{
 							m_buffer[y] = sf::Vertex{ sf::Vector2f((float)stripe, (float)y),

@@ -33,11 +33,14 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 		for (size_t y = 0; y < levelSize; y++)
 		{
 			//draw walls
-			if (m_levelReader->getLevel()[x][y] > 0 && m_levelReader->getLevel()[x][y] < 9)
+			int id = m_levelReader->getLevel()[x][y];
+			if (id > 0 && id < 9)
 			{
-				sf::RectangleShape wall(sf::Vector2f(m_scale_x, m_scale_y));
+				sf::RectangleShape wall(sf::Vector2f(m_scale_x - 2.0f, m_scale_y - 2.0f));
 				wall.setPosition(x * m_scale_x, y * m_scale_y);
-				wall.setFillColor(sf::Color(0, 0, 0, 255));
+				wall.setTexture(m_levelReader->getTextureSfml(id - 1));
+				wall.setOutlineThickness(2);
+				wall.setOutlineColor(sf::Color(0, 0, 0));
 				window.draw(wall);
 			}
 		}
@@ -46,10 +49,12 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 	const size_t spritesSize = m_levelReader->getSprites().size();
 	for (int i = 0; i < spritesSize; i++)
 	{
-		sf::CircleShape object(m_scale_x / 4.0f);
+		sf::RectangleShape object(sf::Vector2f(m_scale_x - 2.0f, m_scale_y - 2.0f));
 		object.setPosition(m_levelReader->getSprites()[i].x * m_scale_x, m_levelReader->getSprites()[i].y * m_scale_y);
 		object.setOrigin(m_scale_x / 2.0f, m_scale_y / 2.0f);
-		object.setFillColor(sf::Color(0, 0, 255, 255));
+		object.setOutlineThickness(2);
+		object.setOutlineColor(sf::Color(255, 255, 255, 128));
+		object.setTexture(m_levelReader->getTextureSfml(m_levelReader->getSprites()[i].texture));
 		window.draw(object);
 	}
 

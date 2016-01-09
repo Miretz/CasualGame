@@ -47,8 +47,6 @@ private:
 	std::vector<int> m_spriteOrder;
 	std::vector<double> m_spriteDistance;
 
-	std::vector<std::vector<sf::Uint32> > m_texture;
-
 	std::vector<sf::Vertex> m_buffer;
 
 	bool m_forward = false;
@@ -56,8 +54,6 @@ private:
 	bool m_left = false;
 	bool m_right = false;
 
-	void generateTextures();
-	void loadTexture(int index, const std::string& fileName);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
 	
 };
