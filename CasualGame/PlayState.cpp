@@ -3,43 +3,18 @@
 #define texWidth 512
 #define texHeight 512
 
-const Sprite PlayState::m_sprites[numSprites] =
+PlayState::PlayState(const int w, const int h) : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), m_planeX(0.0), m_planeY(0.66),
+m_windowWidth(w), m_windowHeight(h)
 {
-	{ 20.5, 11.5, 12 }, //green light in front of playerstart
-						//green lights in every room
-	{ 18.5,4.5, 12 },
-	{ 10.0,4.5, 12 },
-	{ 10.0,12.5,12 },
-	{ 3.5, 6.5, 12 },
-	{ 3.5, 20.5,12 },
-	{ 3.5, 14.5,12 },
-	{ 14.5,20.5,12 },
-
-	//row of pillars in front of wall: fisheye test
-	{ 18.5, 10.5, 11 },
-	{ 18.5, 11.5, 11 },
-	{ 18.5, 12.5, 11 },
-
-	//some barrels around the map
-	{ 21.5, 1.5, 10 },
-	{ 15.5, 1.5, 10 },
-	{ 16.0, 1.8, 10 },
-	{ 16.2, 1.2, 10 },
-	{ 3.5,  2.5, 10 },
-	{ 9.5, 15.5, 10 },
-	{ 10.0, 15.1,10 },
-	{ 10.5, 15.8,10 },
-};
-
-PlayState::PlayState() : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), m_planeX(0.0), m_planeY(0.66)
-{
-
+		
 	// load the level
 	loadLevel();
+	loadLevelSprites();
 	
 	//texture generator 
 	//generateTextures();
 
+	// load all textures
 	loadTexture(0, "resources/textures/stonebricks.png");
 	loadTexture(1, "resources/textures/concbase.png");
 	loadTexture(2, "resources/textures/metalblocks.png");
@@ -63,7 +38,8 @@ PlayState::PlayState() : m_posX(22.0), m_posY(11.5), m_dirX(-1.0), m_dirY(0.0), 
 				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
 
 
-	m_buffer = new sf::Vertex[windowHeight];
+	m_buffer.resize(h);
+	m_ZBuffer.resize(w);
 }
 
 
@@ -95,6 +71,41 @@ void PlayState::loadLevel()
 			std::stringstream convertor(val);
 			convertor >> m_level[row][col];
 		}
+	}
+}
+
+// loads the sprite entities for this level
+void PlayState::loadLevelSprites()
+{
+	std::ifstream file(levelSpriteFile);
+	for (int row = 0; row < numSprites; row++)
+	{
+		std::string line;
+		std::getline(file, line);
+		if (!file.good())
+			break;
+
+		std::stringstream iss(line);
+
+		Sprite spr;
+		for (int col = 0; col < 3; col++)
+		{
+			std::string val;
+			std::getline(iss, val, ',');
+			if (!iss.good())
+				break;
+
+			std::stringstream convertor(val);
+			
+			switch (col) 
+			{
+				case 0: convertor >> spr.x; break;
+				case 1: convertor >> spr.y; break;
+				case 2: convertor >> spr.texture; break;
+				default: break;
+			}
+		}
+		m_sprites[row] = spr;
 	}
 }
 
@@ -183,12 +194,12 @@ void PlayState::update(float ft)
 void PlayState::draw(sf::RenderWindow& window)
 {
 	window.clear();
-
+	
 	//2d raycaster
-	for (int x = 0; x < windowWidth; x++)
+	for (int x = 0; x < m_windowWidth; x++)
 	{
 		//calculate ray position and direction
-		double cameraX = 2 * x / static_cast<double>(windowWidth) - 1; //x-coordinate in camera space
+		double cameraX = 2 * x / static_cast<double>(m_windowWidth) - 1; //x-coordinate in camera space
 		double rayPosX = m_posX;
 		double rayPosY = m_posY;
 		double rayDirX = m_dirX + m_planeX * cameraX;
@@ -265,13 +276,13 @@ void PlayState::draw(sf::RenderWindow& window)
 			perpWallDist = fabs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
 
 		//Calculate height of line to draw on screen
-		int lineHeight = static_cast<int>(std::abs(windowHeight / perpWallDist));
+		int lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + windowHeight / 2;
+		int drawStart = -lineHeight / 2 + m_windowHeight / 2;
 		if (drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + windowHeight / 2;
-		if (drawEnd >= windowHeight)drawEnd = windowHeight - 1;
+		int drawEnd = lineHeight / 2 + m_windowHeight / 2;
+		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
 
 		//texturing calculations
 		int texNum = m_level[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
@@ -296,7 +307,7 @@ void PlayState::draw(sf::RenderWindow& window)
 		for (int y = drawStart; y < drawEnd; y++)
 		{
 			
-			int d = y * 256 - windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			int texY = ((d * texHeight) / lineHeight) / 256;
 
 			int texNumY = texHeight * texX + texY;
@@ -347,12 +358,12 @@ void PlayState::draw(sf::RenderWindow& window)
 		distWall = perpWallDist;
 		distPlayer = 0.0;
 
-		if (drawEnd < 0) drawEnd = windowHeight; //becomes < 0 when the integer overflows
+		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
 		//draw the floor from drawEnd to the bottom of the screen
-		for (int y = drawEnd + 1; y < windowHeight; y++)
+		for (int y = drawEnd + 1; y < m_windowHeight; y++)
 		{
-			currentDist = windowHeight / (2.0 * y - windowHeight); //you could make a small lookup table for this instead
+			currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
 
 			double weight = (currentDist - distPlayer) / (distWall - distPlayer);
 
@@ -369,14 +380,14 @@ void PlayState::draw(sf::RenderWindow& window)
 
 			m_buffer[y] = sf::Vertex{ sf::Vector2f(x, y),
 				sf::Color(color1 & 0x000000ff, (color1 & 0x0000ff00) >> 8, (color1 & 0x00ff0000) >> 16, 255) };
-			m_buffer[windowHeight - y] = sf::Vertex{ sf::Vector2f(x, windowHeight - y),
+			m_buffer[m_windowHeight - y] = sf::Vertex{ sf::Vector2f(x, m_windowHeight - y),
 				sf::Color(color2 & 0x000000ff, (color2 & 0x0000ff00) >> 8, (color2 & 0x00ff0000) >> 16, 255) };
 		}
 
-		window.draw(m_buffer, windowHeight, sf::Points);
+		window.draw(&m_buffer[0], m_windowHeight, sf::Points);
 
 		//clear
-		for (int i = 0; i < windowHeight; i++)
+		for (int i = 0; i < m_windowHeight; i++)
 		{
 			m_buffer[i].color = sf::Color::Black;
 		}
@@ -409,23 +420,23 @@ void PlayState::draw(sf::RenderWindow& window)
 		double transformX = invDet * (m_dirY * spriteX - m_dirX * spriteY);
 		double transformY = invDet * (-m_planeY * spriteX + m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
 
-		int spriteScreenX = int((windowWidth / 2) * (1 + transformX / transformY));
+		int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen
-		int spriteHeight = abs(int(windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
+		int spriteHeight = abs(int(m_windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
 		
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStartY = -spriteHeight / 2 + windowHeight / 2;
+		int drawStartY = -spriteHeight / 2 + m_windowHeight / 2;
 		if (drawStartY < 0) drawStartY = 0;
-		int drawEndY = spriteHeight / 2 + windowHeight / 2;
-		if (drawEndY >= windowHeight) drawEndY = windowHeight - 1;
+		int drawEndY = spriteHeight / 2 + m_windowHeight / 2;
+		if (drawEndY >= m_windowHeight) drawEndY = m_windowHeight - 1;
 
 		//calculate width of the sprite
-		int spriteWidth = abs(int(windowHeight / (transformY)));
+		int spriteWidth = abs(int(m_windowHeight / (transformY)));
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		if (drawStartX < 0) drawStartX = 0;
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
-		if (drawEndX >= windowWidth) drawEndX = windowWidth - 1;
+		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
@@ -436,11 +447,11 @@ void PlayState::draw(sf::RenderWindow& window)
 			//2) it's on the screen (left)
 			//3) it's on the screen (right)
 			//4) ZBuffer, with perpendicular distance
-			if (transformY > 0 && stripe > 0 && stripe < windowWidth && transformY < m_ZBuffer[stripe])
+			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe])
 			{
 				for (int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
 				{
-					int d = (y)* 256 - windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+					int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					int texY = ((d * texHeight) / spriteHeight) / 256;
 
 					int texPix = texWidth * texX + texY;
@@ -458,10 +469,10 @@ void PlayState::draw(sf::RenderWindow& window)
 								
 			}
 
-			window.draw(m_buffer, windowHeight, sf::Points);
+			window.draw(&m_buffer[0], m_windowHeight, sf::Points);
 
 			//clear
-			for (int i = 0; i < windowHeight; i++)
+			for (int i = 0; i < m_windowHeight; i++)
 			{
 				m_buffer[i].color = sf::Color::Black;
 			}
@@ -515,8 +526,7 @@ void PlayState::draw(sf::RenderWindow& window)
 		window.draw(player);
 		window.draw(player2);
 	}
-
-
+	
 	window.display();
 }
 

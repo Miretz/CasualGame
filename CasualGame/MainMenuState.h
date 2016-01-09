@@ -8,7 +8,7 @@
 class MainMenuState : public GameState
 {
 public:
-	MainMenuState();
+	MainMenuState(const int w, const int h);
 	~MainMenuState();
 
 	void update(const float ft) override;
@@ -19,6 +19,9 @@ private:
 
 	static RandomGenerator gen;
 
+	const int m_windowWidth;
+	const int m_windowHeight;
+
 	sf::Font m_font;
 	std::vector<sf::Text> m_menuItems;
 	sf::Text m_titleText;
@@ -27,7 +30,7 @@ private:
 
 	const float m_padding = 20.0f;
 	int m_mouseOverIndex = 0;
-
+	
 	std::vector<sf::Color> m_bgColors;
 	std::vector<sf::CircleShape> m_followers;
 

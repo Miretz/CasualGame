@@ -2,17 +2,17 @@
 
 RandomGenerator MainMenuState::gen = RandomGenerator();
 
-MainMenuState::MainMenuState()
+MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_windowHeight(h)
 {
 	m_font.loadFromFile("resources/font/OtherF.ttf");
-
+	
 	// Game Title
 	sf::Color textColor = sf::Color::White;
 
 	m_titleText.setFont(m_font);
 	m_titleText.setString("Casual Game");
 	m_titleText.setCharacterSize(50);
-	m_titleText.setPosition(windowWidth / 2.0f, 200);
+	m_titleText.setPosition(m_windowWidth / 2.0f, 200);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2.0f, m_titleText.getGlobalBounds().height / 2.0f);
 	m_titleText.setColor(textColor);
 
@@ -22,17 +22,27 @@ MainMenuState::MainMenuState()
 	startGame.setFont(m_font);
 	startGame.setString("Start");
 	startGame.setCharacterSize(30);
-	startGame.setPosition(windowWidth / 2.0f, 300);
+	startGame.setPosition(m_windowWidth / 2.0f, 300);
 	startGame.setOrigin(startGame.getGlobalBounds().width / 2.0f, startGame.getGlobalBounds().height / 2.0f);
 	startGame.setColor(textColor);
 
 	m_menuItems.push_back(startGame);
 
+	sf::Text switchFullscreen;
+	switchFullscreen.setFont(m_font);
+	switchFullscreen.setString("Switch Fullscreen");
+	switchFullscreen.setCharacterSize(30);
+	switchFullscreen.setPosition(m_windowWidth / 2.0f, 350);
+	switchFullscreen.setOrigin(switchFullscreen.getGlobalBounds().width / 2.0f, switchFullscreen.getGlobalBounds().height / 2.0f);
+	switchFullscreen.setColor(textColor);
+
+	m_menuItems.push_back(switchFullscreen);
+	
 	sf::Text quitGame;
 	quitGame.setFont(m_font);
 	quitGame.setString("Quit");
 	quitGame.setCharacterSize(30);
-	quitGame.setPosition(windowWidth / 2.0f, 350);
+	quitGame.setPosition(m_windowWidth / 2.0f, 400);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
 	quitGame.setColor(textColor);
 
@@ -49,7 +59,7 @@ MainMenuState::MainMenuState()
 	{
 		sf::CircleShape circle(1.5f);
 		circle.setFillColor(sf::Color::White);
-		circle.setPosition(gen.randomInt(0, windowWidth), gen.randomInt(0, windowWidth));
+		circle.setPosition(gen.randomInt(0, m_windowWidth), gen.randomInt(0, m_windowWidth));
 		m_followers.push_back(circle);
 	}
 
@@ -63,7 +73,7 @@ void MainMenuState::update(float ft)
 {
 
 	sf::Transform rotation;
-	rotation.rotate(0.01f, windowWidth / 2.0f, windowHeight / 2.0f);
+	rotation.rotate(0.01f, m_windowWidth / 2.0f, m_windowHeight / 2.0f);
 	for (int i = 0; i < m_followers.size(); ++i)
 	{
 		m_followers[i].setPosition(rotation.transformPoint(m_followers[i].getPosition()));
@@ -107,9 +117,9 @@ void MainMenuState::draw(sf::RenderWindow& window)
 	sf::Vertex bgRect[] =
 	{
 		sf::Vertex(sf::Vector2f(0.f,0.f), m_bgColors[0]),
-		sf::Vertex(sf::Vector2f(0.f,windowHeight), m_bgColors[1]),
-		sf::Vertex(sf::Vector2f(windowWidth, windowHeight), m_bgColors[2]),
-		sf::Vertex(sf::Vector2f(windowWidth, 0.0f), m_bgColors[3])
+		sf::Vertex(sf::Vector2f(0.f,m_windowHeight), m_bgColors[1]),
+		sf::Vertex(sf::Vector2f(m_windowWidth, m_windowHeight), m_bgColors[2]),
+		sf::Vertex(sf::Vector2f(m_windowWidth, 0.0f), m_bgColors[3])
 	};
 	window.draw(bgRect, 4, sf::Quads);
 	
@@ -159,6 +169,9 @@ void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mo
 			game.changeState(Game::GameStateName::PLAY);
 		}
 		if (m_mouseOverIndex == 1) {
+			game.changeState(Game::GameStateName::SWITCH_FULLSCREEN);
+		}
+		if (m_mouseOverIndex == 2) {
 			game.changeState(Game::GameStateName::QUIT);
 		}
 	}

@@ -10,8 +10,6 @@
 
 typedef float FrameTime;
 
-static constexpr auto windowWidth = 1024;
-static constexpr auto windowHeight = 768;
 static constexpr auto gameTitle = "Casual Game by Miretz";
 static constexpr auto ftStep = 1.f;
 static constexpr auto ftSlice = 1.f;
@@ -25,12 +23,14 @@ public:
 	enum class GameStateName {
 		MAINMENU,
 		PLAY,
+		SWITCH_FULLSCREEN,
 		QUIT
 	};
 
 	void run();
 	void changeState(GameStateName newState);
 	const bool isRunning() const { return m_running; };
+	void switchFullscreen();
 
 private:
 	
@@ -38,6 +38,8 @@ private:
 	float m_currentSlice = 0.f;
 	bool m_running = true;
 	int m_fpsShowTimer = 0;
+
+	bool m_fullscreen = false;
 
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;
