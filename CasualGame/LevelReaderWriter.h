@@ -24,9 +24,12 @@ public:
 	
 	const std::vector<std::vector<int> >& const getLevel() { return m_level;  }
 	const std::vector<Sprite>& const getSprites() { return m_sprites; };
+	
 	const std::vector<std::vector<sf::Uint32> >& const getTextures() { return m_texture; };
 	const std::vector<sf::Uint32>& const getTexture(const int index) { return m_texture[index]; };
 	
+	void changeLevelTile(const int x, const int y, const int value);
+
 	const sf::Texture* const getTextureSfml(const int i) { return &m_sfmlTextures[i]; };
 
 private:

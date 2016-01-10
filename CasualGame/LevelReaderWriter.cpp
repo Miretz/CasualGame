@@ -38,6 +38,11 @@ LevelReaderWriter::~LevelReaderWriter()
 {
 }
 
+void LevelReaderWriter::changeLevelTile(const int x, const int y, const int value)
+{
+	m_level[x][y] = value;
+}
+
 void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level)
 {
 	std::ifstream file(path);

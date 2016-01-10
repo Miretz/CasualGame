@@ -361,12 +361,12 @@ void PlayState::draw(sf::RenderWindow& window)
 	minimapBg.setPosition(0, 0);
 	minimapBg.setFillColor(sf::Color(150,150,150, minimapTransparency));
 	window.draw(minimapBg);
-	for (int x = 0; x < levelSize; x++)
+	for (int y = 0; y < levelSize; y++)
 	{
-		for (int y = 0; y < levelSize; y++)
+		for (int x = 0; x < levelSize; x++)
 		{
 			//draw walls
-			if (m_levelReader->getLevel()[x][y] > 0 && m_levelReader->getLevel()[x][y] < 9)
+			if (m_levelReader->getLevel()[y][x] > 0 && m_levelReader->getLevel()[y][x] < 9)
 			{
 				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
 				wall.setPosition(x * minimapScale, y * minimapScale);
@@ -379,7 +379,7 @@ void PlayState::draw(sf::RenderWindow& window)
 	for (size_t i = 0; i < spriteSize; i++)
 	{
 		sf::CircleShape object(minimapScale/4.0f);
-		object.setPosition(m_levelReader->getSprites()[i].x * minimapScale, m_levelReader->getSprites()[i].y * minimapScale);
+		object.setPosition(m_levelReader->getSprites()[i].y * minimapScale, m_levelReader->getSprites()[i].x * minimapScale);
 		object.setOrigin(minimapScale / 2.0f, minimapScale / 2.0f);
 		object.setFillColor(sf::Color(0, 0, 255, minimapTransparency));
 		window.draw(object);
@@ -387,16 +387,16 @@ void PlayState::draw(sf::RenderWindow& window)
 	// Render Player on minimap
 	{
 		sf::CircleShape player(minimapScale, 3);
-		player.setPosition(m_posX * minimapScale, m_posY * minimapScale);
+		player.setPosition(m_posY * minimapScale, m_posX * minimapScale);
 		player.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
 		player.setOrigin(minimapScale, minimapScale);
 
 		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
-		player2.setPosition(m_posX * minimapScale, m_posY * minimapScale);
+		player2.setPosition(m_posY * minimapScale, m_posX * minimapScale);
 		player2.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
 		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
 
-		float angle = std::atan2f(m_dirY, m_dirX);
+		float angle = std::atan2f(m_dirX, m_dirY);
 		player.setRotation((angle * 57.2957795f) + 90);
 		player2.setRotation((angle * 57.2957795f) + 90);
 

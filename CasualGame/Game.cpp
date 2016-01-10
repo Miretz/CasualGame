@@ -10,7 +10,7 @@ Game::Game()
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 
 	m_window->setFramerateLimit(500);
-	m_window->setVerticalSyncEnabled(true);
+	//m_window->setVerticalSyncEnabled(true);
 }
 
 void Game::run()
