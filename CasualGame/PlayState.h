@@ -29,8 +29,6 @@ public:
 
 private:
 
-	std::shared_ptr<LevelReaderWriter> m_levelReader;
-
 	double m_posX;
 	double m_posY;
 	double m_dirX;
@@ -41,6 +39,13 @@ private:
 	const int m_windowWidth;
 	const int m_windowHeight;
 
+	std::shared_ptr<LevelReaderWriter> m_levelReader;
+	const std::vector<std::vector<int> >& m_levelRef;
+	const std::vector<Sprite>& m_spriteRef;
+
+	const size_t m_levelSize;
+	const size_t m_spriteSize;
+	
 	std::vector<double> m_ZBuffer;
 
 	//arrays used to sort the sprites
@@ -54,7 +59,10 @@ private:
 	bool m_left = false;
 	bool m_right = false;
 
+	const int calculateWalls();
+	const int calculateSprites();
+	void drawMinimap(sf::RenderWindow* window);
+	const sf::Color toColor(sf::Uint32 colorRgba);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
-	
-};
 
+};
