@@ -10,8 +10,8 @@
 #include <SFML/Graphics.hpp>
 #include "Sprite.h"
 
-static constexpr auto texWidth = 512;
-static constexpr auto texHeight = 512;
+static constexpr auto texWidth = 128;
+static constexpr auto texHeight = 128;
 
 static constexpr auto levelFile = "resources/levels/level1.txt";
 static constexpr auto levelSpriteFile = "resources/levels/level1_sprites.txt";

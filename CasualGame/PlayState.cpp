@@ -15,6 +15,7 @@ m_spriteSize(m_levelReader->getSprites().size())
 
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
+
 }
 
 PlayState::~PlayState()
