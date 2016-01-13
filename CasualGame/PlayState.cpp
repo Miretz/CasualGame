@@ -1,9 +1,8 @@
 #include "PlayState.h"
 
-PlayState::PlayState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader) : m_posX(22.0), m_posY(11.5),
-m_dirX(-1.0), m_dirY(0.0),
-m_planeX(0.0), m_planeY(0.66),
+PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) : 
 m_windowWidth(w), m_windowHeight(h),
+m_player(move(player)),
 m_levelReader(move(levelReader)),
 m_levelRef(m_levelReader->getLevel()),
 m_spriteRef(m_levelReader->getSprites()),
@@ -31,46 +30,48 @@ void PlayState::update(const float ft)
 		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
-									 // process movement
+							 // process movement
+		
 		if (m_left)
 		{
 			//both camera direction and camera plane must be rotated
-			double oldDirX = m_dirX;
-			m_dirX = m_dirX * cos(rotSpeed) - m_dirY * sin(rotSpeed);
-			m_dirY = oldDirX * sin(rotSpeed) + m_dirY * cos(rotSpeed);
-			double oldPlaneX = m_planeX;
-			m_planeX = m_planeX * cos(rotSpeed) - m_planeY * sin(rotSpeed);
-			m_planeY = oldPlaneX * sin(rotSpeed) + m_planeY * cos(rotSpeed);
+			double oldDirX = m_player->m_dirX;
+			m_player->m_dirX = m_player->m_dirX * cos(rotSpeed) - m_player->m_dirY * sin(rotSpeed);
+			m_player->m_dirY = oldDirX * sin(rotSpeed) + m_player->m_dirY * cos(rotSpeed);
+			double oldPlaneX = m_player->m_planeX;
+			m_player->m_planeX = m_player->m_planeX * cos(rotSpeed) - m_player->m_planeY * sin(rotSpeed);
+			m_player->m_planeY = oldPlaneX * sin(rotSpeed) + m_player->m_planeY * cos(rotSpeed);
 		}
 		if (m_right)
 		{
 			//both camera direction and camera plane must be rotated
-			double oldDirX = m_dirX;
-			m_dirX = m_dirX * cos(-rotSpeed) - m_dirY * sin(-rotSpeed);
-			m_dirY = oldDirX * sin(-rotSpeed) + m_dirY * cos(-rotSpeed);
-			double oldPlaneX = m_planeX;
-			m_planeX = m_planeX * cos(-rotSpeed) - m_planeY * sin(-rotSpeed);
-			m_planeY = oldPlaneX * sin(-rotSpeed) + m_planeY * cos(-rotSpeed);
+			double oldDirX = m_player->m_dirX;
+			m_player->m_dirX = m_player->m_dirX * cos(-rotSpeed) - m_player->m_dirY * sin(-rotSpeed);
+			m_player->m_dirY = oldDirX * sin(-rotSpeed) + m_player->m_dirY * cos(-rotSpeed);
+			double oldPlaneX = m_player->m_planeX;
+			m_player->m_planeX = m_player->m_planeX * cos(-rotSpeed) - m_player->m_planeY * sin(-rotSpeed);
+			m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * cos(-rotSpeed);
 		}
 		if (m_forward)
 		{
-			if (m_levelRef[int(m_posX + m_dirX * moveSpeed)][int(m_posY)] == false) m_posX += m_dirX * moveSpeed;
-			if (m_levelRef[int(m_posX)][int(m_posY + m_dirY * moveSpeed)] == false) m_posY += m_dirY * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX += m_player->m_dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == false) m_player->m_posY += m_player->m_dirY * moveSpeed;
 		}
 		if (m_backward)
 		{
-			if (m_levelRef[int(m_posX - m_dirX * moveSpeed)][int(m_posY)] == false) m_posX -= m_dirX * moveSpeed;
-			if (m_levelRef[int(m_posX)][int(m_posY - m_dirY * moveSpeed)] == false) m_posY -= m_dirY * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX -= m_player->m_dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == false) m_player->m_posY -= m_player->m_dirY * moveSpeed;
 		}
 	}
 }
 
 void PlayState::draw(sf::RenderWindow& window)
 {
-	window.clear();
+	
 
 	//calculate walls, floors and ceilings
 	const int wallIndex = calculateWalls();
+	window.clear();
 	window.draw(&m_buffer[0], wallIndex, sf::Points);
 	
 	//calculate sprites
@@ -93,10 +94,10 @@ const int PlayState::calculateWalls()
 	{
 		//calculate ray position and direction
 		double cameraX = 2 * x / double(m_windowWidth) - 1; //x-coordinate in camera space
-		double rayPosX = m_posX;
-		double rayPosY = m_posY;
-		double rayDirX = m_dirX + m_planeX * cameraX;
-		double rayDirY = m_dirY + m_planeY * cameraX;
+		double rayPosX = m_player->m_posX;
+		double rayPosY = m_player->m_posY;
+		double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
+		double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
 
 		//which box of the map we're in
 		int mapX = static_cast<int>(rayPosX);
@@ -257,8 +258,8 @@ const int PlayState::calculateWalls()
 
 			double weight = (currentDist - distPlayer) / (distWall - distPlayer);
 
-			double currentFloorX = weight * floorXWall + (1.0 - weight) * m_posX;
-			double currentFloorY = weight * floorYWall + (1.0 - weight) * m_posY;
+			double currentFloorX = weight * floorXWall + (1.0 - weight) * m_player->m_posX;
+			double currentFloorY = weight * floorYWall + (1.0 - weight) * m_player->m_posY;
 
 			int floorTexX, floorTexY;
 			floorTexX = int(currentFloorX * texWidth) % texWidth;
@@ -289,7 +290,7 @@ const int PlayState::calculateSprites()
 	for (size_t i = 0; i < m_spriteSize; i++)
 	{
 		m_spriteOrder[i] = i;
-		m_spriteDistance[i] = ((m_posX - m_spriteRef[i].x) * (m_posX - m_spriteRef[i].x) + (m_posY - m_spriteRef[i].y) * (m_posY - m_spriteRef[i].y)); //sqrt not taken, unneeded
+		m_spriteDistance[i] = ((m_player->m_posX - m_spriteRef[i].x) * (m_player->m_posX - m_spriteRef[i].x) + (m_player->m_posY - m_spriteRef[i].y) * (m_player->m_posY - m_spriteRef[i].y)); //sqrt not taken, unneeded
 	}
 	combSort(m_spriteOrder, m_spriteDistance, m_spriteRef.size());
 
@@ -297,18 +298,18 @@ const int PlayState::calculateSprites()
 	for (size_t i = 0; i < m_spriteRef.size(); i++)
 	{
 		//translate sprite position to relative to camera
-		double spriteX = m_spriteRef[m_spriteOrder[i]].x - m_posX;
-		double spriteY = m_spriteRef[m_spriteOrder[i]].y - m_posY;
+		double spriteX = m_spriteRef[m_spriteOrder[i]].x - m_player->m_posX;
+		double spriteY = m_spriteRef[m_spriteOrder[i]].y - m_player->m_posY;
 
 		//transform sprite with the inverse camera matrix
 		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
 		// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
 		// [ planeY   dirY ]                                          [ -planeY  planeX ]
 
-		double invDet = 1.0 / (m_planeX * m_dirY - m_dirX * m_planeY); //required for correct matrix multiplication
+		double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
 
-		double transformX = invDet * (m_dirY * spriteX - m_dirX * spriteY);
-		double transformY = invDet * (-m_planeY * spriteX + m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
+		double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
+		double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
 
 		int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
 
@@ -401,16 +402,16 @@ void PlayState::drawMinimap(sf::RenderWindow* window)
 	// Render Player on minimap
 	{
 		sf::CircleShape player(minimapScale, 3);
-		player.setPosition(m_posY * minimapScale, m_posX * minimapScale);
+		player.setPosition(m_player->m_posY * minimapScale, m_player->m_posX * minimapScale);
 		player.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
 		player.setOrigin(minimapScale, minimapScale);
 
 		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
-		player2.setPosition(m_posY * minimapScale, m_posX * minimapScale);
+		player2.setPosition(m_player->m_posY * minimapScale, m_player->m_posX * minimapScale);
 		player2.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
 		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
 
-		float angle = std::atan2f(m_dirX, m_dirY);
+		float angle = std::atan2f(m_player->m_dirX, m_player->m_dirY);
 		player.setRotation((angle * 57.2957795f) + 90);
 		player2.setRotation((angle * 57.2957795f) + 90);
 
@@ -432,19 +433,19 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 	if (event.type == sf::Event::KeyPressed)
 	{
 		// handle controls
-		if (event.key.code == sf::Keyboard::Left)
+		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
 			m_left = true;
 		}
-		else if (event.key.code == sf::Keyboard::Right)
+		else if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
 			m_right = true;
 		}
-		else if (event.key.code == sf::Keyboard::Up)
+		else if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
 			m_forward = true;
 		}
-		else if (event.key.code == sf::Keyboard::Down)
+		else if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))
 		{
 			m_backward = true;
 		}
@@ -454,19 +455,19 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 	if (event.type == sf::Event::KeyReleased)
 	{
 		// handle controls
-		if (event.key.code == sf::Keyboard::Left)
+		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
 			m_left = false;
 		}
-		if (event.key.code == sf::Keyboard::Right)
+		if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
 			m_right = false;
 		}
-		if (event.key.code == sf::Keyboard::Up)
+		if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
 			m_forward = false;
 		}
-		if (event.key.code == sf::Keyboard::Down)
+		if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))
 		{
 			m_backward = false;
 		}

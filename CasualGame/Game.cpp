@@ -8,6 +8,7 @@ Game::Game()
 	m_clock = std::make_unique<sf::Clock>();
 	
 	m_levelReader = std::make_shared<LevelReaderWriter>();
+	m_player = std::make_shared<Player>();
 
 	//m_window->setFramerateLimit(500);
 	//m_window->setVerticalSyncEnabled(true);
@@ -84,10 +85,10 @@ void Game::changeState(GameStateName newState)
 		m_currentState = std::move(std::unique_ptr<MainMenuState>(new MainMenuState(m_window->getSize().x, m_window->getSize().y)));
 		break;
 	case GameStateName::PLAY:
-		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_levelReader)));
+		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;
 	case GameStateName::LEVEL_EDITOR:
-		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y, m_levelReader)));
+		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;
 	case GameStateName::SWITCH_FULLSCREEN:
 		switchFullscreen();

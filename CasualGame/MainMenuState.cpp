@@ -192,12 +192,12 @@ void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mo
 		}
 	}
 	//enable menu selection using arrow keys
-	else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Down))
+	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S)))
 	{
 		if(m_mouseOverIndex < m_menuItems.size()-1)
 			m_mouseOverIndex++;
 	}
-	else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Up))
+	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)))
 	{
 		if (m_mouseOverIndex > 0)
 			m_mouseOverIndex--;

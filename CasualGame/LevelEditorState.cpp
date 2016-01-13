@@ -1,6 +1,7 @@
 #include "LevelEditorState.h"
 
-LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader) : m_windowWidth(w), m_windowHeight(h), 
+LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) : m_windowWidth(w), m_windowHeight(h),
+m_player(move(player)),
 m_levelReader(move(levelReader))
 {
 	m_scale_x = float(w) / m_levelReader->getLevel().size();
@@ -39,12 +40,32 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 	
 	const size_t levelSize = m_levelReader->getLevel().size();
 
-	//Render minimap
+	//Render map background
 	sf::RectangleShape minimapBg(sf::Vector2f(m_windowWidth, m_windowHeight));
 	minimapBg.setPosition(0, 0);
 	minimapBg.setFillColor(sf::Color(150, 150, 150, 255));
 	window.draw(minimapBg);
-	
+
+	// Render Player on map
+	{
+		sf::CircleShape player(minimapScale, 3);
+		player.setPosition(m_player->m_posY * m_scale_x, m_player->m_posX * m_scale_y);
+		player.setFillColor(sf::Color(255, 255, 255, 255));
+		player.setOrigin(minimapScale, minimapScale);
+
+		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
+		player2.setPosition(m_player->m_posY * m_scale_x, m_player->m_posX * m_scale_y);
+		player2.setFillColor(sf::Color(255, 255, 255, 255));
+		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
+
+		float angle = std::atan2f(m_player->m_dirX, m_player->m_dirY);
+		player.setRotation((angle * 57.2957795f) + 90);
+		player2.setRotation((angle * 57.2957795f) + 90);
+
+		window.draw(player);
+		window.draw(player2);
+	}
+
 	//walls
 	for (size_t y = 0; y < levelSize; y++)
 	{

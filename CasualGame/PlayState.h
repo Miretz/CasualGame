@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include "Game.h"
 #include "Sprite.h"
+#include "Player.h"
 #include "LevelReaderWriter.h"
 
 #include <algorithm>
@@ -20,7 +21,7 @@ static const double PI = 3.141592653589793238463;
 class PlayState : public GameState
 {
 public:
-	PlayState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader);
+	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
 	~PlayState();
 
 	void update(const float ft) override;
@@ -29,16 +30,10 @@ public:
 
 private:
 
-	double m_posX;
-	double m_posY;
-	double m_dirX;
-	double m_dirY;
-	double m_planeX;
-	double m_planeY;
-
 	const int m_windowWidth;
 	const int m_windowHeight;
 
+	std::shared_ptr<Player> m_player;
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 	const std::vector<std::vector<int> >& m_levelRef;
 	const std::vector<Sprite>& m_spriteRef;

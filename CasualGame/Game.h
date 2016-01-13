@@ -47,6 +47,7 @@ private:
 	std::unique_ptr<GameState> m_currentState;
 	
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
+	std::shared_ptr<Player> m_player;
 
 	void checkInput();
 	void update();

@@ -3,12 +3,13 @@
 #include "GameState.h"
 #include "Game.h"
 #include "Sprite.h"
+#include "Player.h"
 #include "LevelReaderWriter.h"
 
 class LevelEditorState : public GameState
 {
 public:
-	LevelEditorState(const int w, const int h, std::shared_ptr<LevelReaderWriter> levelReader);
+	LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
 	~LevelEditorState();
 
 	void update(const float ft) override;
@@ -16,6 +17,8 @@ public:
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game) override;
 
 private:
+
+	std::shared_ptr<Player> m_player;
 
 	bool m_editEntities = false;
 	int m_entitySelected = -1;
