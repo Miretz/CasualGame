@@ -92,30 +92,35 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 
 void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)
 {
+	//process button press
 	if (event.type == sf::Event::KeyReleased)
 	{
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			game.changeState(Game::GameStateName::MAINMENU);
 		}
-		if (event.key.code == sf::Keyboard::Q) //barrel
+		//entity create and delete
+		if (m_editEntities)
 		{
-			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 10);
-		}
-		if (event.key.code == sf::Keyboard::W) //pillar
-		{
-			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 11);
-		}
-		if (event.key.code == sf::Keyboard::E) //light
-		{
-			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 12);
-		}
-		if (event.key.code == sf::Keyboard::Delete)
-		{
-			if (m_entitySelected != -1)
+			if (event.key.code == sf::Keyboard::Q) //barrel
 			{
-				m_levelReader->deleteSprite(m_entitySelected);
-				m_entitySelected = -1;
+				m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 10);
+			}
+			if (event.key.code == sf::Keyboard::W) //pillar
+			{
+				m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 11);
+			}
+			if (event.key.code == sf::Keyboard::E) //light
+			{
+				m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 12);
+			}
+			if (event.key.code == sf::Keyboard::Delete)
+			{
+				if (m_entitySelected != -1)
+				{
+					m_levelReader->deleteSprite(m_entitySelected);
+					m_entitySelected = -1;
+				}
 			}
 		}
 		if (event.key.code == sf::Keyboard::Space)
@@ -134,10 +139,9 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 			}
 		}
 	}
+	//process mouse click
 	else if (event.type == sf::Event::MouseButtonPressed)
 	{
-
-
 		if (m_editEntities)
 		{
 			
