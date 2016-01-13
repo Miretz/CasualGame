@@ -49,6 +49,20 @@ void LevelReaderWriter::moveSprite(const int index, const double x, const double
 	m_sprites[index].y = y;
 }
 
+void LevelReaderWriter::createSprite(double x, double y, int texture)
+{
+	Sprite spr;
+	spr.x = x;
+	spr.y = y;
+	spr.texture = texture;
+	m_sprites.push_back(spr);
+}
+
+void LevelReaderWriter::deleteSprite(const int index)
+{
+	m_sprites.erase(m_sprites.begin() + index);
+}
+
 void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level)
 {
 	std::ifstream file(path);

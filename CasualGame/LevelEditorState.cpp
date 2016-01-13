@@ -7,7 +7,8 @@ m_levelReader(move(levelReader))
 	m_scale_y = float(h) / m_levelReader->getLevel().size();
 
 	sf::Color textColor = sf::Color::Yellow;
-
+	
+	//FIXME create separate font loader
 	m_font.loadFromFile("resources/font/OtherF.ttf");
 
 	m_statusBar.setFont(m_font);
@@ -18,16 +19,17 @@ m_levelReader(move(levelReader))
 	m_statusBar.setOrigin(m_statusBar.getGlobalBounds().width / 2.0f, m_statusBar.getGlobalBounds().height / 2.0f);
 
 	m_statusBar.setColor(textColor);
-
 }
 
 
 LevelEditorState::~LevelEditorState()
 {
+	//Empty
 }
 
 void LevelEditorState::update(const float ft)
 {
+	//Empty
 }
 
 void LevelEditorState::draw(sf::RenderWindow & window)
@@ -95,6 +97,26 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			game.changeState(Game::GameStateName::MAINMENU);
+		}
+		if (event.key.code == sf::Keyboard::Q) //barrel
+		{
+			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 10);
+		}
+		if (event.key.code == sf::Keyboard::W) //pillar
+		{
+			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 11);
+		}
+		if (event.key.code == sf::Keyboard::E) //light
+		{
+			m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 12);
+		}
+		if (event.key.code == sf::Keyboard::Delete)
+		{
+			if (m_entitySelected != -1)
+			{
+				m_levelReader->deleteSprite(m_entitySelected);
+				m_entitySelected = -1;
+			}
 		}
 		if (event.key.code == sf::Keyboard::Space)
 		{

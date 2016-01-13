@@ -33,6 +33,8 @@ public:
 	const sf::Texture* const getTextureSfml(const int i) { return &m_sfmlTextures[i]; };
 
 	void moveSprite(const int index, const double x, const double y);
+	void createSprite(double x, double y, int texture);
+	void deleteSprite(const int index);
 
 private:
 
