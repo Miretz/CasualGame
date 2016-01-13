@@ -43,6 +43,12 @@ void LevelReaderWriter::changeLevelTile(const int x, const int y, const int valu
 	m_level[x][y] = value;
 }
 
+void LevelReaderWriter::moveSprite(const int index, const double x, const double y)
+{
+	m_sprites[index].x = x;
+	m_sprites[index].y = y;
+}
+
 void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level)
 {
 	std::ifstream file(path);

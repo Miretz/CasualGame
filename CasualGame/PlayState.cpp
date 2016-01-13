@@ -350,7 +350,7 @@ const int PlayState::calculateSprites()
 					if (texPix < m_levelReader->getTexture(texNr).size()) // prevent exception when accessing tex pixel out of range
 					{
 						sf::Uint32 color = m_levelReader->getTexture(texNr)[texPix]; //get current color from the texture
-						if ((color & 0x00FFFFFF) != 0) // black is invisible!!!
+						if ((color & 0x00FFFFFF) != 0 && (pixIndex < m_buffer.size())) // black is invisible!!!
 						{
 							m_buffer[pixIndex].position = sf::Vector2f((float)stripe, (float)y);
 							m_buffer[pixIndex++].color = toColor(color);

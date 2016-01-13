@@ -32,6 +32,8 @@ public:
 
 	const sf::Texture* const getTextureSfml(const int i) { return &m_sfmlTextures[i]; };
 
+	void moveSprite(const int index, const double x, const double y);
+
 private:
 
 	const std::string texPaths[13] = { 
@@ -54,7 +56,7 @@ private:
 	std::vector<Sprite> m_sprites;
 	std::vector<std::vector<sf::Uint32> > m_texture;
 	std::vector<sf::Texture> m_sfmlTextures;
-
+	
 	void loadLevel(const std::string& path, std::vector<std::vector<int> >& level);
 	void loadLevelSprites(const std::string& path, std::vector<Sprite>& sprites);
 

@@ -17,11 +17,18 @@ public:
 
 private:
 
+	bool m_editEntities = false;
+	
+	int m_entitySelected = -1;
+
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 
 	const int m_windowWidth;
 	const int m_windowHeight;
 	
+	sf::Font m_font;
+	sf::Text m_statusBar;
+
 	float m_scale_x;
 	float m_scale_y;
 
