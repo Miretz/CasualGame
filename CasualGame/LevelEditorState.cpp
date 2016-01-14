@@ -105,6 +105,17 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 		window.draw(object);
 	}
 
+	if (m_editEntities && (m_entitySelected != -1))
+	{
+		sf::RectangleShape mouseRect(sf::Vector2f(m_scale_x - 1.0f, m_scale_y - 1.0f));
+		mouseRect.setPosition(m_mousePos.x, m_mousePos.y);
+		mouseRect.setOrigin(m_scale_x / 2.0f, m_scale_y / 2.0f);
+		mouseRect.setOutlineThickness(1);
+		mouseRect.setOutlineColor(sf::Color(255, 255, 255, 80));
+		mouseRect.setFillColor(sf::Color(0, 0, 0, 0));
+		window.draw(mouseRect);
+	}
+
 	window.draw(m_statusBar);
 
 	window.display();
@@ -113,6 +124,9 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 
 void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)
 {
+	
+	m_mousePos = mousepPosition;
+	
 	//process button press
 	if (event.type == sf::Event::KeyReleased)
 	{
@@ -135,9 +149,29 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 			{
 				m_levelReader->createSprite(mousepPosition.y / m_scale_y, mousepPosition.x / m_scale_x, 12);
 			}
-			if (event.key.code == sf::Keyboard::Delete)
+			if (m_entitySelected != -1)
 			{
-				if (m_entitySelected != -1)
+				if (event.key.code == sf::Keyboard::Left) 
+				{
+					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+					m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y -= 0.1);
+				}
+				if (event.key.code == sf::Keyboard::Right)
+				{
+					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+					m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y += 0.1);
+				}
+				if (event.key.code == sf::Keyboard::Up)
+				{
+					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+					m_levelReader->moveSprite(m_entitySelected, spr.x -= 0.1, spr.y);
+				}
+				if (event.key.code == sf::Keyboard::Down)
+				{
+					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+					m_levelReader->moveSprite(m_entitySelected, spr.x += 0.1, spr.y);
+				}				
+				if (event.key.code == sf::Keyboard::Delete)
 				{
 					m_levelReader->deleteSprite(m_entitySelected);
 					m_entitySelected = -1;

@@ -28,12 +28,23 @@ MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_win
 
 	m_menuItems.push_back(startGame);
 
+	// Restart Game
+	sf::Text restartGame;
+	restartGame.setFont(m_font);
+	restartGame.setString("Restart Game");
+	restartGame.setCharacterSize(30);
+	restartGame.setPosition(m_windowWidth / 2.0f, 350);
+	restartGame.setOrigin(restartGame.getGlobalBounds().width / 2.0f, restartGame.getGlobalBounds().height / 2.0f);
+	restartGame.setColor(textColor);
+
+	m_menuItems.push_back(restartGame);
+
 	// Level Editor 
 	sf::Text levelEditor;
 	levelEditor.setFont(m_font);
 	levelEditor.setString("Level Editor");
 	levelEditor.setCharacterSize(30);
-	levelEditor.setPosition(m_windowWidth / 2.0f, 350);
+	levelEditor.setPosition(m_windowWidth / 2.0f, 400);
 	levelEditor.setOrigin(levelEditor.getGlobalBounds().width / 2.0f, levelEditor.getGlobalBounds().height / 2.0f);
 	levelEditor.setColor(textColor);
 
@@ -44,7 +55,7 @@ MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_win
 	switchFullscreen.setFont(m_font);
 	switchFullscreen.setString("Toggle Fullscreen");
 	switchFullscreen.setCharacterSize(30);
-	switchFullscreen.setPosition(m_windowWidth / 2.0f, 400);
+	switchFullscreen.setPosition(m_windowWidth / 2.0f, 450);
 	switchFullscreen.setOrigin(switchFullscreen.getGlobalBounds().width / 2.0f, switchFullscreen.getGlobalBounds().height / 2.0f);
 	switchFullscreen.setColor(textColor);
 
@@ -55,7 +66,7 @@ MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_win
 	quitGame.setFont(m_font);
 	quitGame.setString("Quit");
 	quitGame.setCharacterSize(30);
-	quitGame.setPosition(m_windowWidth / 2.0f, 450);
+	quitGame.setPosition(m_windowWidth / 2.0f, 500);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
 	quitGame.setColor(textColor);
 
@@ -182,12 +193,15 @@ void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mo
 			game.changeState(Game::GameStateName::PLAY);
 		}
 		if (m_mouseOverIndex == 1) {
-			game.changeState(Game::GameStateName::LEVEL_EDITOR);
+			game.changeState(Game::GameStateName::RESTART);
 		}
 		if (m_mouseOverIndex == 2) {
-			game.changeState(Game::GameStateName::SWITCH_FULLSCREEN);
+			game.changeState(Game::GameStateName::LEVEL_EDITOR);
 		}
 		if (m_mouseOverIndex == 3) {
+			game.changeState(Game::GameStateName::SWITCH_FULLSCREEN);
+		}
+		if (m_mouseOverIndex == 4) {
 			game.changeState(Game::GameStateName::QUIT);
 		}
 	}

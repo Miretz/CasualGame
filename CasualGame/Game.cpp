@@ -87,6 +87,22 @@ void Game::changeState(GameStateName newState)
 	case GameStateName::PLAY:
 		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;
+	case GameStateName::RESTART:
+		
+		//reset player position
+		m_player->m_posX = 22.0;
+		m_player->m_posY = 11.5;
+		m_player->m_dirX = -1.0;
+		m_player->m_dirY = 0.0;
+		m_player->m_planeX = 0.0;
+		m_player->m_planeY = 0.66;
+
+		//reload level
+		m_levelReader.reset();
+		m_levelReader = std::make_shared<LevelReaderWriter>();
+
+		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
+		break;
 	case GameStateName::LEVEL_EDITOR:
 		m_currentState = std::move(std::unique_ptr<LevelEditorState>(new LevelEditorState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;

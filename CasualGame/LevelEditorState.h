@@ -23,6 +23,8 @@ private:
 	bool m_editEntities = false;
 	int m_entitySelected = -1;
 
+	sf::Vector2f m_mousePos;
+
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 
 	const int m_windowWidth;
