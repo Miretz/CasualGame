@@ -4,8 +4,7 @@ namespace fs = std::tr2::sys;
 
 LevelReaderWriter::LevelReaderWriter()
 {
-	loadLevel(levelFile, m_level);
-	loadLevelSprites(levelSpriteFile, m_sprites);
+	loadLevel(levelFile, m_level, m_sprites);
 
 	//texture generator 
 	//generateTextures();
@@ -73,23 +72,26 @@ void LevelReaderWriter::reloadLevel()
 	std::vector<std::vector<int> >().swap(m_level);
 	std::vector<Sprite>().swap(m_sprites);
 
-	loadLevel(levelFile, m_level);
-	loadLevelSprites(levelSpriteFile, m_sprites);
+	loadLevel(levelFile, m_level, m_sprites);
 }
 
 void LevelReaderWriter::loadCustomLevel(const std::string& levelName)
 {
 	m_level.clear();
+	m_sprites.clear();
 
 	std::vector<std::vector<int> >().swap(m_level);
+	std::vector<Sprite>().swap(m_sprites);
 	
-	loadLevel(customLevelDir + levelName, m_level);
+	loadLevel(customLevelDir + levelName, m_level, m_sprites);
 }
 
 void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
 {
 	//warning! overwrites the file if exists
 	std::fstream file(customLevelDir + levelName, std::ios::out);
+	
+	//write walls
 	for (int i = 0; i < m_level.size(); ++i)
 	{
 		for (int j = 0; j < m_level[i].size(); ++j)
@@ -98,6 +100,15 @@ void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
 		}
 		file << "\n";
 	}
+	file << "\n";
+	
+	//write sprites
+	for (auto& spr : m_sprites)
+	{
+		file << spr.x << "," << spr.y << "," << spr.texture << "," << "\n";
+	}
+	file << "\n";
+
 	file.close();
 }
 
@@ -123,14 +134,18 @@ const std::vector<std::string> LevelReaderWriter::getCustomLevels()
 	return entries;
 }
 
-void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level)
+void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites)
 {
 	std::ifstream file(path);
 
+	//load walls
 	std::string line;
 	while (std::getline(file, line))
 	{
 		if (!file.good())
+			break;
+
+		if (line.size() == 0)
 			break;
 
 		std::stringstream iss(line);
@@ -151,13 +166,9 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 		level.push_back(rowVec);
 	}
-}
-
-void LevelReaderWriter::loadLevelSprites(const std::string& path, std::vector<Sprite>& sprites)
-{
+	
+	//load sprites
 	int row = 0;
-	std::ifstream file(path);
-	std::string line;
 	while (std::getline(file, line))
 	{
 		if (!file.good())
@@ -186,7 +197,6 @@ void LevelReaderWriter::loadLevelSprites(const std::string& path, std::vector<Sp
 		sprites.push_back(spr);
 	}
 }
-
 
 // generates some textures for testing
 void LevelReaderWriter::generateTextures()
