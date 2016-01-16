@@ -1,5 +1,7 @@
 #include "LevelReaderWriter.h"
 
+namespace fs = std::tr2::sys;
+
 LevelReaderWriter::LevelReaderWriter()
 {
 	loadLevel(levelFile, m_level);
@@ -61,6 +63,49 @@ void LevelReaderWriter::createSprite(double x, double y, int texture)
 void LevelReaderWriter::deleteSprite(const int index)
 {
 	m_sprites.erase(m_sprites.begin() + index);
+}
+
+void LevelReaderWriter::reloadLevel()
+{
+	m_level.clear();
+	m_sprites.clear();
+
+	std::vector<std::vector<int> >().swap(m_level);
+	std::vector<Sprite>().swap(m_sprites);
+
+	loadLevel(levelFile, m_level);
+	loadLevelSprites(levelSpriteFile, m_sprites);
+}
+
+void LevelReaderWriter::loadCustomLevel(const std::string& levelPath)
+{
+	m_level.clear();
+
+	std::vector<std::vector<int> >().swap(m_level);
+	
+	loadLevel(customLevelDir + levelPath, m_level);
+}
+
+const std::vector<std::string> LevelReaderWriter::getCustomLevels()
+{
+	auto dpath = fs::path(customLevelDir);
+	
+	std::vector<std::string> entries;
+
+	if (!fs::is_directory(dpath)) return entries;
+
+	for (auto it = fs::directory_iterator(dpath); it != fs::directory_iterator(); ++it)
+	{
+		if (!fs::is_directory(it->path()))
+		{
+			entries.emplace_back();
+			std::string path = it->path().string();
+			path.erase(0, std::string(customLevelDir).size());
+			entries.back() = path;
+		}
+	}
+
+	return entries;
 }
 
 void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level)

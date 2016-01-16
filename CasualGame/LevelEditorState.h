@@ -5,6 +5,7 @@
 #include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
+#include "LevelEditorGui.h"
 
 class LevelEditorState : public GameState
 {
@@ -27,13 +28,18 @@ private:
 
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 
+	std::unique_ptr<LevelEditorGui> m_gui;
+
 	const int m_windowWidth;
 	const int m_windowHeight;
 	
 	sf::Font m_font;
 	sf::Text m_statusBar;
 
-	float m_scale_x;
-	float m_scale_y;
+	float m_scale;
+
+	void toggleMode();
+
+	std::vector<std::string> m_customLevels;
 
 };

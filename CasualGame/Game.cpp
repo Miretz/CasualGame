@@ -98,8 +98,7 @@ void Game::changeState(GameStateName newState)
 		m_player->m_planeY = 0.66;
 
 		//reload level
-		m_levelReader.reset();
-		m_levelReader = std::make_shared<LevelReaderWriter>();
+		m_levelReader->reloadLevel();
 
 		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;

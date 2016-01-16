@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="LevelEditorGui.cpp" />
     <ClCompile Include="LevelEditorState.cpp" />
     <ClCompile Include="LevelReaderWriter.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="LevelEditorGui.h" />
     <ClInclude Include="LevelEditorState.h" />
     <ClInclude Include="LevelReaderWriter.h" />
     <ClInclude Include="MainMenuState.h" />

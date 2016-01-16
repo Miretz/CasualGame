@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <SFML/Graphics.hpp>
 #include "Sprite.h"
@@ -15,6 +16,8 @@ static constexpr auto texHeight = 128;
 
 static constexpr auto levelFile = "resources/levels/level1.txt";
 static constexpr auto levelSpriteFile = "resources/levels/level1_sprites.txt";
+
+static constexpr auto customLevelDir = "resources/levels/custom/";
 
 class LevelReaderWriter
 {
@@ -35,6 +38,10 @@ public:
 	void moveSprite(const int index, const double x, const double y);
 	void createSprite(double x, double y, int texture);
 	void deleteSprite(const int index);
+
+	void reloadLevel();
+	void loadCustomLevel(const std::string& levelPath);
+	const std::vector<std::string> getCustomLevels();
 
 private:
 
