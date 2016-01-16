@@ -42,8 +42,14 @@ private:
 
 	float m_scale;
 
-	void toggleMode();
+	int m_selectedTexture = 1;
+	int m_textureButtonId;
+
+	int m_selectedSprite = 11;
+	int m_spriteButtonId;
 
 	std::vector<std::string> m_customLevels;
 
+	void toggleMode();
+		
 };

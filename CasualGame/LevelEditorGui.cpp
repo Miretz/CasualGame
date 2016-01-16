@@ -17,7 +17,7 @@ int LevelEditorGui::addButton(const std::string & text)
 	sf::Text btnText;
 	btnText.setFont(m_font);
 	btnText.setString(text);
-	btnText.setCharacterSize(20);
+	btnText.setCharacterSize(22);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
 	btnText.setPosition(m_xPos + m_padding + 4.0f, m_yPos);
 	btnText.setColor(m_idleColor);
@@ -34,6 +34,13 @@ int LevelEditorGui::addButton(const std::string & text)
 	m_yPos = m_yPos + m_padding + rectShape.getGlobalBounds().height;
 
 	return m_buttons.size() - 1;
+}
+
+void LevelEditorGui::setTexturedButton(const int index, const sf::Texture* texture)
+{
+	GuiButton& btn = get(index);
+	btn.background.setFillColor({ 255, 255, 255, 255 });
+	btn.background.setTexture(texture);
 }
 
 void LevelEditorGui::addSpace()

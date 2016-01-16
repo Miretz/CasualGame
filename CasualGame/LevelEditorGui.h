@@ -18,6 +18,8 @@ public:
 	~LevelEditorGui();
 
 	int addButton(const std::string& text);
+	void setTexturedButton(const int index, const sf::Texture* texture);
+		
 	void addSpace();
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition);
 	void draw(sf::RenderWindow& window);
