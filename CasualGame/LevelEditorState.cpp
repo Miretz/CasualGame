@@ -11,7 +11,7 @@ constexpr auto txtTexture = "Texture";
 constexpr auto txtSprite = "Sprite";
 
 constexpr auto txtModeWall = "Wall Mode (LMB - place, RMB - delete)";
-constexpr auto txtModeEntity = "Entities Mode (LMB - place, RMB - Select/Move, Del - delete)";
+constexpr auto txtModeEntity = "Entities Mode (LMB - Select/Move, RMB - place, Del - delete)";
 
 LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) : m_windowWidth(w), m_windowHeight(h),
 m_player(move(player)),
@@ -116,7 +116,15 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 				wall.setPosition(x * m_scale, y * m_scale);
 				wall.setTexture(m_levelReader->getTextureSfml(id - 1));
 				wall.setOutlineThickness(2);
-				wall.setOutlineColor(sf::Color(0, 0, 0));
+				if (!m_editEntities)
+				{
+					wall.setOutlineColor(sf::Color(0, 0, 0,255));
+				}
+				else
+				{
+					wall.setFillColor(sf::Color(255, 255, 255, 100));
+					wall.setOutlineColor(sf::Color(0, 0, 0, 100));
+				}
 				window.draw(wall);
 			}
 		}
@@ -129,20 +137,27 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 		object.setPosition(m_levelReader->getSprites()[i].y * m_scale, m_levelReader->getSprites()[i].x * m_scale);
 		object.setOrigin(m_scale / 2.0f, m_scale / 2.0f);
 		object.setOutlineThickness(2);
-		
-		if (i == m_entitySelected)
+
+		if (m_editEntities)
 		{
-			object.setOutlineColor(sf::Color(0, 255, 0, 255));
+			if (i == m_entitySelected)
+			{
+				object.setOutlineColor(sf::Color(0, 255, 0, 255));
+			}
+			else
+			{
+				object.setOutlineColor(sf::Color(255, 255, 255, 128));
+			}
 		}
-		else
-		{
-			object.setOutlineColor(sf::Color(255, 255, 255, 128));
+		else {
+			object.setOutlineColor(sf::Color(255, 255, 255, 0));
 		}
 				
 		object.setTexture(m_levelReader->getTextureSfml(m_levelReader->getSprites()[i].texture));
 		window.draw(object);
 	}
 
+	// Render placement square under mouse
 	if (m_editEntities && (m_entitySelected != -1))
 	{
 		sf::RectangleShape mouseRect(sf::Vector2f(m_scale - 1.0f, m_scale - 1.0f));
@@ -302,6 +317,11 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 				game.changeState(Game::GameStateName::MAINMENU);
 			}
 		}
+		if (event.key.code == sf::Keyboard::Space)
+		{
+			toggleMode();
+		}
+		
 		//entity move with arrow keys
 		if (m_editEntities && mouseInEditor)
 		{
@@ -345,7 +365,7 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 		if (m_editEntities)
 		{
 			
-			if (event.mouseButton.button == sf::Mouse::Right)
+			if (event.mouseButton.button == sf::Mouse::Left)
 			{
 				if (m_entitySelected != -1)
 				{
