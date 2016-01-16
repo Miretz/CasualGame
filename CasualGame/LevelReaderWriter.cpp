@@ -77,13 +77,28 @@ void LevelReaderWriter::reloadLevel()
 	loadLevelSprites(levelSpriteFile, m_sprites);
 }
 
-void LevelReaderWriter::loadCustomLevel(const std::string& levelPath)
+void LevelReaderWriter::loadCustomLevel(const std::string& levelName)
 {
 	m_level.clear();
 
 	std::vector<std::vector<int> >().swap(m_level);
 	
-	loadLevel(customLevelDir + levelPath, m_level);
+	loadLevel(customLevelDir + levelName, m_level);
+}
+
+void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
+{
+	//warning! overwrites the file if exists
+	std::fstream file(customLevelDir + levelName, std::ios::out);
+	for (int i = 0; i < m_level.size(); ++i)
+	{
+		for (int j = 0; j < m_level[i].size(); ++j)
+		{
+			file << m_level[i][j] << ",";
+		}
+		file << "\n";
+	}
+	file.close();
 }
 
 const std::vector<std::string> LevelReaderWriter::getCustomLevels()

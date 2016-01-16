@@ -40,7 +40,8 @@ public:
 	void deleteSprite(const int index);
 
 	void reloadLevel();
-	void loadCustomLevel(const std::string& levelPath);
+	void loadCustomLevel(const std::string& levelName);
+	void saveCustomLevel(const std::string& levelName);
 	const std::vector<std::string> getCustomLevels();
 
 private:

@@ -36,6 +36,10 @@ private:
 	sf::Font m_font;
 	sf::Text m_statusBar;
 
+	std::string m_customLevelName = "<enter filename>";
+	bool m_filenameMode = false;
+	int m_filenameGuiIndex;
+
 	float m_scale;
 
 	void toggleMode();

@@ -12,7 +12,7 @@ LevelEditorGui::~LevelEditorGui()
 {
 }
 
-void LevelEditorGui::addButton(const std::string & text)
+int LevelEditorGui::addButton(const std::string & text)
 {
 	sf::Text btnText;
 	btnText.setFont(m_font);
@@ -29,8 +29,16 @@ void LevelEditorGui::addButton(const std::string & text)
 	rectShape.setFillColor(sf::Color(0,0,0,0));
 
 	m_buttons.emplace_back(btnText, rectShape);
+	
 
 	m_yPos = m_yPos + m_padding + rectShape.getGlobalBounds().height;
+
+	return m_buttons.size() - 1;
+}
+
+void LevelEditorGui::addSpace()
+{
+	m_yPos += (2 * m_padding);
 }
 
 void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition)

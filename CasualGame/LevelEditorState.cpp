@@ -1,6 +1,6 @@
 #include "LevelEditorState.h"
 
-#define MENU_WIDTH 150
+#define MENU_WIDTH 200
 
 constexpr auto txtSwitchMode = "Switch mode";
 constexpr auto txtLoadDefault = "Load Default";
@@ -20,7 +20,7 @@ m_levelReader(move(levelReader))
 	m_font.loadFromFile("resources/font/OtherF.ttf");
 
 	m_statusBar.setFont(m_font);
-	m_statusBar.setString("Wall Edit Mode (Hit Space to switch)");
+	m_statusBar.setString("Wall Edit Mode");
 	m_statusBar.setCharacterSize(30);
 	
 	m_statusBar.setPosition(m_windowWidth / 2.0f, 1.0f);
@@ -35,12 +35,15 @@ m_levelReader(move(levelReader))
 	m_gui->addButton(txtSwitchMode);
 	m_gui->addButton(txtLoadDefault);
 	
+	m_gui->addSpace();
 	for (auto& cl : m_customLevels)
 	{
 		m_gui->addButton(cl);
 	}
-
+	m_gui->addSpace();
+	m_filenameGuiIndex = m_gui->addButton(m_customLevelName);
 	m_gui->addButton(txtSave);
+	m_gui->addSpace();
 	m_gui->addButton(txtQuit);
 	
 }
@@ -152,6 +155,34 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 	
 	m_mousePos = mousepPosition;
 	
+	//filename editing mode
+	if (m_filenameMode)
+	{
+		if (event.type == sf::Event::KeyReleased)
+		{
+			if (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::Return)
+			{
+				m_filenameMode = !m_filenameMode;
+			}
+			if (event.key.code == sf::Keyboard::BackSpace)
+			{
+				if (m_customLevelName.size() > 0) {
+					m_customLevelName.erase(m_customLevelName.size() - 1, m_customLevelName.size());
+					m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
+				}
+			}
+		}
+		else if (event.type == sf::Event::TextEntered)
+		{
+			if ((event.text.unicode > 65 && event.text.unicode < 123) || (event.text.unicode > 48 && event.text.unicode < 58))
+			{
+				m_customLevelName += static_cast<char>(event.text.unicode);
+				m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
+			}
+		}
+		return;
+	}
+	
 	//gui events
 	m_gui->handleInput(event, mousepPosition);
 
@@ -180,15 +211,26 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 			m_levelReader->loadCustomLevel(cl);
 		}
 	}
-	if (m_gui->getPressed(txtSave))
+	if (m_gui->getPressed(m_customLevelName))
+	{
+		m_customLevelName = "";
+		m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
+		m_filenameMode = !m_filenameMode;
+	}
+	if (m_gui->getPressed(txtSave) && m_customLevelName.size() > 0 && m_customLevelName != "<enter filename>")
 	{
 		//TODO: handle save
+		m_levelReader->saveCustomLevel(m_customLevelName + ".txt");
+		game.changeState(Game::GameStateName::LEVEL_EDITOR);
 	}
 	if (m_gui->getPressed(txtQuit))
 	{
 		game.changeState(Game::GameStateName::MAINMENU);
 	}
 
+	//ignore events when mouse in menu
+	const size_t levelSize = m_levelReader->getLevel().size();
+	bool mouseInEditor = (mousepPosition.x < levelSize * m_scale);
 
 
 	//process button press
@@ -196,10 +238,17 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 	{
 		if (event.key.code == sf::Keyboard::Escape)
 		{
-			game.changeState(Game::GameStateName::MAINMENU);
+			if (m_entitySelected != -1)
+			{
+				m_entitySelected = -1;
+			}
+			else
+			{
+				game.changeState(Game::GameStateName::MAINMENU);
+			}
 		}
 		//entity create and delete
-		if (m_editEntities)
+		if (m_editEntities && mouseInEditor)
 		{
 			if (event.key.code == sf::Keyboard::Q) //barrel
 			{
@@ -242,20 +291,10 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f &
 				}
 			}
 		}
-		if (event.key.code == sf::Keyboard::Space)
-		{
-			toggleMode();
-		}
 	}
-	
-	//ignore mouse events in menu
-	const size_t levelSize = m_levelReader->getLevel().size();
-	if (mousepPosition.x > levelSize * m_scale) {
-		return;
-	}
-	
+		
 	//process mouse click
-	if (event.type == sf::Event::MouseButtonPressed)
+	if (event.type == sf::Event::MouseButtonPressed && mouseInEditor)
 	{
 		if (m_editEntities)
 		{
@@ -323,12 +362,12 @@ void LevelEditorState::toggleMode()
 
 	if (!m_editEntities)
 	{
-		m_statusBar.setString("Wall Edit Mode (Hit Space to switch)");
+		m_statusBar.setString("Wall Edit Mode");
 		m_statusBar.setOrigin(m_statusBar.getGlobalBounds().width / 2.0f, m_statusBar.getGlobalBounds().height / 2.0f);
 	}
 	else
 	{
-		m_statusBar.setString("Entities Edit Mode (Hit Space to switch)");
+		m_statusBar.setString("Entities Edit Mode");
 		m_statusBar.setOrigin(m_statusBar.getGlobalBounds().width / 2.0f, m_statusBar.getGlobalBounds().height / 2.0f);
 	}
 }

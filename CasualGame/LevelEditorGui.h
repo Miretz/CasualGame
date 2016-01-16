@@ -17,11 +17,14 @@ public:
 	LevelEditorGui(const int x, const int y, const int width);
 	~LevelEditorGui();
 
-	void addButton(const std::string& text);
+	int addButton(const std::string& text);
+	void addSpace();
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition);
 	void draw(sf::RenderWindow& window);
 
 	const bool getPressed(const std::string& text);
+
+	GuiButton& get(const int index) { return m_buttons[index]; };
 
 	const int getWidth() const { return m_width; };
 	const int getNumButtons() const { return m_buttons.size(); };
