@@ -1,8 +1,6 @@
 #include "PlayState.h"
 
-constexpr auto playerDistanceToOutline = 2;
-
-PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) : 
+PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 m_windowWidth(w), m_windowHeight(h),
 m_player(move(player)),
 m_levelReader(move(levelReader)),
@@ -14,10 +12,8 @@ m_mousePosition(sf::Vector2f(0.0f, 0.0f))
 {
 	m_buffer.resize(h * w);
 	m_ZBuffer.resize(w);
-
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
-
 }
 
 PlayState::~PlayState()
@@ -33,8 +29,7 @@ void PlayState::update(const float ft)
 		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
-							 // process movement
-		
+
 		if (m_left)
 		{
 			//both camera direction and camera plane must be rotated
@@ -70,17 +65,16 @@ void PlayState::update(const float ft)
 
 void PlayState::draw(sf::RenderWindow& window)
 {
-	
 
 	//calculate walls, floors and ceilings
 	const int wallIndex = calculateWalls();
 	window.clear();
 	window.draw(&m_buffer[0], wallIndex, sf::Points);
-	
+
 	//calculate sprites
 	const int sprIndex = calculateSprites();
 	window.draw(&m_buffer[0], sprIndex, sf::Points);
-	
+
 	//draw outlines iterate backwards because they are back to front and we want front to back
 	for (unsigned i = m_spriteOutlines.size(); i-- > 0; )
 	{
@@ -90,9 +84,9 @@ void PlayState::draw(sf::RenderWindow& window)
 			m_spriteOutlines[i].setOutlineThickness(2);
 			window.draw(m_spriteOutlines[i]);
 			break;
-		}		
+		}
 	}
-	
+
 	//draw minimap
 	drawMinimap(&window);
 
@@ -100,7 +94,6 @@ void PlayState::draw(sf::RenderWindow& window)
 
 	m_spriteOutlines.clear();
 	std::vector<sf::RectangleShape>().swap(m_spriteOutlines);
-	
 }
 
 const int PlayState::calculateWalls()
@@ -300,9 +293,9 @@ const int PlayState::calculateWalls()
 
 const int PlayState::calculateSprites()
 {
-	
+
 	int pixIndex = 0;
-	
+
 	//SPRITE CASTING
 	//sort sprites from far to close
 	for (size_t i = 0; i < m_spriteSize; i++)
@@ -362,17 +355,19 @@ const int PlayState::calculateSprites()
 			{
 
 				//store closest sprite for outline drawing
-				//ignore lights
+				//ignore ceiling lights
 				if (!outlineStored && m_spriteRef[m_spriteOrder[i]].texture != 12)
 				{
-					//half size because our sprites aren't ideal
-					m_spriteOutlines.emplace_back(sf::Vector2f((drawEndX - drawStartX), (drawEndY - drawStartY)));
+					//half width
+					const float wOutline = (drawEndX - drawStartX) / 2.0f;
+					const float hOutline = (drawEndY - drawStartY);
+					m_spriteOutlines.emplace_back(sf::Vector2f(wOutline, hOutline));
 					m_spriteOutlines.back().setFillColor({ 255, 255, 255, 0 });
-					m_spriteOutlines.back().setPosition(drawStartX, drawStartY);
+					m_spriteOutlines.back().setPosition(drawStartX + wOutline / 2.0f, drawStartY);
 					m_spriteOutlines.back().setOutlineColor({ 255, 255, 255, 0 });
 					outlineStored = true;
 				}
-				
+
 				for (int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
 				{
 					int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
@@ -402,7 +397,7 @@ const int PlayState::calculateSprites()
 //Render minimap
 void PlayState::drawMinimap(sf::RenderWindow* window)
 {
-	
+
 	//minimap background
 	sf::RectangleShape minimapBg(sf::Vector2f(m_levelSize * minimapScale, m_levelSize * minimapScale));
 	minimapBg.setPosition(0, 0);

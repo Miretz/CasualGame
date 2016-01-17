@@ -42,7 +42,7 @@ private:
 
 	const size_t m_levelSize;
 	const size_t m_spriteSize;
-	
+
 	std::vector<double> m_ZBuffer;
 
 	//arrays used to sort the sprites
