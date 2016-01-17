@@ -1,5 +1,7 @@
 #include "PlayState.h"
 
+constexpr auto playerDistanceToOutline = 2;
+
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) : 
 m_windowWidth(w), m_windowHeight(h),
 m_player(move(player)),
@@ -7,7 +9,8 @@ m_levelReader(move(levelReader)),
 m_levelRef(m_levelReader->getLevel()),
 m_spriteRef(m_levelReader->getSprites()),
 m_levelSize(m_levelReader->getLevel().size()),
-m_spriteSize(m_levelReader->getSprites().size())
+m_spriteSize(m_levelReader->getSprites().size()),
+m_mousePosition(sf::Vector2f(0.0f, 0.0f))
 {
 	m_buffer.resize(h * w);
 	m_ZBuffer.resize(w);
@@ -77,11 +80,26 @@ void PlayState::draw(sf::RenderWindow& window)
 	//calculate sprites
 	const int sprIndex = calculateSprites();
 	window.draw(&m_buffer[0], sprIndex, sf::Points);
-
+	
+	//draw outlines iterate backwards because they are back to front and we want front to back
+	for (unsigned i = m_spriteOutlines.size(); i-- > 0; )
+	{
+		if (m_spriteOutlines[i].getGlobalBounds().contains(m_mousePosition))
+		{
+			m_spriteOutlines[i].setOutlineColor({ 255, 255, 255, 255 });
+			m_spriteOutlines[i].setOutlineThickness(2);
+			window.draw(m_spriteOutlines[i]);
+			break;
+		}		
+	}
+	
 	//draw minimap
 	drawMinimap(&window);
 
 	window.display();
+
+	m_spriteOutlines.clear();
+	std::vector<sf::RectangleShape>().swap(m_spriteOutlines);
 	
 }
 
@@ -329,6 +347,8 @@ const int PlayState::calculateSprites()
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
 		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
+		bool outlineStored = false;
+
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
 		{
@@ -340,6 +360,19 @@ const int PlayState::calculateSprites()
 			//4) ZBuffer, with perpendicular distance
 			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe])
 			{
+
+				//store closest sprite for outline drawing
+				//ignore lights
+				if (!outlineStored && m_spriteRef[m_spriteOrder[i]].texture != 12)
+				{
+					//half size because our sprites aren't ideal
+					m_spriteOutlines.emplace_back(sf::Vector2f((drawEndX - drawStartX), (drawEndY - drawStartY)));
+					m_spriteOutlines.back().setFillColor({ 255, 255, 255, 0 });
+					m_spriteOutlines.back().setPosition(drawStartX, drawStartY);
+					m_spriteOutlines.back().setOutlineColor({ 255, 255, 255, 0 });
+					outlineStored = true;
+				}
+				
 				for (int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
 				{
 					int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
@@ -428,6 +461,8 @@ const sf::Color PlayState::toColor(sf::Uint32 colorRgba)
 
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)
 {
+
+	m_mousePosition = mousepPosition;
 
 	//escape go to main menu
 	if (event.type == sf::Event::KeyPressed)

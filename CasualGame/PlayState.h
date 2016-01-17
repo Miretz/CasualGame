@@ -38,6 +38,8 @@ private:
 	const std::vector<std::vector<int> >& m_levelRef;
 	const std::vector<Sprite>& m_spriteRef;
 
+	sf::Vector2f m_mousePosition;
+
 	const size_t m_levelSize;
 	const size_t m_spriteSize;
 	
@@ -53,6 +55,8 @@ private:
 	bool m_backward = false;
 	bool m_left = false;
 	bool m_right = false;
+
+	std::vector<sf::RectangleShape> m_spriteOutlines;
 
 	const int calculateWalls();
 	const int calculateSprites();
