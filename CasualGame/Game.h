@@ -30,6 +30,8 @@ public:
 	void changeState(GameStateName newState);
 	const bool isRunning() const { return m_running; };
 	void switchFullscreen();
+	
+	const int getFps() const { return m_fps; }
 
 private:
 	
@@ -38,6 +40,8 @@ private:
 	bool m_running = true;
 	int m_fpsShowTimer = 0;
 	bool m_fullscreen = false;
+
+	int m_fps;
 
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;

@@ -53,10 +53,13 @@ private:
 	std::vector<sf::Vertex> m_buffer;
 	std::vector<sf::RectangleShape> m_spriteOutlines;
 
-	const int calculateWalls();
-	const int calculateSprites();
+	sf::Font m_font;
+	sf::Text m_fpsDisplay;
+
+	const unsigned int calculateWalls();
+	const unsigned int calculateSprites();
 	void drawMinimap(sf::RenderWindow* window);
-	const sf::Color toColor(sf::Uint32 colorRgba);
+	const sf::Color toColor(const sf::Uint32& colorRgba);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
 
 };

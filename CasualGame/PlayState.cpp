@@ -15,6 +15,15 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_ZBuffer.resize(w);
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
+
+	//FIXME create separate font loader
+	m_font.loadFromFile("resources/font/OtherF.ttf");
+	m_fpsDisplay.setFont(m_font);
+	m_fpsDisplay.setString("fps");
+	m_fpsDisplay.setCharacterSize(32);
+	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
+	m_fpsDisplay.setColor(sf::Color::Yellow);
+
 }
 
 PlayState::~PlayState() {
@@ -61,12 +70,12 @@ void PlayState::update(const float ft) {
 void PlayState::draw(sf::RenderWindow& window) {
 
 	//calculate walls, floors and ceilings
-	const int wallIndex = calculateWalls();
+	const unsigned int wallIndex = calculateWalls();
 	window.clear();
 	window.draw(&m_buffer[0], wallIndex, sf::Points);
 
 	//calculate sprites
-	const int sprIndex = calculateSprites();
+	const unsigned int sprIndex = calculateSprites();
 	window.draw(&m_buffer[0], sprIndex, sf::Points);
 
 	//draw outlines iterate backwards because they are back to front and we want front to back
@@ -82,13 +91,16 @@ void PlayState::draw(sf::RenderWindow& window) {
 	//draw minimap
 	drawMinimap(&window);
 
+	//draw fps display
+	window.draw(m_fpsDisplay);
+
 	window.display();
 
 	m_spriteOutlines.clear();
 	std::vector<sf::RectangleShape>().swap(m_spriteOutlines);
 }
 
-const int PlayState::calculateWalls() {
+const unsigned int PlayState::calculateWalls() {
 
 	unsigned int pixIndex = 0;
 
@@ -264,7 +276,7 @@ const int PlayState::calculateWalls() {
 	return pixIndex;
 }
 
-const int PlayState::calculateSprites() {
+const unsigned int PlayState::calculateSprites() {
 
 	unsigned int pixIndex = 0;
 
@@ -303,7 +315,7 @@ const int PlayState::calculateSprites() {
 		if (drawEndY >= m_windowHeight) drawEndY = m_windowHeight - 1;
 
 		//calculate width of the sprite
-		int spriteWidth = abs(int(m_windowHeight / (transformY)));
+		int spriteWidth = spriteHeight;
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		if (drawStartX < 0) drawStartX = 0;
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
@@ -323,9 +335,12 @@ const int PlayState::calculateSprites() {
 			//4) ZBuffer, with perpendicular distance
 			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe]) {
 
+
+				const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
+
 				//store closest sprite for outline drawing
 				//ignore ceiling lights
-				if (!outlineStored && m_spriteRef[m_spriteOrder[i]].texture != 12) {
+				if (!outlineStored && texNr != 12) {
 					//half width
 					const float wOutline = float(drawEndX - drawStartX) / 2.0f;
 					const float hOutline = float(drawEndY - drawStartY);
@@ -336,17 +351,17 @@ const int PlayState::calculateSprites() {
 					outlineStored = true;
 				}
 
+				const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
+				const int texSize = textureData.size();
+				
 				//for every pixel of the current stripe
 				for (int y = drawStartY; y < drawEndY; y++) {
+					
 					const int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					const int texY = ((d * texHeight) / spriteHeight) / 256;
-
 					const int texPix = texWidth * texX + texY;
-					const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
-
+					
 					// prevent exception when accessing tex pixel out of range
-					const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
-					const int texSize = textureData.size();
 					if (texPix < texSize) {
 						sf::Uint32 color = textureData[texPix]; //get current color from the texture
 						
@@ -416,7 +431,7 @@ void PlayState::drawMinimap(sf::RenderWindow* window) {
 	}
 }
 
-const sf::Color PlayState::toColor(sf::Uint32 colorRgba) {
+const sf::Color PlayState::toColor(const sf::Uint32& colorRgba) {
 	return sf::Color(colorRgba & 0x000000ff, (colorRgba & 0x0000ff00) >> 8, (colorRgba & 0x00ff0000) >> 16, 255);
 }
 
@@ -424,6 +439,10 @@ const sf::Color PlayState::toColor(sf::Uint32 colorRgba) {
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game) {
 
 	m_mousePosition = mousepPosition;
+
+	//update fps from game
+	m_fpsDisplay.setString(std::to_string(game.getFps()));
+	m_fpsDisplay.setOrigin(m_fpsDisplay.getGlobalBounds().width, 0.0f);
 
 	//escape go to main menu
 	if (event.type == sf::Event::KeyPressed) {

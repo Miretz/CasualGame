@@ -49,11 +49,10 @@ void Game::updateTimers() {
 	m_lastFt = ft;
 	
 	if (m_fpsShowTimer == 0) {
-		m_fpsShowTimer = 10;
+		m_fpsShowTimer = 2;
 		float ftSeconds = ft / 1000.f;
 		if (ftSeconds > 0.f) {
-			int fps = static_cast<int>(1.f / ftSeconds);
-			m_window->setTitle("FPS: " + std::to_string(fps) + " " + gameTitle);
+			m_fps = static_cast<int>(1.f / ftSeconds);
 		}
 	}
 	m_fpsShowTimer--;
