@@ -1,14 +1,15 @@
 #include "PlayState.h"
 
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
-m_windowWidth(w), m_windowHeight(h),
-m_player(move(player)),
-m_levelReader(move(levelReader)),
-m_levelRef(m_levelReader->getLevel()),
-m_spriteRef(m_levelReader->getSprites()),
-m_levelSize(m_levelReader->getLevel().size()),
-m_spriteSize(m_levelReader->getSprites().size()),
-m_mousePosition(sf::Vector2f(0.0f, 0.0f))
+	m_windowWidth(w), 
+	m_windowHeight(h),
+	m_player(move(player)),
+	m_levelReader(move(levelReader)),
+	m_levelRef(m_levelReader->getLevel()),
+	m_spriteRef(m_levelReader->getSprites()),
+	m_levelSize(m_levelReader->getLevel().size()),
+	m_spriteSize(m_levelReader->getSprites().size()),
+	m_mousePosition(sf::Vector2f(0.0f, 0.0f))
 {
 	m_buffer.resize(h * w);
 	m_ZBuffer.resize(w);
@@ -16,22 +17,19 @@ m_mousePosition(sf::Vector2f(0.0f, 0.0f))
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
 }
 
-PlayState::~PlayState()
-{
+PlayState::~PlayState() {
 	//Empty
 }
 
-void PlayState::update(const float ft)
-{
-	if (m_forward || m_backward || m_left || m_right)
-	{
+void PlayState::update(const float ft) {
+
+	if (m_forward || m_backward || m_left || m_right) {
 		// convert ms to seconds
 		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
 
-		if (m_left)
-		{
+		if (m_left) {
 			//both camera direction and camera plane must be rotated
 			double oldDirX = m_player->m_dirX;
 			m_player->m_dirX = m_player->m_dirX * cos(rotSpeed) - m_player->m_dirY * sin(rotSpeed);
@@ -40,8 +38,7 @@ void PlayState::update(const float ft)
 			m_player->m_planeX = m_player->m_planeX * cos(rotSpeed) - m_player->m_planeY * sin(rotSpeed);
 			m_player->m_planeY = oldPlaneX * sin(rotSpeed) + m_player->m_planeY * cos(rotSpeed);
 		}
-		if (m_right)
-		{
+		if (m_right) {
 			//both camera direction and camera plane must be rotated
 			double oldDirX = m_player->m_dirX;
 			m_player->m_dirX = m_player->m_dirX * cos(-rotSpeed) - m_player->m_dirY * sin(-rotSpeed);
@@ -50,21 +47,18 @@ void PlayState::update(const float ft)
 			m_player->m_planeX = m_player->m_planeX * cos(-rotSpeed) - m_player->m_planeY * sin(-rotSpeed);
 			m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * cos(-rotSpeed);
 		}
-		if (m_forward)
-		{
+		if (m_forward) {
 			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX += m_player->m_dirX * moveSpeed;
 			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == false) m_player->m_posY += m_player->m_dirY * moveSpeed;
 		}
-		if (m_backward)
-		{
+		if (m_backward) {
 			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX -= m_player->m_dirX * moveSpeed;
 			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == false) m_player->m_posY -= m_player->m_dirY * moveSpeed;
 		}
 	}
 }
 
-void PlayState::draw(sf::RenderWindow& window)
-{
+void PlayState::draw(sf::RenderWindow& window) {
 
 	//calculate walls, floors and ceilings
 	const int wallIndex = calculateWalls();
@@ -76,10 +70,8 @@ void PlayState::draw(sf::RenderWindow& window)
 	window.draw(&m_buffer[0], sprIndex, sf::Points);
 
 	//draw outlines iterate backwards because they are back to front and we want front to back
-	for (unsigned i = m_spriteOutlines.size(); i-- > 0; )
-	{
-		if (m_spriteOutlines[i].getGlobalBounds().contains(m_mousePosition))
-		{
+	for (unsigned i = m_spriteOutlines.size(); i-- > 0; ) {
+		if (m_spriteOutlines[i].getGlobalBounds().contains(m_mousePosition)) {
 			m_spriteOutlines[i].setOutlineColor({ 255, 255, 255, 255 });
 			m_spriteOutlines[i].setOutlineThickness(2);
 			window.draw(m_spriteOutlines[i]);
@@ -96,29 +88,28 @@ void PlayState::draw(sf::RenderWindow& window)
 	std::vector<sf::RectangleShape>().swap(m_spriteOutlines);
 }
 
-const int PlayState::calculateWalls()
-{
-	int pixIndex = 0;
+const int PlayState::calculateWalls() {
+
+	unsigned int pixIndex = 0;
 
 	//2d raycaster
-	for (int x = 0; x < m_windowWidth; x++)
-	{
+	for (int x = 0; x < m_windowWidth; x++)	{
 		//calculate ray position and direction
-		double cameraX = 2 * x / double(m_windowWidth) - 1; //x-coordinate in camera space
-		double rayPosX = m_player->m_posX;
-		double rayPosY = m_player->m_posY;
-		double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
-		double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
+		const double cameraX = 2 * x / double(m_windowWidth) - 1; //x-coordinate in camera space
+		const double rayPosX = m_player->m_posX;
+		const double rayPosY = m_player->m_posY;
+		const double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
+		const double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
 
 		//which box of the map we're in
 		int mapX = static_cast<int>(rayPosX);
 		int mapY = static_cast<int>(rayPosY);
 
 		//length of ray from one x or y-side to next x or y-side
-		double rayDirXsq = rayDirX * rayDirX;
-		double rayDirYsq = rayDirY * rayDirY;
-		double deltaDistX = sqrt(1 + rayDirYsq / rayDirXsq);
-		double deltaDistY = sqrt(1 + rayDirXsq / rayDirYsq);
+		const double rayDirXsq = rayDirX * rayDirX;
+		const double rayDirYsq = rayDirY * rayDirY;
+		const double deltaDistX = sqrt(1 + rayDirYsq / rayDirXsq);
+		const double deltaDistY = sqrt(1 + rayDirXsq / rayDirYsq);
 
 		//what direction to step in x or y-direction (either +1 or -1)
 		int stepX;
@@ -129,23 +120,19 @@ const int PlayState::calculateWalls()
 		double sideDistY;
 
 		//calculate step and initial sideDist
-		if (rayDirX < 0)
-		{
+		if (rayDirX < 0) {
 			stepX = -1;
 			sideDistX = (rayPosX - mapX) * deltaDistX;
 		}
-		else
-		{
+		else {
 			stepX = 1;
 			sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX;
 		}
-		if (rayDirY < 0)
-		{
+		if (rayDirY < 0) {
 			stepY = -1;
 			sideDistY = (rayPosY - mapY) * deltaDistY;
 		}
-		else
-		{
+		else {
 			stepY = 1;
 			sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
 		}
@@ -153,18 +140,15 @@ const int PlayState::calculateWalls()
 		int hit = 0; //was there a wall hit?
 		int side; //was a NS or a EW wall hit?
 
-				  //perform DDA
-		while (hit == 0)
-		{
+		//perform DDA
+		while (hit == 0) {
 			//jump to next map square, OR in x-direction, OR in y-direction
-			if (sideDistX < sideDistY)
-			{
+			if (sideDistX < sideDistY) {
 				sideDistX += deltaDistX;
 				mapX += stepX;
 				side = 0;
 			}
-			else
-			{
+			else {
 				sideDistY += deltaDistY;
 				mapY += stepY;
 				side = 1;
@@ -175,13 +159,15 @@ const int PlayState::calculateWalls()
 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
 		double perpWallDist;
-		if (side == 0)
+		if (side == 0) {
 			perpWallDist = fabs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
-		else
+		}
+		else {
 			perpWallDist = fabs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
+		}
 
 		//Calculate height of line to draw on screen
-		int lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
+		const int lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
 
 		//calculate lowest and highest pixel to fill in current stripe
 		int drawStart = -lineHeight / 2 + m_windowHeight / 2;
@@ -190,15 +176,13 @@ const int PlayState::calculateWalls()
 		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
 
 		//texturing calculations
-		int texNum = m_levelRef[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		const int texNum = m_levelRef[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
 		double wallX; //where exactly the wall was hit
-		if (side == 1)
-		{
+		if (side == 1) {
 			wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2) / rayDirY) * rayDirX;
 		}
-		else
-		{
+		else {
 			wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2) / rayDirX) * rayDirY;
 		}
 		wallX -= floor(wallX);
@@ -209,16 +193,15 @@ const int PlayState::calculateWalls()
 		if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
 
 		//darker sides
-		for (int y = drawStart; y < drawEnd; y++)
-		{
+		for (int y = drawStart; y < drawEnd; y++) {
 
-			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
-			int texY = ((d * texHeight) / lineHeight) / 256;
+			const int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+			const int texY = ((d * texHeight) / lineHeight) / 256;
 
-			int texNumY = texHeight * texX + texY;
+			const unsigned int texNumY = texHeight * texX + texY;
 
-			if (texNumY < m_levelReader->getTexture(texNum).size())
-			{
+			if (texNumY < m_levelReader->getTexture(texNum).size()) {
+
 				sf::Uint32 color = m_levelReader->getTexture(texNum)[texNumY];
 
 				//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
@@ -232,49 +215,40 @@ const int PlayState::calculateWalls()
 		//SET THE ZBUFFER FOR THE SPRITE CASTING
 		m_ZBuffer[x] = perpWallDist; //perpendicular distance is used
 
-									 //FLOOR CASTING
+		//FLOOR CASTING
 		double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
 
-									   //4 different wall directions possible
-		if (side == 0 && rayDirX > 0)
-		{
+		//4 different wall directions possible
+		if (side == 0 && rayDirX > 0) {
 			floorXWall = mapX;
 			floorYWall = mapY + wallX;
 		}
-		else if (side == 0 && rayDirX < 0)
-		{
+		else if (side == 0 && rayDirX < 0) {
 			floorXWall = mapX + 1.0;
 			floorYWall = mapY + wallX;
 		}
-		else if (side == 1 && rayDirY > 0)
-		{
+		else if (side == 1 && rayDirY > 0) {
 			floorXWall = mapX + wallX;
 			floorYWall = mapY;
 		}
-		else
-		{
+		else {
 			floorXWall = mapX + wallX;
 			floorYWall = mapY + 1.0;
 		}
 
-		double distWall = perpWallDist;
-		double distPlayer = 0.0;
-
 		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
-												   //draw the floor from drawEnd to the bottom of the screen
-		for (int y = drawEnd + 1; y < m_windowHeight; y++)
-		{
-			double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+		//draw the floor from drawEnd to the bottom of the screen
+		for (int y = drawEnd + 1; y < m_windowHeight; y++) {
 
-			double weight = (currentDist - distPlayer) / (distWall - distPlayer);
+			const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+			const double weight = currentDist / perpWallDist;
 
-			double currentFloorX = weight * floorXWall + (1.0 - weight) * m_player->m_posX;
-			double currentFloorY = weight * floorYWall + (1.0 - weight) * m_player->m_posY;
+			const double currentFloorX = weight * floorXWall + (1.0 - weight) * m_player->m_posX;
+			const double currentFloorY = weight * floorYWall + (1.0 - weight) * m_player->m_posY;
 
-			int floorTexX, floorTexY;
-			floorTexX = int(currentFloorX * texWidth) % texWidth;
-			floorTexY = int(currentFloorY * texHeight) % texHeight;
+			const int floorTexX = int(currentFloorX * texWidth) % texWidth;
+			const int floorTexY = int(currentFloorY * texHeight) % texHeight;
 
 			//floor textures
 			sf::Uint32 color1 = m_levelReader->getTexture(8)[texWidth * floorTexY + floorTexX];
@@ -284,50 +258,45 @@ const int PlayState::calculateWalls()
 			m_buffer[pixIndex++].color = toColor(color1);
 			m_buffer[pixIndex].position = sf::Vector2f((float)x, float(m_windowHeight - y));
 			m_buffer[pixIndex++].color = toColor(color2);
-
 		}
 	}
 
 	return pixIndex;
 }
 
-const int PlayState::calculateSprites()
-{
+const int PlayState::calculateSprites() {
 
-	int pixIndex = 0;
+	unsigned int pixIndex = 0;
 
 	//SPRITE CASTING
 	//sort sprites from far to close
-	for (size_t i = 0; i < m_spriteSize; i++)
-	{
+	for (size_t i = 0; i < m_spriteSize; i++) {
 		m_spriteOrder[i] = i;
 		m_spriteDistance[i] = ((m_player->m_posX - m_spriteRef[i].x) * (m_player->m_posX - m_spriteRef[i].x) + (m_player->m_posY - m_spriteRef[i].y) * (m_player->m_posY - m_spriteRef[i].y)); //sqrt not taken, unneeded
 	}
 	combSort(m_spriteOrder, m_spriteDistance, m_spriteRef.size());
 
 	//after sorting the sprites, do the projection and draw them
-	for (size_t i = 0; i < m_spriteRef.size(); i++)
-	{
+	for (size_t i = 0; i < m_spriteRef.size(); i++) {
+		
 		//translate sprite position to relative to camera
-		double spriteX = m_spriteRef[m_spriteOrder[i]].x - m_player->m_posX;
-		double spriteY = m_spriteRef[m_spriteOrder[i]].y - m_player->m_posY;
+		const double spriteX = m_spriteRef[m_spriteOrder[i]].x - m_player->m_posX;
+		const double spriteY = m_spriteRef[m_spriteOrder[i]].y - m_player->m_posY;
 
 		//transform sprite with the inverse camera matrix
 		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
 		// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
 		// [ planeY   dirY ]                                          [ -planeY  planeX ]
 
-		double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
-
-		double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
-		double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
-
-		int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
+		const double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
+		const double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
+		const double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
+		const int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen
-		int spriteHeight = abs(int(m_windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
+		const int spriteHeight = abs(int(m_windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
 
-																	//calculate lowest and highest pixel to fill in current stripe
+		//calculate lowest and highest pixel to fill in current stripe
 		int drawStartY = -spriteHeight / 2 + m_windowHeight / 2;
 		if (drawStartY < 0) drawStartY = 0;
 		int drawEndY = spriteHeight / 2 + m_windowHeight / 2;
@@ -343,44 +312,46 @@ const int PlayState::calculateSprites()
 		bool outlineStored = false;
 
 		//loop through every vertical stripe of the sprite on screen
-		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
-		{
-			int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+		for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
+			
+			const int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+			
 			//the conditions in the if are:
 			//1) it's in front of camera plane so you don't see things behind you
 			//2) it's on the screen (left)
 			//3) it's on the screen (right)
 			//4) ZBuffer, with perpendicular distance
-			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe])
-			{
+			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe]) {
 
 				//store closest sprite for outline drawing
 				//ignore ceiling lights
-				if (!outlineStored && m_spriteRef[m_spriteOrder[i]].texture != 12)
-				{
+				if (!outlineStored && m_spriteRef[m_spriteOrder[i]].texture != 12) {
 					//half width
-					const float wOutline = (drawEndX - drawStartX) / 2.0f;
-					const float hOutline = (drawEndY - drawStartY);
+					const float wOutline = float(drawEndX - drawStartX) / 2.0f;
+					const float hOutline = float(drawEndY - drawStartY);
 					m_spriteOutlines.emplace_back(sf::Vector2f(wOutline, hOutline));
 					m_spriteOutlines.back().setFillColor({ 255, 255, 255, 0 });
-					m_spriteOutlines.back().setPosition(drawStartX + wOutline / 2.0f, drawStartY);
+					m_spriteOutlines.back().setPosition(drawStartX + wOutline / 2.0f, float(drawStartY));
 					m_spriteOutlines.back().setOutlineColor({ 255, 255, 255, 0 });
 					outlineStored = true;
 				}
 
-				for (int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
-				{
-					int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
-					int texY = ((d * texHeight) / spriteHeight) / 256;
+				//for every pixel of the current stripe
+				for (int y = drawStartY; y < drawEndY; y++) {
+					const int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+					const int texY = ((d * texHeight) / spriteHeight) / 256;
 
-					int texPix = texWidth * texX + texY;
-					int texNr = m_spriteRef[m_spriteOrder[i]].texture;
+					const int texPix = texWidth * texX + texY;
+					const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
 
-					if (texPix < m_levelReader->getTexture(texNr).size()) // prevent exception when accessing tex pixel out of range
-					{
-						sf::Uint32 color = m_levelReader->getTexture(texNr)[texPix]; //get current color from the texture
-						if ((color & 0x00FFFFFF) != 0 && (pixIndex < m_buffer.size())) // black is invisible!!!
-						{
+					// prevent exception when accessing tex pixel out of range
+					const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
+					const int texSize = textureData.size();
+					if (texPix < texSize) {
+						sf::Uint32 color = textureData[texPix]; //get current color from the texture
+						
+						// black is invisible!!!
+						if ((color & 0x00FFFFFF) != 0 && (pixIndex < m_buffer.size())) {
 							m_buffer[pixIndex].position = sf::Vector2f((float)stripe, (float)y);
 							m_buffer[pixIndex++].color = toColor(color);
 						}
@@ -395,8 +366,7 @@ const int PlayState::calculateSprites()
 }
 
 //Render minimap
-void PlayState::drawMinimap(sf::RenderWindow* window)
-{
+void PlayState::drawMinimap(sf::RenderWindow* window) {
 
 	//minimap background
 	sf::RectangleShape minimapBg(sf::Vector2f(m_levelSize * minimapScale, m_levelSize * minimapScale));
@@ -404,13 +374,10 @@ void PlayState::drawMinimap(sf::RenderWindow* window)
 	minimapBg.setFillColor(sf::Color(150, 150, 150, minimapTransparency));
 	window->draw(minimapBg);
 
-	for (int y = 0; y < m_levelSize; y++)
-	{
-		for (int x = 0; x < m_levelSize; x++)
-		{
-			//draw walls
-			if (m_levelRef[y][x] > 0 && m_levelRef[y][x] < 9)
-			{
+	//draw walls
+	for (size_t y = 0; y < m_levelSize; y++) {
+		for (size_t x = 0; x < m_levelSize; x++) {
+			if (m_levelRef[y][x] > 0 && m_levelRef[y][x] < 9) {
 				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
 				wall.setPosition(x * minimapScale, y * minimapScale);
 				wall.setFillColor(sf::Color(0, 0, 0, minimapTransparency));
@@ -418,28 +385,29 @@ void PlayState::drawMinimap(sf::RenderWindow* window)
 			}
 		}
 	}
+
 	// Render entities on minimap
-	for (size_t i = 0; i < m_spriteSize; i++)
-	{
+	for (size_t i = 0; i < m_spriteSize; i++) {
 		sf::CircleShape object(minimapScale / 4.0f);
-		object.setPosition(m_spriteRef[i].y * minimapScale, m_spriteRef[i].x * minimapScale);
+		object.setPosition(float(m_spriteRef[i].y) * minimapScale, float(m_spriteRef[i].x) * minimapScale);
 		object.setOrigin(minimapScale / 2.0f, minimapScale / 2.0f);
 		object.setFillColor(sf::Color(0, 0, 255, minimapTransparency));
 		window->draw(object);
 	}
+	
 	// Render Player on minimap
 	{
-		sf::CircleShape player(minimapScale, 3);
-		player.setPosition(m_player->m_posY * minimapScale, m_player->m_posX * minimapScale);
+		sf::CircleShape player(float(minimapScale), 3);
+		player.setPosition(float(m_player->m_posY) * minimapScale, float(m_player->m_posX) * minimapScale);
 		player.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
-		player.setOrigin(minimapScale, minimapScale);
+		player.setOrigin(float(minimapScale), float(minimapScale));
 
 		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
-		player2.setPosition(m_player->m_posY * minimapScale, m_player->m_posX * minimapScale);
+		player2.setPosition(float(m_player->m_posY) * minimapScale, float(m_player->m_posX) * minimapScale);
 		player2.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
 		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
 
-		float angle = std::atan2f(m_player->m_dirX, m_player->m_dirY);
+		float angle = std::atan2f(float(m_player->m_dirX), float(m_player->m_dirY));
 		player.setRotation((angle * 57.2957795f) + 90);
 		player2.setRotation((angle * 57.2957795f) + 90);
 
@@ -448,86 +416,67 @@ void PlayState::drawMinimap(sf::RenderWindow* window)
 	}
 }
 
-const sf::Color PlayState::toColor(sf::Uint32 colorRgba)
-{
+const sf::Color PlayState::toColor(sf::Uint32 colorRgba) {
 	return sf::Color(colorRgba & 0x000000ff, (colorRgba & 0x0000ff00) >> 8, (colorRgba & 0x00ff0000) >> 16, 255);
 }
 
 
-void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game)
-{
+void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game) {
 
 	m_mousePosition = mousepPosition;
 
 	//escape go to main menu
-	if (event.type == sf::Event::KeyPressed)
-	{
+	if (event.type == sf::Event::KeyPressed) {
 		// handle controls
-		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
-		{
+		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A)) {
 			m_left = true;
 		}
-		else if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
-		{
+		else if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D)) {
 			m_right = true;
 		}
-		else if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
-		{
+		else if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)) {
 			m_forward = true;
 		}
-		else if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))
-		{
+		else if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))	{
 			m_backward = true;
 		}
 
 	}
 
-	if (event.type == sf::Event::KeyReleased)
-	{
+	if (event.type == sf::Event::KeyReleased) {
 		// handle controls
-		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
-		{
+		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A)) {
 			m_left = false;
 		}
-		if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
-		{
+		if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D)) {
 			m_right = false;
 		}
-		if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
-		{
+		if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)) {
 			m_forward = false;
 		}
-		if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))
-		{
+		if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S)) {
 			m_backward = false;
 		}
-
-		if (event.key.code == sf::Keyboard::Escape)
-		{
+		if (event.key.code == sf::Keyboard::Escape)	{
 			game.changeState(Game::GameStateName::MAINMENU);
 		}
-
 	}
-
 }
 
 //sort algorithm
-void PlayState::combSort(std::vector<int>& order, std::vector<double>& dist, int amount)
-{
+void PlayState::combSort(std::vector<int>& order, std::vector<double>& dist, int amount) {
+	
 	int gap = amount;
 	bool swapped = false;
-	while (gap > 1 || swapped)
-	{
+	while (gap > 1 || swapped) {
 		//shrink factor 1.3
 		gap = (gap * 10) / 13;
 		if (gap == 9 || gap == 10) gap = 11;
 		if (gap < 1) gap = 1;
 		swapped = false;
-		for (int i = 0; i < amount - gap; i++)
-		{
+		for (int i = 0; i < amount - gap; i++) {
 			int j = i + gap;
-			if (dist[i] < dist[j])
-			{
+			if (dist[i] < dist[j]) {
 				std::swap(dist[i], dist[j]);
 				std::swap(order[i], order[j]);
 				swapped = true;

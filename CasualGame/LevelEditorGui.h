@@ -11,8 +11,7 @@ public:
 	GuiButton(sf::Text Text, sf::RectangleShape Background) : text(Text), background(Background), pressed(false) {}
 };
 
-class LevelEditorGui
-{
+class LevelEditorGui {
 public:
 	LevelEditorGui(const int x, const int y, const int width);
 	~LevelEditorGui();
@@ -35,10 +34,10 @@ private:
 	
 	int m_padding = 10;
 
-	int m_width;
 	int m_xPos;
 	int m_yPos;
-	
+	int m_width;
+
 	sf::Color m_idleColor = sf::Color::White;
 	sf::Color m_hoverColor = sf::Color::Green;
 

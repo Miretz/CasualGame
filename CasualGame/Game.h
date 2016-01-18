@@ -10,12 +10,9 @@
 #include "LevelEditorState.h"
 #include "LevelReaderWriter.h"
 
-typedef float FrameTime;
+static const auto gameTitle = "Casual Game by Miretz";
 
-static constexpr auto gameTitle = "Casual Game by Miretz";
-
-class Game
-{
+class Game {
 public:
 	Game();
 	virtual ~Game() = default;
@@ -40,7 +37,6 @@ private:
 	float m_currentSlice = 0.f;
 	bool m_running = true;
 	int m_fpsShowTimer = 0;
-
 	bool m_fullscreen = false;
 
 	std::unique_ptr<sf::RenderWindow> m_window;

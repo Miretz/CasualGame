@@ -2,8 +2,11 @@
 
 RandomGenerator MainMenuState::gen = RandomGenerator();
 
-MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_windowHeight(h)
+MainMenuState::MainMenuState(const int w, const int h) : 
+	m_windowWidth(w), 
+	m_windowHeight(h)
 {
+	
 	m_font.loadFromFile("resources/font/OtherF.ttf");
 	
 	// Game Title
@@ -73,14 +76,12 @@ MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_win
 	m_menuItems.push_back(quitGame);
 
 	//colors for background
-	for (int i = 0; i < 4; ++i)
-	{
+	for (int i = 0; i < 4; ++i)	{
 		m_bgColors.emplace_back(0, 0, 0, 150);
 	}
 
 	// followers vector
-	for (int i = 0; i < 200; ++i)
-	{
+	for (int i = 0; i < 200; ++i) {
 		sf::CircleShape circle(1.5f);
 		circle.setFillColor(sf::Color::White);
 		circle.setPosition(gen.randomFloat(0.0f, static_cast<float>(m_windowWidth)), gen.randomFloat(0.0f, static_cast<float>(m_windowWidth)));
@@ -89,28 +90,24 @@ MainMenuState::MainMenuState(const int w, const int h) : m_windowWidth(w), m_win
 
 }
 
-MainMenuState::~MainMenuState()
-{
+MainMenuState::~MainMenuState(){
+	//Empty
 }
 
-void MainMenuState::update(const float ft)
-{
+void MainMenuState::update(const float ft) {
 
 	sf::Transform rotation;
 	rotation.rotate(0.01f, m_windowWidth / 2.0f, m_windowHeight / 2.0f);
-	for (size_t i = 0; i < m_followers.size(); ++i)
-	{
+	for (size_t i = 0; i < m_followers.size(); ++i)	{
 		m_followers[i].setPosition(rotation.transformPoint(m_followers[i].getPosition()));
 	}
 
 	const int colorMax = 100;
 	
 	//slight bg color update
-	for (size_t i = 0; i < m_bgColors.size(); ++i)
-	{
+	for (size_t i = 0; i < m_bgColors.size(); ++i) {
 
-		if (gen.randomInt(0, 100) < 10)
-		{
+		if (gen.randomInt(0, 100) < 10)	{
 			m_bgColors[i].r += gen.randomInt(-2, 2);
 			m_bgColors[i].g += gen.randomInt(-2, 2);
 			m_bgColors[i].b += gen.randomInt(-2, 2);
@@ -127,19 +124,16 @@ void MainMenuState::update(const float ft)
 
 }
 
-void MainMenuState::draw(sf::RenderWindow& window)
-{
+void MainMenuState::draw(sf::RenderWindow& window) {
 	window.clear();
 
 	//draw followers 
-	for (const auto follower : m_followers)
-	{
+	for (const auto follower : m_followers)	{
 		window.draw(follower);
 	}
 
 	//bg rectangle
-	sf::Vertex bgRect[] =
-	{
+	sf::Vertex bgRect[] = {
 		sf::Vertex(sf::Vector2f(0.f,0.f), m_bgColors[0]),
 		sf::Vertex(sf::Vector2f(0.f,static_cast<float>(m_windowHeight)), m_bgColors[1]),
 		sf::Vertex(sf::Vector2f(static_cast<float>(m_windowWidth), static_cast<float>(m_windowHeight)), m_bgColors[2]),
@@ -149,16 +143,14 @@ void MainMenuState::draw(sf::RenderWindow& window)
 	
 	window.draw(m_titleText);
 	
-	for (size_t i = 0; i < m_menuItems.size(); ++i)
-	{
+	for (size_t i = 0; i < m_menuItems.size(); ++i)	{
 		sf::Text item = m_menuItems[i];
 
 		sf::FloatRect boundingBox = item.getGlobalBounds();
 		sf::FloatRect boundsWithPadding(boundingBox.left - m_padding / 2.0f, boundingBox.top - m_padding / 2.0f, boundingBox.width + m_padding, boundingBox.height + m_padding);
 
 		// draw selection box
-		if (boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i)
-		{
+		if (boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i) {
 			m_mouseOverIndex = i;
 			
 			sf::RectangleShape selector(sf::Vector2f(boundsWithPadding.width, boundsWithPadding.height));
@@ -168,27 +160,22 @@ void MainMenuState::draw(sf::RenderWindow& window)
 			selector.setOutlineColor(sf::Color(255, 255, 255, 255));
 			window.draw(selector);
 		}
-		
 		window.draw(item);
 	}
-
 	window.display();
 }
 
-void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game& game)
-{
+void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game& game) {
 	
 	m_mousePos = mousepPosition;
 	
 	//exit
-	if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))
-	{
+	if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape)) {
 		game.changeState(Game::GameStateName::QUIT);
 	}
 	//left mouse or enter button
 	else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Return) ||
-		(event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left))
-	{
+		(event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left))	{
 		if (m_mouseOverIndex == 0) {
 			game.changeState(Game::GameStateName::PLAY);
 		}
@@ -206,15 +193,12 @@ void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mo
 		}
 	}
 	//enable menu selection using arrow keys
-	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S)))
-	{
+	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))) {
 		if(m_mouseOverIndex < m_menuItems.size()-1)
 			m_mouseOverIndex++;
 	}
-	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)))
-	{
+	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))) {
 		if (m_mouseOverIndex > 0)
 			m_mouseOverIndex--;
 	}
-	
 }

@@ -1,6 +1,5 @@
 #pragma once
-class Player
-{
+class Player {
 public:
 	Player();
 	~Player();

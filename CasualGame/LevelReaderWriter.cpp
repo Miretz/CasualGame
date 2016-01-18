@@ -2,21 +2,19 @@
 
 namespace fs = std::tr2::sys;
 
-LevelReaderWriter::LevelReaderWriter()
-{
+LevelReaderWriter::LevelReaderWriter() {
+	
 	loadLevel(levelFile, m_level, m_sprites);
 
 	//texture generator 
 	//generateTextures();
 
 	//load textures
-	auto numTextures = 13;
 	m_texture.resize(numTextures);
 	m_sfmlTextures.resize(numTextures);
 
 	// load all textures
-	for (int i = 0; i < numTextures; i++)
-	{
+	for (int i = 0; i < numTextures; i++) {
 		loadTexture(i, texPaths[i]);
 
 		sf::Image image;
@@ -35,23 +33,20 @@ LevelReaderWriter::LevelReaderWriter()
 }
 
 
-LevelReaderWriter::~LevelReaderWriter()
-{
+LevelReaderWriter::~LevelReaderWriter(){
+	//Empty
 }
 
-void LevelReaderWriter::changeLevelTile(const int x, const int y, const int value)
-{
+void LevelReaderWriter::changeLevelTile(const int x, const int y, const int value) {
 	m_level[x][y] = value;
 }
 
-void LevelReaderWriter::moveSprite(const int index, const double x, const double y)
-{
+void LevelReaderWriter::moveSprite(const int index, const double x, const double y) {
 	m_sprites[index].x = x;
 	m_sprites[index].y = y;
 }
 
-void LevelReaderWriter::createSprite(double x, double y, int texture)
-{
+void LevelReaderWriter::createSprite(double x, double y, int texture) {
 	Sprite spr;
 	spr.x = x;
 	spr.y = y;
@@ -59,13 +54,11 @@ void LevelReaderWriter::createSprite(double x, double y, int texture)
 	m_sprites.push_back(spr);
 }
 
-void LevelReaderWriter::deleteSprite(const int index)
-{
+void LevelReaderWriter::deleteSprite(const int index) {
 	m_sprites.erase(m_sprites.begin() + index);
 }
 
-void LevelReaderWriter::reloadLevel()
-{
+void LevelReaderWriter::loadDefaultLevel() {
 	m_level.clear();
 	m_sprites.clear();
 
@@ -75,8 +68,7 @@ void LevelReaderWriter::reloadLevel()
 	loadLevel(levelFile, m_level, m_sprites);
 }
 
-void LevelReaderWriter::loadCustomLevel(const std::string& levelName)
-{
+void LevelReaderWriter::loadCustomLevel(const std::string& levelName) {
 	m_level.clear();
 	m_sprites.clear();
 
@@ -86,16 +78,14 @@ void LevelReaderWriter::loadCustomLevel(const std::string& levelName)
 	loadLevel(customLevelDir + levelName, m_level, m_sprites);
 }
 
-void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
-{
+void LevelReaderWriter::saveCustomLevel(const std::string & levelName) {
+	
 	//warning! overwrites the file if exists
 	std::fstream file(customLevelDir + levelName, std::ios::out);
 	
 	//write walls
-	for (int i = 0; i < m_level.size(); ++i)
-	{
-		for (int j = 0; j < m_level[i].size(); ++j)
-		{
+	for (size_t i = 0; i < m_level.size(); ++i) {
+		for (size_t j = 0; j < m_level[i].size(); ++j)	{
 			file << m_level[i][j] << ",";
 		}
 		file << "\n";
@@ -103,27 +93,22 @@ void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
 	file << "\n";
 	
 	//write sprites
-	for (auto& spr : m_sprites)
-	{
+	for (auto& spr : m_sprites) {
 		file << spr.x << "," << spr.y << "," << spr.texture << "," << "\n";
 	}
 	file << "\n";
-
 	file.close();
 }
 
-const std::vector<std::string> LevelReaderWriter::getCustomLevels()
-{
-	auto dpath = fs::path(customLevelDir);
+const std::vector<std::string> LevelReaderWriter::getCustomLevels() {
 	
+	auto dpath = fs::path(customLevelDir);
 	std::vector<std::string> entries;
 
 	if (!fs::is_directory(dpath)) return entries;
 
-	for (auto it = fs::directory_iterator(dpath); it != fs::directory_iterator(); ++it)
-	{
-		if (!fs::is_directory(it->path()))
-		{
+	for (auto it = fs::directory_iterator(dpath); it != fs::directory_iterator(); ++it) {
+		if (!fs::is_directory(it->path())) {
 			entries.emplace_back();
 			std::string path = it->path().string();
 			path.erase(0, std::string(customLevelDir).size());
@@ -134,14 +119,12 @@ const std::vector<std::string> LevelReaderWriter::getCustomLevels()
 	return entries;
 }
 
-void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites)
-{
+void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites) {
 	std::ifstream file(path);
 
 	//load walls
 	std::string line;
-	while (std::getline(file, line))
-	{
+	while (std::getline(file, line)) {
 		if (!file.good())
 			break;
 
@@ -153,8 +136,7 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 		std::vector<int> rowVec;
 
-		while (std::getline(iss, val, ','))
-		{
+		while (std::getline(iss, val, ','))	{
 			if (!iss.good())
 				break;
 
@@ -169,16 +151,14 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 	
 	//load sprites
 	int row = 0;
-	while (std::getline(file, line))
-	{
+	while (std::getline(file, line)) {
 		if (!file.good())
 			break;
 
 		std::stringstream iss(line);
 
 		Sprite spr;
-		for (int col = 0; col < 3; col++)
-		{
+		for (int col = 0; col < 3; col++) {
 			std::string val;
 			std::getline(iss, val, ',');
 			if (!iss.good())
@@ -186,8 +166,7 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 			std::stringstream convertor(val);
 
-			switch (col)
-			{
+			switch (col) {
 			case 0: convertor >> spr.x; break;
 			case 1: convertor >> spr.y; break;
 			case 2: convertor >> spr.texture; break;
@@ -199,13 +178,10 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 }
 
 // generates some textures for testing
-void LevelReaderWriter::generateTextures()
-{
+void LevelReaderWriter::generateTextures() {
 	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
-	for (int x = 0; x < texWidth; x++)
-	{
-		for (int y = 0; y < texHeight; y++)
-		{
+	for (int x = 0; x < texWidth; x++) {
+		for (int y = 0; y < texHeight; y++) {
 			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
 			//int xcolor = x * 256 / texWidth;
 			int ycolor = y * 256 / texHeight;
@@ -223,15 +199,13 @@ void LevelReaderWriter::generateTextures()
 }
 
 // loads texture data from a file
-void LevelReaderWriter::loadTexture(int index, const std::string& fileName)
-{
+void LevelReaderWriter::loadTexture(int index, const std::string& fileName) {
 	sf::Image image;
 	image.loadFromFile(fileName);
 	const sf::Uint8* imagePtr = image.getPixelsPtr();
 
 	std::vector<sf::Uint32> texData;
-	for (int i = 0; i < (texHeight * texWidth * 4); i += 4)
-	{
+	for (int i = 0; i < (texHeight * texWidth * 4); i += 4) {
 		texData.push_back(
 			imagePtr[i + 3] << 24 | imagePtr[i + 2] << 16 | imagePtr[i + 1] << 8 | imagePtr[i]);
 	}

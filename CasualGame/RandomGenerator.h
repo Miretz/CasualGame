@@ -2,8 +2,7 @@
 #include <iostream>
 #include <random>
 
-class RandomGenerator
-{
+class RandomGenerator {
 public:
 	RandomGenerator() = default;
 	virtual ~RandomGenerator(void) = default;

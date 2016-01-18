@@ -1,24 +1,17 @@
 #include "Game.h"
 
-Game::Game()
-{
-		
+Game::Game() {
 	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(1024, 768), gameTitle, sf::Style::Close);
 	m_currentState = std::make_unique<MainMenuState>(1024, 768);
 	m_clock = std::make_unique<sf::Clock>();
 	
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 	m_player = std::make_shared<Player>();
-
-	//m_window->setFramerateLimit(500);
-	//m_window->setVerticalSyncEnabled(true);
 }
 
-void Game::run()
-{
+void Game::run() {
 	//Main Loop
-	while (m_running &&  m_window->isOpen())
-	{
+	while (m_running) {
 		checkInput();
 		update();
 		draw();
@@ -27,49 +20,38 @@ void Game::run()
 	m_window->close();
 }
 
-void Game::checkInput()
-{
+void Game::checkInput() {
 	sf::Event event;
-	while (m_window->pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed)
-		{
+	while (m_window->pollEvent(event)) {
+		if (event.type == sf::Event::Closed) {
 			m_running = false;
 		}
-		else
-		{
+		else  {
 			sf::Vector2f mousePosition = (sf::Vector2f) sf::Mouse::getPosition(*m_window);
 			m_currentState->handleInput(event, mousePosition, *this);
 		}
 	}
 }
 
-void Game::update() 
-{
+void Game::update() {
 	m_currentSlice += m_lastFt;
-
-	for (; m_currentSlice >= 1.0f; m_currentSlice -= 1.0f)
-	{
+	for (; m_currentSlice >= 1.0f; m_currentSlice -= 1.0f) {
 		m_currentState->update(1.0f);
 	}
 }
 
-void Game::draw()
-{
+void Game::draw() {
 	m_currentState->draw(*m_window);
 }
 
-void Game::updateTimers()
-{
+void Game::updateTimers() {
 	float ft = static_cast<float>(m_clock->restart().asMilliseconds());
 	m_lastFt = ft;
 	
-	if (m_fpsShowTimer == 0)
-	{
+	if (m_fpsShowTimer == 0) {
 		m_fpsShowTimer = 10;
 		float ftSeconds = ft / 1000.f;
-		if (ftSeconds > 0.f)
-		{
+		if (ftSeconds > 0.f) {
 			int fps = static_cast<int>(1.f / ftSeconds);
 			m_window->setTitle("FPS: " + std::to_string(fps) + " " + gameTitle);
 		}
@@ -77,10 +59,8 @@ void Game::updateTimers()
 	m_fpsShowTimer--;
 }
 
-void Game::changeState(GameStateName newState)
-{
-	switch (newState)
-	{
+void Game::changeState(GameStateName newState) {
+	switch (newState) {
 	case GameStateName::MAINMENU:
 		m_currentState = std::move(std::unique_ptr<MainMenuState>(new MainMenuState(m_window->getSize().x, m_window->getSize().y)));
 		break;
@@ -98,7 +78,7 @@ void Game::changeState(GameStateName newState)
 		m_player->m_planeY = 0.66;
 
 		//reload level
-		m_levelReader->reloadLevel();
+		m_levelReader->loadDefaultLevel();
 
 		m_currentState = std::move(std::unique_ptr<PlayState>(new PlayState(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader)));
 		break;
@@ -117,17 +97,14 @@ void Game::changeState(GameStateName newState)
 	}
 }
 
-void Game::switchFullscreen()
-{
-	if (!m_fullscreen)
-	{
+void Game::switchFullscreen() {
+	if (!m_fullscreen) {
 		m_window->close();
 		m_window->create(sf::VideoMode::getDesktopMode(), gameTitle, sf::Style::Fullscreen);
 		changeState(GameStateName::MAINMENU);
 		m_fullscreen = true;
 	}
-	else
-	{
+	else {
 		m_window->close();
 		m_window->create(sf::VideoMode(1024, 768), gameTitle, sf::Style::Close);
 		changeState(GameStateName::MAINMENU);
