@@ -12,6 +12,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_mousePosition(sf::Vector2f(0.0f, 0.0f))
 {
 	m_buffer.resize(h * w);
+
 	m_ZBuffer.resize(w);
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
@@ -321,7 +322,11 @@ const unsigned int PlayState::calculateSprites() {
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
 		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
-		bool outlineStored = false;
+		bool storeOutline = true;
+
+		const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
+		const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
+		const int texSize = textureData.size();
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
@@ -334,13 +339,10 @@ const unsigned int PlayState::calculateSprites() {
 			//3) it's on the screen (right)
 			//4) ZBuffer, with perpendicular distance
 			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe]) {
-
-
-				const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
-
+				
 				//store closest sprite for outline drawing
 				//ignore ceiling lights
-				if (!outlineStored && texNr != 12) {
+				if (storeOutline && texNr != 12) {
 					//half width
 					const float wOutline = float(drawEndX - drawStartX) / 2.0f;
 					const float hOutline = float(drawEndY - drawStartY);
@@ -348,12 +350,9 @@ const unsigned int PlayState::calculateSprites() {
 					m_spriteOutlines.back().setFillColor({ 255, 255, 255, 0 });
 					m_spriteOutlines.back().setPosition(drawStartX + wOutline / 2.0f, float(drawStartY));
 					m_spriteOutlines.back().setOutlineColor({ 255, 255, 255, 0 });
-					outlineStored = true;
+					storeOutline = false;
 				}
-
-				const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
-				const int texSize = textureData.size();
-				
+								
 				//for every pixel of the current stripe
 				for (int y = drawStartY; y < drawEndY; y++) {
 					

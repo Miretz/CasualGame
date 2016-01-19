@@ -51,6 +51,7 @@ private:
 	std::vector<double> m_spriteDistance;
 
 	std::vector<sf::Vertex> m_buffer;
+
 	std::vector<sf::RectangleShape> m_spriteOutlines;
 
 	sf::Font m_font;
