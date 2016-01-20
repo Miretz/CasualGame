@@ -5,6 +5,7 @@
 #include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
+#include "Clickable.h"
 
 #include <algorithm>
 #include <fstream>
@@ -52,7 +53,7 @@ private:
 
 	std::vector<sf::Vertex> m_buffer;
 
-	std::vector<sf::RectangleShape> m_spriteOutlines;
+	std::vector<Clickable> m_spriteOutlines;
 
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;

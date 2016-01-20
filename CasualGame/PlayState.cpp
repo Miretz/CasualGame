@@ -81,10 +81,8 @@ void PlayState::draw(sf::RenderWindow& window) {
 
 	//draw outlines iterate backwards because they are back to front and we want front to back
 	for (unsigned i = m_spriteOutlines.size(); i-- > 0; ) {
-		if (m_spriteOutlines[i].getGlobalBounds().contains(m_mousePosition)) {
-			m_spriteOutlines[i].setOutlineColor({ 255, 255, 255, 255 });
-			m_spriteOutlines[i].setOutlineThickness(2);
-			window.draw(m_spriteOutlines[i]);
+		if (m_spriteOutlines[i].isMouseOver(m_mousePosition)) {
+			m_spriteOutlines[i].draw(window);
 			break;
 		}
 	}
@@ -98,7 +96,7 @@ void PlayState::draw(sf::RenderWindow& window) {
 	window.display();
 
 	m_spriteOutlines.clear();
-	std::vector<sf::RectangleShape>().swap(m_spriteOutlines);
+	std::vector<Clickable>().swap(m_spriteOutlines);
 }
 
 const unsigned int PlayState::calculateWalls() {
@@ -346,10 +344,7 @@ const unsigned int PlayState::calculateSprites() {
 					//half width
 					const float wOutline = float(drawEndX - drawStartX) / 2.0f;
 					const float hOutline = float(drawEndY - drawStartY);
-					m_spriteOutlines.emplace_back(sf::Vector2f(wOutline, hOutline));
-					m_spriteOutlines.back().setFillColor({ 255, 255, 255, 0 });
-					m_spriteOutlines.back().setPosition(drawStartX + wOutline / 2.0f, float(drawStartY));
-					m_spriteOutlines.back().setOutlineColor({ 255, 255, 255, 0 });
+					m_spriteOutlines.emplace_back(sf::Vector2f(wOutline, hOutline), sf::Vector2f(drawStartX + wOutline / 2.0f, float(drawStartY)));
 					storeOutline = false;
 				}
 								
