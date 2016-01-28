@@ -15,6 +15,12 @@
 #include <string>
 #include <vector>
 
+#include <GL/glew.h>
+#include <SFML/OpenGL.hpp>
+
+// Link statically with GLEW
+#define GLEW_STATIC
+
 static const float minimapScale = 8.0f;
 static const int minimapTransparency = 140;
 static const double PI = 3.141592653589793238463;
@@ -51,17 +57,28 @@ private:
 	std::vector<int> m_spriteOrder;
 	std::vector<double> m_spriteDistance;
 
-	std::vector<sf::Vertex> m_buffer;
+	sf::Uint32* m_buffer;
 
 	std::vector<Clickable> m_spriteOutlines;
 
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;
 
-	const unsigned int calculateWalls();
-	const unsigned int calculateSprites();
+	//opengl stuffs
+	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	GLuint shaderProgram;
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	GLuint tex;
+
+	void calculateWalls();
+	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window);
+	void setPixel(int x, int y, const sf::Uint32& colorRgba);
 	const sf::Color toColor(const sf::Uint32& colorRgba);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
+	void cleanup();
 
 };
