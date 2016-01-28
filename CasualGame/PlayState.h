@@ -77,7 +77,6 @@ private:
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window);
 	void setPixel(int x, int y, const sf::Uint32& colorRgba);
-	const sf::Color toColor(const sf::Uint32& colorRgba);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
 	void cleanup();
 

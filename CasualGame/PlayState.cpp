@@ -122,7 +122,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, m_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_buffer);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -202,7 +202,7 @@ void PlayState::draw(sf::RenderWindow& window) {
 	calculateSprites();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, m_buffer);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_buffer);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glUseProgram(0);
@@ -355,7 +355,19 @@ void PlayState::calculateWalls() {
 				sf::Uint32 color = m_levelReader->getTexture(texNum)[texNumY];
 
 				//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-				if (side == 1) color = sf::Uint32((color >> 1) & 8355711);
+				sf::Uint8 *colors = (sf::Uint8*)&color;
+				if (side == 1) { 
+					//not working for some reason
+					//color = (color >> 1) & 8355711;
+
+					//more simplistic approach
+					colors[0] = colors[0] / 2;
+					colors[1] = colors[1] / 2;
+					colors[2] = colors[2] / 2;
+					
+				}
+				//just to be sure we have alpha to full
+				colors[3] = 255;
 
 				setPixel(x, y, color);
 
@@ -562,14 +574,8 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 & colorRgba){
 		return;
 	}
 	
-	//the funky color transformation is needed to get the right format for opengl
-	m_buffer[y* m_windowWidth + x] = toColor(colorRgba).toInteger();
+	m_buffer[y* m_windowWidth + x] = colorRgba;
 }
-
-const sf::Color PlayState::toColor(const sf::Uint32& colorRgba) {
-	return sf::Color(colorRgba & 0x000000ff, (colorRgba & 0x0000ff00) >> 8, (colorRgba & 0x00ff0000) >> 16, 255);
-}
-
 
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game) {
 
