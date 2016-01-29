@@ -567,14 +567,10 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken){
 		return;
 	}
 
-	//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 	sf::Uint8 *colors = (sf::Uint8*)&colorRgba;
-
-	//int index = (y* m_windowWidth * 3) + (x * 3);
 	int index = (y * m_windowWidth + x) * 3;
 
 	if (darken) {
-		//more simplistic approach
 		m_buffer[index] = colors[0] / 2;
 		m_buffer[index + 1] = colors[1] / 2;
 		m_buffer[index + 2] = colors[2] / 2;
@@ -583,7 +579,6 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken){
 		m_buffer[index] = colors[0];
 		m_buffer[index + 1] = colors[1];
 		m_buffer[index + 2] = colors[2];
-
 	}
 }
 
