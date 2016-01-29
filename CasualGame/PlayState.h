@@ -57,7 +57,7 @@ private:
 	std::vector<int> m_spriteOrder;
 	std::vector<double> m_spriteDistance;
 
-	sf::Uint32* m_buffer;
+	sf::Uint8* m_buffer;
 
 	std::vector<Clickable> m_spriteOutlines;
 
@@ -76,7 +76,7 @@ private:
 	void calculateWalls();
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window);
-	void setPixel(int x, int y, const sf::Uint32& colorRgba);
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
 	void cleanup();
 

@@ -49,7 +49,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
 	m_fpsDisplay.setColor(sf::Color::Yellow);
 
-	m_buffer = new sf::Uint32[h * w];
+	m_buffer = new sf::Uint8[h * w * 3];
 	
 	// Initialize GLEW
 	glewExperimental = GL_TRUE;
@@ -122,7 +122,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -202,7 +202,7 @@ void PlayState::draw(sf::RenderWindow& window) {
 	calculateSprites();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_buffer);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glUseProgram(0);
@@ -242,12 +242,28 @@ void PlayState::draw(sf::RenderWindow& window) {
 
 void PlayState::calculateWalls() {
 
+	const double rayPosX = m_player->m_posX;
+	const double rayPosY = m_player->m_posY;
+
+	//what direction to step in x or y-direction (either +1 or -1)
+	int stepX;
+	int stepY;
+
+	//length of ray from current position to next x or y-side
+	double sideDistX;
+	double sideDistY;
+
+	double perpWallDist;
+	double wallX; //where exactly the wall was hit
+
+	const std::vector<sf::Uint32>& tex8 = m_levelReader->getTexture(8);//floor
+	const std::vector<sf::Uint32>& tex9 = m_levelReader->getTexture(9);//ceiling
+
 	//2d raycaster
 	for (int x = 0; x < m_windowWidth; x++)	{
 		//calculate ray position and direction
 		const double cameraX = 2 * x / double(m_windowWidth) - 1; //x-coordinate in camera space
-		const double rayPosX = m_player->m_posX;
-		const double rayPosY = m_player->m_posY;
+		
 		const double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
 		const double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
 
@@ -260,14 +276,6 @@ void PlayState::calculateWalls() {
 		const double rayDirYsq = rayDirY * rayDirY;
 		const double deltaDistX = sqrt(1 + rayDirYsq / rayDirXsq);
 		const double deltaDistY = sqrt(1 + rayDirXsq / rayDirYsq);
-
-		//what direction to step in x or y-direction (either +1 or -1)
-		int stepX;
-		int stepY;
-
-		//length of ray from current position to next x or y-side
-		double sideDistX;
-		double sideDistY;
 
 		//calculate step and initial sideDist
 		if (rayDirX < 0) {
@@ -308,7 +316,6 @@ void PlayState::calculateWalls() {
 		}
 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
-		double perpWallDist;
 		if (side == 0) {
 			perpWallDist = fabs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
 		}
@@ -328,7 +335,6 @@ void PlayState::calculateWalls() {
 		//texturing calculations
 		const int texNum = m_levelRef[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 
-		double wallX; //where exactly the wall was hit
 		if (side == 1) {
 			wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2) / rayDirY) * rayDirX;
 		}
@@ -342,34 +348,21 @@ void PlayState::calculateWalls() {
 		if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
 		if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
 
+		const std::vector<sf::Uint32>& texture = m_levelReader->getTexture(texNum);
+		const size_t texSize = texture.size();
+
 		//darker sides
 		for (int y = drawStart; y < drawEnd; y++) {
 
 			const int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			const int texY = ((d * texHeight) / lineHeight) / 256;
-
 			const unsigned int texNumY = texHeight * texX + texY;
 
-			if (texNumY < m_levelReader->getTexture(texNum).size()) {
+			if (texNumY < texSize) {
 
-				sf::Uint32 color = m_levelReader->getTexture(texNum)[texNumY];
+				sf::Uint32 color = texture[texNumY];
 
-				//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-				sf::Uint8 *colors = (sf::Uint8*)&color;
-				if (side == 1) { 
-					//not working for some reason
-					//color = (color >> 1) & 8355711;
-
-					//more simplistic approach
-					colors[0] = colors[0] / 2;
-					colors[1] = colors[1] / 2;
-					colors[2] = colors[2] / 2;
-					
-				}
-				//just to be sure we have alpha to full
-				colors[3] = 255;
-
-				setPixel(x, y, color);
+				setPixel(x, y, color, side==1);
 
 			}
 		}
@@ -399,7 +392,7 @@ void PlayState::calculateWalls() {
 		}
 
 		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
-
+		
 		//draw the floor from drawEnd to the bottom of the screen
 		for (int y = drawEnd + 1; y < m_windowHeight; y++) {
 
@@ -413,11 +406,11 @@ void PlayState::calculateWalls() {
 			const int floorTexY = int(currentFloorY * texHeight) % texHeight;
 
 			//floor textures
-			sf::Uint32 color1 = m_levelReader->getTexture(8)[texWidth * floorTexY + floorTexX];
-			sf::Uint32 color2 = m_levelReader->getTexture(9)[texWidth * floorTexY + floorTexX];
+			sf::Uint32 color1 = tex8[texWidth * floorTexY + floorTexX];
+			sf::Uint32 color2 = tex9[texWidth * floorTexY + floorTexX];
 
-			setPixel(x, y, color1);
-			setPixel(x, m_windowHeight - y, color2);
+			setPixel(x, y, color1, false);
+			setPixel(x, m_windowHeight - y, color2, false);
 		}
 	}
 
@@ -507,7 +500,7 @@ void PlayState::calculateSprites() {
 						
 						// black is invisible!!!
 						if ((color & 0x00FFFFFF) != 0) {
-							setPixel(stripe, y, color);
+							setPixel(stripe, y, color, false);
 						}
 					}
 				}
@@ -568,13 +561,30 @@ void PlayState::drawMinimap(sf::RenderWindow* window) {
 	}
 }
 
-void PlayState::setPixel(int x, int y, const sf::Uint32 & colorRgba){
+void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken){
 
 	if (x >= m_windowWidth || y >= m_windowHeight) {
 		return;
 	}
-	
-	m_buffer[y* m_windowWidth + x] = colorRgba;
+
+	//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+	sf::Uint8 *colors = (sf::Uint8*)&colorRgba;
+
+	//int index = (y* m_windowWidth * 3) + (x * 3);
+	int index = (y * m_windowWidth + x) * 3;
+
+	if (darken) {
+		//more simplistic approach
+		m_buffer[index] = colors[0] / 2;
+		m_buffer[index + 1] = colors[1] / 2;
+		m_buffer[index + 2] = colors[2] / 2;
+	}
+	else {
+		m_buffer[index] = colors[0];
+		m_buffer[index + 1] = colors[1];
+		m_buffer[index + 2] = colors[2];
+
+	}
 }
 
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game) {
