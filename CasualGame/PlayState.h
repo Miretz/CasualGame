@@ -25,6 +25,9 @@ static const float minimapScale = 8.0f;
 static const int minimapTransparency = 140;
 static const double PI = 3.141592653589793238463;
 
+static const int DARKEN = 1;
+static const int HIGHLIGHT = 2;
+
 class PlayState : public GameState {
 public:
 	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
@@ -59,7 +62,7 @@ private:
 
 	sf::Uint8* m_buffer;
 
-	std::vector<Clickable> m_spriteOutlines;
+	bool m_wasMouseClicked = false;
 
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;
@@ -76,7 +79,7 @@ private:
 	void calculateWalls();
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window);
-	void setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken);
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
 	void cleanup();
 

@@ -9,8 +9,12 @@ public:
 
 	void draw(sf::RenderWindow& window);
 	const bool isMouseOver(const sf::Vector2f& mousePosition) const;
+	const bool isToggled() const { return m_toggled;  };
+
+	void toggle() { m_toggled = !m_toggled; }
 
 private:
-	sf::RectangleShape shape;
+	sf::RectangleShape m_shape;
+	bool m_toggled;
 };
 

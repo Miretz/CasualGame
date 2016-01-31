@@ -1,11 +1,11 @@
 #include "Clickable.h"
 
-Clickable::Clickable(const sf::Vector2f & size, const sf::Vector2f & position) {
-	shape.setSize(size);
-	shape.setPosition(position);
+Clickable::Clickable(const sf::Vector2f & size, const sf::Vector2f & position) : m_toggled(false) {
+	m_shape.setSize(size);
+	m_shape.setPosition(position);
 
-	shape.setFillColor({ 255, 255, 255, 0 });
-	shape.setOutlineColor({ 255, 255, 255, 0 });
+	m_shape.setFillColor({ 255, 255, 255, 0 });
+	m_shape.setOutlineColor({ 255, 255, 255, 0 });
 }
 
 Clickable::~Clickable() {
@@ -13,13 +13,13 @@ Clickable::~Clickable() {
 }
 
 void Clickable::draw(sf::RenderWindow & window) {
-	shape.setOutlineColor({ 255, 255, 255, 255 });
-	shape.setOutlineThickness(2);
-	window.draw(shape);
+	m_shape.setOutlineColor({ 255, 255, 255, 255 });
+	m_shape.setOutlineThickness(2);
+	window.draw(m_shape);
 }
 
 const bool Clickable::isMouseOver(const sf::Vector2f & mousePosition) const {
-	return shape.getGlobalBounds().contains(mousePosition);
+	return m_shape.getGlobalBounds().contains(mousePosition);
 }
 
 

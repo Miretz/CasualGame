@@ -1,8 +1,8 @@
 #include "Game.h"
 
 Game::Game() {
-	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(1024, 768), gameTitle, sf::Style::Close);
-	m_currentState = std::make_unique<MainMenuState>(1024, 768);
+	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(defaultWidth, defaultHeight), gameTitle, sf::Style::Close);
+	m_currentState = std::make_unique<MainMenuState>(defaultWidth, defaultHeight);
 	m_clock = std::make_unique<sf::Clock>();
 	
 	m_levelReader = std::make_shared<LevelReaderWriter>();

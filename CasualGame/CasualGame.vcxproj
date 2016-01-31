@@ -169,7 +169,6 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
-    <ClCompile Include="ShaderHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clickable.h" />
@@ -182,7 +181,6 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="RandomGenerator.h" />
-    <ClInclude Include="ShaderHandler.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="VectorUtils.h" />
   </ItemGroup>

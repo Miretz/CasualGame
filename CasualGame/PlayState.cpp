@@ -118,7 +118,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
 
 	// Load texture
-	tex - 0;
+	tex = 0;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
@@ -134,7 +134,6 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 }
 
 PlayState::~PlayState() {
-	delete[] m_buffer;
 }
 
 void PlayState::cleanup() {
@@ -196,11 +195,16 @@ void PlayState::update(const float ft) {
 
 void PlayState::draw(sf::RenderWindow& window) {
 
-	m_spriteOutlines.clear();
-	std::vector<Clickable>().swap(m_spriteOutlines);
+	//clear the buffer
+	const int bufsize = m_windowHeight * m_windowWidth * 3;
+	for (int i = bufsize; i-- >= 0;) {
+		m_buffer[i] = 0;
+	}
+
+	//calculate a new buffer
 	calculateWalls();
 	calculateSprites();
-	
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -212,14 +216,6 @@ void PlayState::draw(sf::RenderWindow& window) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	window.pushGLStates();
-
-	//draw outlines iterate backwards because they are back to front and we want front to back
-	for (unsigned i = m_spriteOutlines.size(); i-- > 0; ) {
-		if (m_spriteOutlines[i].isMouseOver(m_mousePosition)) {
-			m_spriteOutlines[i].draw(window);
-			break;
-		}
-	}
 
 	//draw minimap
 	drawMinimap(&window);
@@ -237,7 +233,6 @@ void PlayState::draw(sf::RenderWindow& window) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	window.display();
-		
 }
 
 void PlayState::calculateWalls() {
@@ -459,11 +454,21 @@ void PlayState::calculateSprites() {
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
 		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
-		bool storeOutline = true;
-
 		const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
 		const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
 		const int texSize = textureData.size();
+
+		//check mouse over and highlight
+		bool mouseOver = false;
+		if (texNr != 12) {
+			//half width
+			const float wOutline = float(drawEndX - drawStartX) / 2.0f;
+			const float hOutline = float(drawEndY - drawStartY);
+			Clickable outline(sf::Vector2f(wOutline, hOutline), sf::Vector2f(drawStartX + wOutline / 2.0f, float(drawStartY)));
+			if (outline.isMouseOver(m_mousePosition)) {
+				mouseOver = true;
+			}
+		}
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
@@ -477,16 +482,6 @@ void PlayState::calculateSprites() {
 			//4) ZBuffer, with perpendicular distance
 			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe]) {
 				
-				//store closest sprite for outline drawing
-				//ignore ceiling lights
-				if (storeOutline && texNr != 12) {
-					//half width
-					const float wOutline = float(drawEndX - drawStartX) / 2.0f;
-					const float hOutline = float(drawEndY - drawStartY);
-					m_spriteOutlines.emplace_back(sf::Vector2f(wOutline, hOutline), sf::Vector2f(drawStartX + wOutline / 2.0f, float(drawStartY)));
-					storeOutline = false;
-				}
-								
 				//for every pixel of the current stripe
 				for (int y = drawStartY; y < drawEndY; y++) {
 					
@@ -500,7 +495,8 @@ void PlayState::calculateSprites() {
 						
 						// black is invisible!!!
 						if ((color & 0x00FFFFFF) != 0) {
-							setPixel(stripe, y, color, false);
+							//brighten if mouse over
+							setPixel(stripe, y, color, mouseOver ? HIGHLIGHT : 0);
 						}
 					}
 				}
@@ -561,7 +557,7 @@ void PlayState::drawMinimap(sf::RenderWindow* window) {
 	}
 }
 
-void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken){
+void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style){
 
 	if (x >= m_windowWidth || y >= m_windowHeight) {
 		return;
@@ -570,10 +566,15 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, bool darken){
 	sf::Uint8 *colors = (sf::Uint8*)&colorRgba;
 	int index = (y * m_windowWidth + x) * 3;
 
-	if (darken) {
+	if (style == DARKEN) {
 		m_buffer[index] = colors[0] / 2;
 		m_buffer[index + 1] = colors[1] / 2;
 		m_buffer[index + 2] = colors[2] / 2;
+	}
+	else if (style == HIGHLIGHT) {
+		m_buffer[index] = std::min(colors[0] + 25, 255);
+		m_buffer[index + 1] = std::min(colors[1] + 25, 255);
+		m_buffer[index + 2] = std::min(colors[2] + 25, 255);
 	}
 	else {
 		m_buffer[index] = colors[0];
@@ -589,6 +590,10 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 	//update fps from game
 	m_fpsDisplay.setString(std::to_string(game.getFps()));
 	m_fpsDisplay.setOrigin(m_fpsDisplay.getGlobalBounds().width, 0.0f);
+
+	if (event.type == sf::Event::MouseButtonPressed) {
+		m_wasMouseClicked = true;
+	}
 
 	//escape go to main menu
 	if (event.type == sf::Event::KeyPressed) {

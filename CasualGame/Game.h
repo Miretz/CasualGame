@@ -11,6 +11,8 @@
 #include "LevelReaderWriter.h"
 
 static const auto gameTitle = "Casual Game by Miretz";
+static const auto defaultWidth = 1024;
+static const auto defaultHeight = 768;
 
 class Game {
 public:
