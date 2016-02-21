@@ -5,6 +5,8 @@ Game::Game() {
 	m_currentState = std::make_unique<MainMenuState>(defaultWidth, defaultHeight);
 	m_clock = std::make_unique<sf::Clock>();
 	
+	m_window->setFramerateLimit(500);
+
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 	m_player = std::make_shared<Player>();
 }
@@ -109,4 +111,5 @@ void Game::switchFullscreen() {
 		changeState(GameStateName::MAINMENU);
 		m_fullscreen = false;
 	}
+	m_window->setFramerateLimit(500);
 }

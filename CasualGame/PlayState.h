@@ -15,11 +15,14 @@
 #include <string>
 #include <vector>
 
-#include <GL/glew.h>
-#include <SFML/OpenGL.hpp>
-
 // Link statically with GLEW
 #define GLEW_STATIC
+#include <GL/glew.h>
+#pragma comment (lib, "../deps/lib/glew32s.lib") // Link to glew32s.lib
+
+
+#include <SFML/OpenGL.hpp>
+
 
 static const float minimapScale = 8.0f;
 static const int minimapTransparency = 140;
