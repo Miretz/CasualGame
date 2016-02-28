@@ -2,7 +2,6 @@
 
 #include "GameState.h"
 #include "Game.h"
-#include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
 #include "LevelEditorGui.h"
@@ -43,11 +42,11 @@ private:
 	std::unique_ptr<LevelEditorGui> m_gui;
 
 	void toggleMode();
-	void resetPlayer();
+	void resetPlayer() const;
 
-	void drawPlayer(sf::RenderWindow& window);
-	void drawWalls(sf::RenderWindow& window);
-	void drawSprites(sf::RenderWindow& window);
+	void drawPlayer(sf::RenderWindow& window) const;
+	void drawWalls(sf::RenderWindow& window) const;
+	void drawSprites(sf::RenderWindow& window) const;
 
 	void handleInputField(const sf::Event& event);
 	void handleMenuCallbacks(const sf::Event& event, Game & game);

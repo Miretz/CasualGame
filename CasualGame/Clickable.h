@@ -8,9 +8,9 @@ public:
 	~Clickable();
 
 	void draw(sf::RenderWindow& window);
-	const bool isMouseOver(const sf::Vector2f& mousePosition) const;
-	const bool isToggled() const { return m_toggled;  };
-
+	
+	bool isMouseOver(const sf::Vector2f& mousePosition) const;
+	bool isToggled() const { return m_toggled;  };
 	void toggle() { m_toggled = !m_toggled; }
 
 private:

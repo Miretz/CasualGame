@@ -1,12 +1,12 @@
 #include "LevelEditorGui.h"
-
+#include "Config.h"
 
 LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :
 	m_xPos(x), 
 	m_yPos(y), 
 	m_width(width)
 {
-	m_font.loadFromFile("resources/font/OtherF.ttf");
+	m_font.loadFromFile(g_fontPath);
 }
 
 LevelEditorGui::~LevelEditorGui() {
@@ -46,7 +46,7 @@ void LevelEditorGui::addSpace() {
 }
 
 void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition) {
-	bool mousePressed = event.type == sf::Event::MouseButtonPressed;
+	auto mousePressed = event.type == sf::Event::MouseButtonPressed;
 
 	for (auto& button : m_buttons) {
 		if (button.background.getGlobalBounds().contains(mousepPosition)) {
@@ -68,7 +68,7 @@ void LevelEditorGui::draw(sf::RenderWindow & window) {
 	}
 }
 
-const bool LevelEditorGui::getPressed(const std::string & text) {
+bool LevelEditorGui::getPressed(const std::string & text) {
 	for (auto& button : m_buttons) {
 		if (button.text.getString() == text) {
 			if (button.pressed) {

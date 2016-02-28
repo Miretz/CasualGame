@@ -7,7 +7,7 @@ public:
 
 	static const sf::Vector2f& normalize(const sf::Vector2f& source) {
 		sf::Vector2f result(source.x, source.y);
-		float vecLen = length(result);
+		auto vecLen = length(result);
 		if (vecLen != 0) {
 			result.x = result.x / vecLen;
 			result.y = result.y / vecLen;

@@ -1,29 +1,9 @@
 #include "PlayState.h"
 
-// Shader sources
-const GLchar* vertexSource =
-	"#version 150 core\n"
-	"in vec2 position;"
-	"in vec4 color;"
-	"in vec2 texcoord;"
-	"out vec4 Color;"
-	"out vec2 Texcoord;"
-	"void main()"
-	"{"
-	"    Color = color;"
-	"    Texcoord = texcoord;"
-	"    gl_Position = vec4(position, 0.0, 1.0);"
-	"}";
-const GLchar* fragmentSource =
-	"#version 150 core\n"
-	"in vec4 Color;"
-	"in vec2 Texcoord;"
-	"out vec4 outColor;"
-	"uniform sampler2D tex;"
-	"void main()"
-	"{"
-	"    outColor = texture(tex, Texcoord) * Color;"
-	"}";
+#include "Clickable.h"
+#include <algorithm>
+#include <sstream>
+#include <string>
 
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_windowWidth(w), 
@@ -88,12 +68,12 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 	// Create and compile the vertex shader
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glShaderSource(vertexShader, 1, &g_playVertexSource, nullptr);
 	glCompileShader(vertexShader);
 
 	// Create and compile the fragment shader
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glShaderSource(fragmentShader, 1, &g_playFragmentSource, nullptr);
 	glCompileShader(fragmentShader);
 
 	// Link the vertex and fragment shader into a shader program
@@ -107,15 +87,15 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	// Specify the layout of the vertex data
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), nullptr);
 
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(2 * sizeof(GLfloat)));
 
 	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(6 * sizeof(GLfloat)));
 
 	// Load texture
 	tex = 0;
@@ -134,9 +114,10 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 }
 
 PlayState::~PlayState() {
+	//Empty
 }
 
-void PlayState::cleanup() {
+void PlayState::cleanup() const {
 
 	glUseProgram(0);
 	glBindVertexArray(0);
@@ -196,8 +177,8 @@ void PlayState::update(const float ft) {
 void PlayState::draw(sf::RenderWindow& window) {
 
 	//clear the buffer
-	const int bufsize = m_windowHeight * m_windowWidth * 3;
-	for (int i = bufsize; i-- >= 0;) {
+	const auto bufsize = m_windowHeight * m_windowWidth * 3;
+	for (auto i = bufsize; i-- >= 0;) {
 		m_buffer[i] = 0;
 	}
 
@@ -207,7 +188,7 @@ void PlayState::draw(sf::RenderWindow& window) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 	glUseProgram(0);
 	glBindVertexArray(0);
@@ -290,8 +271,8 @@ void PlayState::calculateWalls() {
 			sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
 		}
 
-		int hit = 0; //was there a wall hit?
-		int side; //was a NS or a EW wall hit?
+		auto hit = 0; //was there a wall hit?
+		auto side = 0; //was a NS or a EW wall hit?
 
 		//perform DDA
 		while (hit == 0) {
@@ -339,9 +320,9 @@ void PlayState::calculateWalls() {
 		wallX -= floor(wallX);
 
 		//x coordinate on the texture
-		int texX = static_cast<int>(wallX * texWidth);
-		if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-		if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+		int texX = static_cast<int>(wallX * g_textureWidth);
+		if (side == 0 && rayDirX > 0) texX = g_textureWidth - texX - 1;
+		if (side == 1 && rayDirY < 0) texX = g_textureWidth - texX - 1;
 
 		const std::vector<sf::Uint32>& texture = m_levelReader->getTexture(texNum);
 		const size_t texSize = texture.size();
@@ -350,8 +331,8 @@ void PlayState::calculateWalls() {
 		for (int y = drawStart; y < drawEnd; y++) {
 
 			const int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
-			const int texY = ((d * texHeight) / lineHeight) / 256;
-			const unsigned int texNumY = texHeight * texX + texY;
+			const int texY = ((d * g_textureHeight) / lineHeight) / 256;
+			const unsigned int texNumY = g_textureHeight * texX + texY;
 
 			if (texNumY < texSize) {
 
@@ -397,12 +378,12 @@ void PlayState::calculateWalls() {
 			const double currentFloorX = weight * floorXWall + (1.0 - weight) * m_player->m_posX;
 			const double currentFloorY = weight * floorYWall + (1.0 - weight) * m_player->m_posY;
 
-			const int floorTexX = int(currentFloorX * texWidth) % texWidth;
-			const int floorTexY = int(currentFloorY * texHeight) % texHeight;
+			const int floorTexX = int(currentFloorX * g_textureWidth) % g_textureWidth;
+			const int floorTexY = int(currentFloorY * g_textureHeight) % g_textureHeight;
 
 			//floor textures
-			sf::Uint32 color1 = tex8[texWidth * floorTexY + floorTexX];
-			sf::Uint32 color2 = tex9[texWidth * floorTexY + floorTexX];
+			sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
+			sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
 
 			setPixel(x, y, color1, false);
 			setPixel(x, m_windowHeight - y, color2, false);
@@ -473,7 +454,7 @@ void PlayState::calculateSprites() {
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
 			
-			const int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+			const int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * g_textureWidth / spriteWidth) / 256;
 			
 			//the conditions in the if are:
 			//1) it's in front of camera plane so you don't see things behind you
@@ -486,8 +467,8 @@ void PlayState::calculateSprites() {
 				for (int y = drawStartY; y < drawEndY; y++) {
 					
 					const int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
-					const int texY = ((d * texHeight) / spriteHeight) / 256;
-					const int texPix = texWidth * texX + texY;
+					const int texY = ((d * g_textureHeight) / spriteHeight) / 256;
+					const int texPix = g_textureWidth * texX + texY;
 					
 					// prevent exception when accessing tex pixel out of range
 					if (texPix < texSize) {
@@ -496,7 +477,7 @@ void PlayState::calculateSprites() {
 						// black is invisible!!!
 						if ((color & 0x00FFFFFF) != 0) {
 							//brighten if mouse over
-							setPixel(stripe, y, color, mouseOver ? HIGHLIGHT : 0);
+							setPixel(stripe, y, color, mouseOver ? g_playhDrawHighlighted : 0);
 						}
 					}
 				}
@@ -507,21 +488,21 @@ void PlayState::calculateSprites() {
 }
 
 //Render minimap
-void PlayState::drawMinimap(sf::RenderWindow* window) {
+void PlayState::drawMinimap(sf::RenderWindow* window) const {
 
 	//minimap background
-	sf::RectangleShape minimapBg(sf::Vector2f(m_levelSize * minimapScale, m_levelSize * minimapScale));
+	sf::RectangleShape minimapBg(sf::Vector2f(m_levelSize * g_playMinimapScale, m_levelSize * g_playMinimapScale));
 	minimapBg.setPosition(0, 0);
-	minimapBg.setFillColor(sf::Color(150, 150, 150, minimapTransparency));
+	minimapBg.setFillColor(sf::Color(150, 150, 150, g_playMinimapTransparency));
 	window->draw(minimapBg);
 
 	//draw walls
 	for (size_t y = 0; y < m_levelSize; y++) {
 		for (size_t x = 0; x < m_levelSize; x++) {
 			if (m_levelRef[y][x] > 0 && m_levelRef[y][x] < 9) {
-				sf::RectangleShape wall(sf::Vector2f(minimapScale, minimapScale));
-				wall.setPosition(x * minimapScale, y * minimapScale);
-				wall.setFillColor(sf::Color(0, 0, 0, minimapTransparency));
+				sf::RectangleShape wall(sf::Vector2f(g_playMinimapScale, g_playMinimapScale));
+				wall.setPosition(x * g_playMinimapScale, y * g_playMinimapScale);
+				wall.setFillColor(sf::Color(0, 0, 0, g_playMinimapTransparency));
 				window->draw(wall);
 			}
 		}
@@ -529,24 +510,24 @@ void PlayState::drawMinimap(sf::RenderWindow* window) {
 
 	// Render entities on minimap
 	for (size_t i = 0; i < m_spriteSize; i++) {
-		sf::CircleShape object(minimapScale / 4.0f);
-		object.setPosition(float(m_spriteRef[i].y) * minimapScale, float(m_spriteRef[i].x) * minimapScale);
-		object.setOrigin(minimapScale / 2.0f, minimapScale / 2.0f);
-		object.setFillColor(sf::Color(0, 0, 255, minimapTransparency));
+		sf::CircleShape object(g_playMinimapScale / 4.0f);
+		object.setPosition(float(m_spriteRef[i].y) * g_playMinimapScale, float(m_spriteRef[i].x) * g_playMinimapScale);
+		object.setOrigin(g_playMinimapScale / 2.0f, g_playMinimapScale / 2.0f);
+		object.setFillColor(sf::Color(0, 0, 255, g_playMinimapTransparency));
 		window->draw(object);
 	}
 	
 	// Render Player on minimap
 	{
-		sf::CircleShape player(float(minimapScale), 3);
-		player.setPosition(float(m_player->m_posY) * minimapScale, float(m_player->m_posX) * minimapScale);
-		player.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
-		player.setOrigin(float(minimapScale), float(minimapScale));
+		sf::CircleShape player(float(g_playMinimapScale), 3);
+		player.setPosition(float(m_player->m_posY) * g_playMinimapScale, float(m_player->m_posX) * g_playMinimapScale);
+		player.setFillColor(sf::Color(255, 255, 255, g_playMinimapTransparency));
+		player.setOrigin(float(g_playMinimapScale), float(g_playMinimapScale));
 
-		sf::RectangleShape player2(sf::Vector2f(minimapScale / 2.0f, minimapScale / 2.0f));
-		player2.setPosition(float(m_player->m_posY) * minimapScale, float(m_player->m_posX) * minimapScale);
-		player2.setFillColor(sf::Color(255, 255, 255, minimapTransparency));
-		player2.setOrigin(minimapScale / 4.0f, -minimapScale / 2.0f);
+		sf::RectangleShape player2(sf::Vector2f(g_playMinimapScale / 2.0f, g_playMinimapScale / 2.0f));
+		player2.setPosition(float(m_player->m_posY) * g_playMinimapScale, float(m_player->m_posX) * g_playMinimapScale);
+		player2.setFillColor(sf::Color(255, 255, 255, g_playMinimapTransparency));
+		player2.setOrigin(g_playMinimapScale / 4.0f, -g_playMinimapScale / 2.0f);
 
 		float angle = std::atan2f(float(m_player->m_dirX), float(m_player->m_dirY));
 		player.setRotation((angle * 57.2957795f) + 90);
@@ -557,21 +538,21 @@ void PlayState::drawMinimap(sf::RenderWindow* window) {
 	}
 }
 
-void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style){
+void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const {
 
 	if (x >= m_windowWidth || y >= m_windowHeight) {
 		return;
 	}
 
-	sf::Uint8 *colors = (sf::Uint8*)&colorRgba;
+	auto colors = (sf::Uint8*)&colorRgba;
 	int index = (y * m_windowWidth + x) * 3;
 
-	if (style == DARKEN) {
+	if (style == g_playDrawDarkened) {
 		m_buffer[index] = colors[0] / 2;
 		m_buffer[index + 1] = colors[1] / 2;
 		m_buffer[index + 2] = colors[2] / 2;
 	}
-	else if (style == HIGHLIGHT) {
+	else if (style == g_playhDrawHighlighted) {
 		m_buffer[index] = std::min(colors[0] + 25, 255);
 		m_buffer[index + 1] = std::min(colors[1] + 25, 255);
 		m_buffer[index + 2] = std::min(colors[2] + 25, 255);
@@ -629,13 +610,13 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		}
 		if (event.key.code == sf::Keyboard::Escape)	{
 			cleanup();
-			game.changeState(Game::GameStateName::MAINMENU);
+			game.changeState(GameStateName::MAINMENU);
 		}
 	}
 }
 
 //sort algorithm
-void PlayState::combSort(std::vector<int>& order, std::vector<double>& dist, int amount) {
+void PlayState::combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const {
 	
 	int gap = amount;
 	bool swapped = false;

@@ -1,35 +1,20 @@
 #pragma once
 
+#include <vector>
+
 #include "GameState.h"
 #include "Game.h"
 #include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
-#include "Clickable.h"
-
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <sstream>
-#include <string>
-#include <vector>
 
 // Link statically with GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
 #pragma comment (lib, "../deps/lib/glew32s.lib") // Link to glew32s.lib
 
-
+// required for SFML to work with OpenGL
 #include <SFML/OpenGL.hpp>
-
-
-static const float minimapScale = 8.0f;
-static const int minimapTransparency = 140;
-static const double PI = 3.141592653589793238463;
-
-static const int DARKEN = 1;
-static const int HIGHLIGHT = 2;
 
 class PlayState : public GameState {
 public:
@@ -81,9 +66,9 @@ private:
 
 	void calculateWalls();
 	void calculateSprites();
-	void drawMinimap(sf::RenderWindow* window);
-	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
-	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount);
-	void cleanup();
+	void drawMinimap(sf::RenderWindow* window) const;
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const;
+	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
+	void cleanup() const;
 
 };

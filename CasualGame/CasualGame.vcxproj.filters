@@ -30,16 +30,10 @@
     <ClCompile Include="PlayState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LevelEditorState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LevelReaderWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LevelEditorGui.cpp">
@@ -84,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Clickable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

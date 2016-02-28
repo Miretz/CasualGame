@@ -2,38 +2,23 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <chrono>
 
 #include "GameState.h"
-#include "MainMenuState.h"
-#include "PlayState.h"
-#include "LevelEditorState.h"
+#include "Player.h"
 #include "LevelReaderWriter.h"
-
-static const auto gameTitle = "Casual Game by Miretz";
-static const auto defaultWidth = 1024;
-static const auto defaultHeight = 768;
+#include "Config.h"
 
 class Game {
 public:
 	Game();
 	virtual ~Game() = default;
 
-	enum class GameStateName {
-		MAINMENU,
-		PLAY,
-		RESTART,
-		LEVEL_EDITOR,
-		SWITCH_FULLSCREEN,
-		QUIT
-	};
-
 	void run();
 	void changeState(GameStateName newState);
-	const bool isRunning() const { return m_running; };
+	bool isRunning() const { return m_running; };
 	void switchFullscreen();
 	
-	const int getFps() const { return m_fps; }
+	int getFps() const { return m_fps; }
 
 private:
 	
@@ -42,8 +27,7 @@ private:
 	bool m_running = true;
 	int m_fpsShowTimer = 0;
 	bool m_fullscreen = false;
-
-	int m_fps;
+	int m_fps = 0;
 
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;
@@ -54,7 +38,8 @@ private:
 
 	void checkInput();
 	void update();
-	void draw();
+	void draw() const;
+	void restart();
 	void updateTimers();
 	
 };

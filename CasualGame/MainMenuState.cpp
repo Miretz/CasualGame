@@ -7,13 +7,13 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	m_windowHeight(h)
 {
 	
-	m_font.loadFromFile("resources/font/OtherF.ttf");
+	m_font.loadFromFile(g_fontPath);
 	
 	// Game Title
 	sf::Color textColor = sf::Color::White;
 
 	m_titleText.setFont(m_font);
-	m_titleText.setString("Casual Game");
+	m_titleText.setString(g_mainTxtTitle);
 	m_titleText.setCharacterSize(50);
 	m_titleText.setPosition(m_windowWidth / 2.0f, 200);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2.0f, m_titleText.getGlobalBounds().height / 2.0f);
@@ -23,7 +23,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	// Start Game
 	sf::Text startGame;
 	startGame.setFont(m_font);
-	startGame.setString("Start Game");
+	startGame.setString(g_mainTxtStartGame);
 	startGame.setCharacterSize(30);
 	startGame.setPosition(m_windowWidth / 2.0f, 300);
 	startGame.setOrigin(startGame.getGlobalBounds().width / 2.0f, startGame.getGlobalBounds().height / 2.0f);
@@ -34,7 +34,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	// Restart Game
 	sf::Text restartGame;
 	restartGame.setFont(m_font);
-	restartGame.setString("Restart Game");
+	restartGame.setString(g_mainTxtRestartGame);
 	restartGame.setCharacterSize(30);
 	restartGame.setPosition(m_windowWidth / 2.0f, 350);
 	restartGame.setOrigin(restartGame.getGlobalBounds().width / 2.0f, restartGame.getGlobalBounds().height / 2.0f);
@@ -45,7 +45,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	// Level Editor 
 	sf::Text levelEditor;
 	levelEditor.setFont(m_font);
-	levelEditor.setString("Level Editor");
+	levelEditor.setString(g_mainTxtLevelEditor);
 	levelEditor.setCharacterSize(30);
 	levelEditor.setPosition(m_windowWidth / 2.0f, 400);
 	levelEditor.setOrigin(levelEditor.getGlobalBounds().width / 2.0f, levelEditor.getGlobalBounds().height / 2.0f);
@@ -56,7 +56,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	//Toggle Fullscreen
 	sf::Text switchFullscreen;
 	switchFullscreen.setFont(m_font);
-	switchFullscreen.setString("Toggle Fullscreen");
+	switchFullscreen.setString(g_mainTxtToggleFullscreen);
 	switchFullscreen.setCharacterSize(30);
 	switchFullscreen.setPosition(m_windowWidth / 2.0f, 450);
 	switchFullscreen.setOrigin(switchFullscreen.getGlobalBounds().width / 2.0f, switchFullscreen.getGlobalBounds().height / 2.0f);
@@ -67,7 +67,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	//Quit Game
 	sf::Text quitGame;
 	quitGame.setFont(m_font);
-	quitGame.setString("Quit");
+	quitGame.setString(g_mainTxtQuit);
 	quitGame.setCharacterSize(30);
 	quitGame.setPosition(m_windowWidth / 2.0f, 500);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
@@ -117,9 +117,9 @@ void MainMenuState::update(const float ft) {
 		if (m_bgColors[i].r > colorMax) m_bgColors[i].r = colorMax;
 		if (m_bgColors[i].g > colorMax) m_bgColors[i].g = colorMax;
 		if (m_bgColors[i].b > colorMax) m_bgColors[i].b = colorMax;
-		if (m_bgColors[i].r < 0) m_bgColors[i].r = 0;
-		if (m_bgColors[i].g < 0) m_bgColors[i].g = 0;
-		if (m_bgColors[i].b < 0) m_bgColors[i].b = 0;
+		if (m_bgColors[i].r <= 0) m_bgColors[i].r = 0;
+		if (m_bgColors[i].g <= 0) m_bgColors[i].g = 0;
+		if (m_bgColors[i].b <= 0) m_bgColors[i].b = 0;
 	}
 
 }
@@ -171,25 +171,25 @@ void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f & mo
 	
 	//exit
 	if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape)) {
-		game.changeState(Game::GameStateName::QUIT);
+		game.changeState(GameStateName::QUIT);
 	}
 	//left mouse or enter button
 	else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Return) ||
 		(event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left))	{
 		if (m_mouseOverIndex == 0) {
-			game.changeState(Game::GameStateName::PLAY);
+			game.changeState(GameStateName::PLAY);
 		}
 		if (m_mouseOverIndex == 1) {
-			game.changeState(Game::GameStateName::RESTART);
+			game.changeState(GameStateName::RESTART);
 		}
 		if (m_mouseOverIndex == 2) {
-			game.changeState(Game::GameStateName::LEVEL_EDITOR);
+			game.changeState(GameStateName::LEVEL_EDITOR);
 		}
 		if (m_mouseOverIndex == 3) {
-			game.changeState(Game::GameStateName::SWITCH_FULLSCREEN);
+			game.changeState(GameStateName::SWITCH_FULLSCREEN);
 		}
 		if (m_mouseOverIndex == 4) {
-			game.changeState(Game::GameStateName::QUIT);
+			game.changeState(GameStateName::QUIT);
 		}
 	}
 	//enable menu selection using arrow keys

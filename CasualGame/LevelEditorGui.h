@@ -23,12 +23,12 @@ public:
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition);
 	void draw(sf::RenderWindow& window);
 
-	const bool getPressed(const std::string& text);
+	bool getPressed(const std::string& text);
 
 	GuiButton& get(const int index) { return m_buttons[index]; };
 
-	const int getWidth() const { return m_width; };
-	const int getNumButtons() const { return m_buttons.size(); };
+	int getWidth() const { return m_width; };
+	int getNumButtons() const { return m_buttons.size(); };
 		
 private:
 	

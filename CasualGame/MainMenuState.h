@@ -3,7 +3,6 @@
 #include "GameState.h"
 #include "Game.h"
 #include "RandomGenerator.h"
-#include "VectorUtils.h"
 
 class MainMenuState : public GameState {
 public:

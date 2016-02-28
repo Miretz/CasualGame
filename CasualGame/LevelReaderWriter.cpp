@@ -1,24 +1,30 @@
 #include "LevelReaderWriter.h"
 
+#include "Config.h"
+
+#include <sstream>
+#include <string>
+#include <filesystem>
+
 namespace fs = std::tr2::sys;
 
 LevelReaderWriter::LevelReaderWriter() {
 	
-	loadLevel(levelFile, m_level, m_sprites);
+	loadLevel(g_defaultLevelFile, m_level, m_sprites);
 
 	//texture generator 
 	//generateTextures();
 
 	//load textures
-	m_texture.resize(numTextures);
-	m_sfmlTextures.resize(numTextures);
+	m_texture.resize(g_textureCount);
+	m_sfmlTextures.resize(g_textureCount);
 
 	// load all textures
-	for (int i = 0; i < numTextures; i++) {
-		loadTexture(i, texPaths[i]);
+	for (auto i = 0; i < g_textureCount; i++) {
+		loadTexture(i, g_textureFiles[i]);
 
 		sf::Image image;
-		image.loadFromFile(texPaths[i]);
+		image.loadFromFile(g_textureFiles[i]);
 		image.createMaskFromColor(sf::Color::Black);
 
 		m_sfmlTextures[i].loadFromImage(image);
@@ -26,10 +32,10 @@ LevelReaderWriter::LevelReaderWriter() {
 
 	//swap texture X/Y
 	//only works with square textures
-	for (size_t i = 0; i < numTextures; i++)
-		for (size_t x = 0; x < texWidth; x++)
+	for (size_t i = 0; i < g_textureCount; i++)
+		for (size_t x = 0; x < g_textureWidth; x++)
 			for (size_t y = 0; y < x; y++)
-				std::swap(m_texture[i][texWidth * y + x], m_texture[i][texWidth * x + y]);
+				std::swap(m_texture[i][g_textureWidth * y + x], m_texture[i][g_textureWidth * x + y]);
 }
 
 
@@ -65,7 +71,7 @@ void LevelReaderWriter::loadDefaultLevel() {
 	std::vector<std::vector<int> >().swap(m_level);
 	std::vector<Sprite>().swap(m_sprites);
 
-	loadLevel(levelFile, m_level, m_sprites);
+	loadLevel(g_defaultLevelFile, m_level, m_sprites);
 }
 
 void LevelReaderWriter::loadCustomLevel(const std::string& levelName) {
@@ -75,13 +81,13 @@ void LevelReaderWriter::loadCustomLevel(const std::string& levelName) {
 	std::vector<std::vector<int> >().swap(m_level);
 	std::vector<Sprite>().swap(m_sprites);
 	
-	loadLevel(customLevelDir + levelName, m_level, m_sprites);
+	loadLevel(g_customLevelDirectory + levelName, m_level, m_sprites);
 }
 
 void LevelReaderWriter::saveCustomLevel(const std::string & levelName) {
 	
 	//warning! overwrites the file if exists
-	std::fstream file(customLevelDir + levelName, std::ios::out);
+	std::fstream file(g_customLevelDirectory + levelName, std::ios::out);
 	
 	//write walls
 	for (size_t i = 0; i < m_level.size(); ++i) {
@@ -100,9 +106,9 @@ void LevelReaderWriter::saveCustomLevel(const std::string & levelName) {
 	file.close();
 }
 
-const std::vector<std::string> LevelReaderWriter::getCustomLevels() {
+std::vector<std::string> LevelReaderWriter::getCustomLevels() const {
 	
-	auto dpath = fs::path(customLevelDir);
+	auto dpath = fs::path(g_customLevelDirectory);
 	std::vector<std::string> entries;
 
 	if (!fs::is_directory(dpath)) return entries;
@@ -111,7 +117,7 @@ const std::vector<std::string> LevelReaderWriter::getCustomLevels() {
 		if (!fs::is_directory(it->path())) {
 			entries.emplace_back();
 			std::string path = it->path().string();
-			path.erase(0, std::string(customLevelDir).size());
+			path.erase(0, std::string(g_customLevelDirectory).size());
 			entries.back() = path;
 		}
 	}
@@ -119,7 +125,7 @@ const std::vector<std::string> LevelReaderWriter::getCustomLevels() {
 	return entries;
 }
 
-void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites) {
+void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites) const {
 	std::ifstream file(path);
 
 	//load walls
@@ -140,7 +146,7 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 			if (!iss.good())
 				break;
 
-			int converted = 0;
+			auto converted = 0;
 			std::stringstream convertor(val);
 			convertor >> converted;
 			rowVec.push_back(converted);
@@ -150,7 +156,6 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 	}
 	
 	//load sprites
-	int row = 0;
 	while (std::getline(file, line)) {
 		if (!file.good())
 			break;
@@ -158,7 +163,7 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 		std::stringstream iss(line);
 
 		Sprite spr;
-		for (int col = 0; col < 3; col++) {
+		for (auto col = 0; col < 3; col++) {
 			std::string val;
 			std::getline(iss, val, ',');
 			if (!iss.good())
@@ -179,21 +184,21 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 // generates some textures for testing
 void LevelReaderWriter::generateTextures() {
-	for (int i = 0; i < 8; i++) m_texture[i].resize(texWidth * texHeight);
-	for (int x = 0; x < texWidth; x++) {
-		for (int y = 0; y < texHeight; y++) {
-			int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
-			//int xcolor = x * 256 / texWidth;
-			int ycolor = y * 256 / texHeight;
-			int xycolor = y * 128 / texHeight + x * 128 / texWidth;
-			m_texture[0][texWidth * y + x] = 65536 * 254 * (x != y && x != texWidth - y); //flat red texture with black cross
-			m_texture[1][texWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-			m_texture[2][texWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-			m_texture[3][texWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-			m_texture[4][texWidth * y + x] = 256 * xorcolor; //xor green
-			m_texture[5][texWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-			m_texture[6][texWidth * y + x] = 65536 * ycolor; //red gradient
-			m_texture[7][texWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
+	for (int i = 0; i < 8; i++) m_texture[i].resize(g_textureWidth * g_textureHeight);
+	for (int x = 0; x < g_textureWidth; x++) {
+		for (int y = 0; y < g_textureHeight; y++) {
+			int xorcolor = (x * 256 / g_textureWidth) ^ (y * 256 / g_textureHeight);
+			//int xcolor = x * 256 / g_textureWidth;
+			int ycolor = y * 256 / g_textureHeight;
+			int xycolor = y * 128 / g_textureHeight + x * 128 / g_textureWidth;
+			m_texture[0][g_textureWidth * y + x] = 65536 * 254 * (x != y && x != g_textureWidth - y); //flat red texture with black cross
+			m_texture[1][g_textureWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
+			m_texture[2][g_textureWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
+			m_texture[3][g_textureWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
+			m_texture[4][g_textureWidth * y + x] = 256 * xorcolor; //xor green
+			m_texture[5][g_textureWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
+			m_texture[6][g_textureWidth * y + x] = 65536 * ycolor; //red gradient
+			m_texture[7][g_textureWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
 		}
 	}
 }
@@ -205,7 +210,7 @@ void LevelReaderWriter::loadTexture(int index, const std::string& fileName) {
 	const sf::Uint8* imagePtr = image.getPixelsPtr();
 
 	std::vector<sf::Uint32> texData;
-	for (int i = 0; i < (texHeight * texWidth * 4); i += 4) {
+	for (int i = 0; i < (g_textureHeight * g_textureWidth * 4); i += 4) {
 		texData.push_back(
 			imagePtr[i + 3] << 24 | imagePtr[i + 2] << 16 | imagePtr[i + 1] << 8 | imagePtr[i]);
 	}
