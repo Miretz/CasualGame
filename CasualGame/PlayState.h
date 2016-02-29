@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "LevelReaderWriter.h"
 #include "GLRenderer.h"
+#include "Clickable.h"
 
 class PlayState : public GameState {
 public:
@@ -44,12 +45,19 @@ private:
 	//main rendering buffer
 	std::vector<unsigned char> m_buffer;
 
+	// buffer of clickable items in the view
+	std::vector<Clickable> m_clickables;
+
 	bool m_wasMouseClicked = false;
 
 	//Gui	
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;
 	sf::Text m_playerHealthDisplay;
+	sf::RectangleShape m_gunDisplay;
+	sf::Texture m_gunTexture;
+	
+	double m_runningTime = 0;
 
 	//Gl renderer
 	GLRenderer m_glRenderer;
@@ -57,7 +65,7 @@ private:
 	void calculateWalls();
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window) const;
-	void drawGui(sf::RenderWindow* window) const;
+	void drawGui(sf::RenderWindow* window);
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
 

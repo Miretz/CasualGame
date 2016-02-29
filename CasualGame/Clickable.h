@@ -4,17 +4,17 @@
 
 class Clickable {
 public:
-	Clickable(const sf::Vector2f& size, const sf::Vector2f& position);
+	Clickable();
 	virtual ~Clickable() = default;
 
-	void draw(sf::RenderWindow& window);
-	
+	void update(const sf::Vector2f& size, const sf::Vector2f& position);
+	void draw(sf::RenderWindow* window);
 	bool isMouseOver(const sf::Vector2f& mousePosition) const;
-	bool isToggled() const { return m_toggled;  };
-	void toggle() { m_toggled = !m_toggled; }
+	bool isVisible() const { return m_visible;  };
+	void setVisible(bool visible = true) { m_visible = visible; }
 
 private:
 	sf::RectangleShape m_shape;
-	bool m_toggled;
+	bool m_visible;
 };
 

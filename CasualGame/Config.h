@@ -45,6 +45,8 @@ static const std::string g_textureFiles[13] = {
 	"resources/sprites/greenlight.png"//13
 };
 
+static const std::string g_gunSprite = "resources/sprites/gun.png";
+
 //Main menu
 
 static const auto g_mainTxtTitle = "Casual Game";

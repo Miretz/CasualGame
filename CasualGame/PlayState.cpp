@@ -1,6 +1,5 @@
 #include "PlayState.h"
 
-#include "Clickable.h"
 #include <algorithm>
 #include <string>
 
@@ -19,6 +18,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_ZBuffer.resize(w);
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
+	m_clickables.resize(m_levelReader->getSprites().size());
 
 	//FIXME create separate font loader
 	m_font.loadFromFile(g_fontPath);
@@ -40,18 +40,35 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_buffer.resize(h * w * 3);
 	m_glRenderer.init(&m_buffer[0], w, h);
 
+	//Gun display
+	sf::Image gunImg;
+	gunImg.loadFromFile(g_gunSprite);
+	gunImg.createMaskFromColor(sf::Color::Black);
+	m_gunTexture.loadFromImage(gunImg);
+	m_gunDisplay.setSize({ float(g_textureWidth * 2), float(g_textureHeight * 2) });
+	m_gunDisplay.setPosition({ float(w/2 - g_textureWidth), float(h - g_textureHeight*2 + 30) });
+	m_gunDisplay.setTexture(&m_gunTexture);
 }
 
 void PlayState::update(const float ft) {
 	
 	//update health each frame
 	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
-
+		
+	//update position
 	if (m_forward || m_backward || m_left || m_right) {
 		// convert ms to seconds
 		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
+
+		//gun wobble
+		auto wobbleSpeed = fts * 10.0f;
+		auto newGunPos = m_gunDisplay.getPosition();
+		float DeltaHeight = (sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
+		newGunPos.y += DeltaHeight * 15.0f;
+		m_runningTime += wobbleSpeed;
+		m_gunDisplay.setPosition(newGunPos);
 
 		if (m_left) {
 			//both camera direction and camera plane must be rotated
@@ -228,11 +245,8 @@ void PlayState::calculateWalls() {
 			const unsigned int texNumY = g_textureHeight * texX + texY;
 
 			if (texNumY < texSize) {
-
-				sf::Uint32 color = texture[texNumY];
-
+				auto color = texture[texNumY];
 				setPixel(x, y, color, side==1);
-
 			}
 		}
 
@@ -302,11 +316,6 @@ void PlayState::calculateSprites() {
 		const double spriteX = m_spriteRef[m_spriteOrder[i]].x - m_player->m_posX;
 		const double spriteY = m_spriteRef[m_spriteOrder[i]].y - m_player->m_posY;
 
-		//transform sprite with the inverse camera matrix
-		// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
-		// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
-		// [ planeY   dirY ]                                          [ -planeY  planeX ]
-
 		const double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
 		const double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
 		const double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
@@ -317,66 +326,62 @@ void PlayState::calculateSprites() {
 
 		//calculate lowest and highest pixel to fill in current stripe
 		int drawStartY = -spriteHeight / 2 + m_windowHeight / 2;
-		if (drawStartY < 0) drawStartY = 0;
 		int drawEndY = spriteHeight / 2 + m_windowHeight / 2;
-		if (drawEndY >= m_windowHeight) drawEndY = m_windowHeight - 1;
-
+		
 		//calculate width of the sprite
 		int spriteWidth = spriteHeight;
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
-		if (drawStartX < 0) drawStartX = 0;
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
-		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
 		const int texNr = m_spriteRef[m_spriteOrder[i]].texture;
 		const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
 		const int texSize = textureData.size();
+		
+		//setup clickables
+		m_clickables[i].update(sf::Vector2f(spriteWidth / 2.0f, spriteHeight), sf::Vector2f(float(drawStartX + spriteWidth / 4.0f), float(drawStartY)));
 
-		//check mouse over and highlight
-		bool mouseOver = false;
-		if (texNr != 12) {
-			//half width
-			const float wOutline = float(drawEndX - drawStartX) / 2.0f;
-			const float hOutline = float(drawEndY - drawStartY);
-			Clickable outline(sf::Vector2f(wOutline, hOutline), sf::Vector2f(drawStartX + wOutline / 2.0f, float(drawStartY)));
-			if (outline.isMouseOver(m_mousePosition)) {
-				mouseOver = true;
-			}
-		}
+		//limit drawstart and drawend
+		if (drawStartY < 0) drawStartY = 0;
+		if (drawEndY >= m_windowHeight) drawEndY = m_windowHeight - 1;
+		if (drawStartX < 0) drawStartX = 0;
+		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
 			
 			const int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * g_textureWidth / spriteWidth) / 256;
-			
+
 			//the conditions in the if are:
 			//1) it's in front of camera plane so you don't see things behind you
 			//2) it's on the screen (left)
 			//3) it's on the screen (right)
 			//4) ZBuffer, with perpendicular distance
 			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe]) {
-				
+
 				//for every pixel of the current stripe
 				for (int y = drawStartY; y < drawEndY; y++) {
-					
+
+					m_clickables[i].setVisible(texNr != 12);
+
 					const int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					const int texY = ((d * g_textureHeight) / spriteHeight) / 256;
 					const int texPix = g_textureWidth * texX + texY;
-					
+
 					// prevent exception when accessing tex pixel out of range
 					if (texPix < texSize) {
 						sf::Uint32 color = textureData[texPix]; //get current color from the texture
-						
-						// black is invisible!!!
+
+																// black is invisible!!!
 						if ((color & 0x00FFFFFF) != 0) {
 							//brighten if mouse over
-							setPixel(stripe, y, color, mouseOver ? g_playhDrawHighlighted : 0);
+							setPixel(stripe, y, color, 0);
 						}
 					}
 				}
 
 			}
 		}
+
 	}
 }
 
@@ -431,14 +436,27 @@ void PlayState::drawMinimap(sf::RenderWindow* window) const {
 	}
 }
 
-void PlayState::drawGui(sf::RenderWindow* window) const {
+void PlayState::drawGui(sf::RenderWindow* window) {
 	
+	//draw hud clickable items
+	for (auto& outline : m_clickables) {
+		if (outline.isMouseOver(m_mousePosition)) {
+			outline.draw(window);
+			break;
+		}
+	}
+	for (auto& outline : m_clickables) {
+		outline.setVisible(false);
+	}
+
+	//draw gun
+	window->draw(m_gunDisplay);
+
 	//draw fps display
 	window->draw(m_fpsDisplay);
 
 	//draw player health
 	window->draw(m_playerHealthDisplay);
-
 }
 
 void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) {
@@ -448,7 +466,7 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) {
 	}
 
 	auto colors = (sf::Uint8*)&colorRgba;
-	int index = (y * m_windowWidth + x) * 3;
+	auto index = (y * m_windowWidth + x) * 3;
 
 	if (style == g_playDrawDarkened) {
 		m_buffer[index] = colors[0] / 2;
