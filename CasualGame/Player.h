@@ -7,5 +7,6 @@ public:
 	double m_dirY = 0.0;
 	double m_planeX = 0.0;
 	double m_planeY = 0.66;
+	int m_health = 100;
 };
 

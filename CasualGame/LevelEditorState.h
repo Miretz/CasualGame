@@ -9,7 +9,7 @@
 class LevelEditorState : public GameState {
 public:
 	LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	~LevelEditorState();
+	virtual ~LevelEditorState() = default;
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;

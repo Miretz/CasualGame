@@ -9,10 +9,6 @@ LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :
 	m_font.loadFromFile(g_fontPath);
 }
 
-LevelEditorGui::~LevelEditorGui() {
-	//Empty
-}
-
 int LevelEditorGui::addButton(const std::string & text) {
 	sf::Text btnText;
 	btnText.setFont(m_font);

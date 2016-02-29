@@ -8,8 +8,8 @@
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_windowWidth(w), 
 	m_windowHeight(h),
-	m_player(move(player)),
-	m_levelReader(move(levelReader)),
+	m_player(std::move(player)),
+	m_levelReader(std::move(levelReader)),
 	m_levelRef(m_levelReader->getLevel()),
 	m_spriteRef(m_levelReader->getSprites()),
 	m_levelSize(m_levelReader->getLevel().size()),
@@ -22,122 +22,32 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
 
 	//FIXME create separate font loader
-	m_font.loadFromFile("resources/font/OtherF.ttf");
+	m_font.loadFromFile(g_fontPath);
+	
+	//Fps display
 	m_fpsDisplay.setFont(m_font);
 	m_fpsDisplay.setString("fps");
 	m_fpsDisplay.setCharacterSize(32);
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
 	m_fpsDisplay.setColor(sf::Color::Yellow);
 
+	//Health display
+	m_playerHealthDisplay.setFont(m_font);
+	m_playerHealthDisplay.setString("health");
+	m_playerHealthDisplay.setCharacterSize(40);
+	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
+	m_playerHealthDisplay.setColor(sf::Color::White);
+
 	m_buffer = new sf::Uint8[h * w * 3];
 	
-	// Initialize GLEW
-	glewExperimental = GL_TRUE;
-	glewInit();
+	m_glRenderer.init(m_buffer, w, h);
 
-	vao = 0;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	
-	// Create a Vertex Buffer Object and copy the vertex data to it
-	vbo = 0;
-	glGenBuffers(1, &vbo);
-
-	GLfloat vertices[] = {
-	//   Position     Color                   Texcoords
-		-1.0f,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // Top-left
-		 1.0f,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // Top-right
-		 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // Bottom-right
-		-1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f  // Bottom-left
-	};
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Create an element array
-	ebo = 0;
-	glGenBuffers(1, &ebo);
-
-	GLuint elements[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-
-	// Create and compile the vertex shader
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &g_playVertexSource, nullptr);
-	glCompileShader(vertexShader);
-
-	// Create and compile the fragment shader
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &g_playFragmentSource, nullptr);
-	glCompileShader(fragmentShader);
-
-	// Link the vertex and fragment shader into a shader program
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glBindFragDataLocation(shaderProgram, 0, "outColor");
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
-
-	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), nullptr);
-
-	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
-	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(2 * sizeof(GLfloat)));
-
-	GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-	glEnableVertexAttribArray(texAttrib);
-	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(6 * sizeof(GLfloat)));
-
-	// Load texture
-	tex = 0;
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-}
-
-PlayState::~PlayState() {
-	//Empty
-}
-
-void PlayState::cleanup() const {
-
-	glUseProgram(0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glDeleteTextures(1, &tex);
-
-	glDeleteProgram(shaderProgram);
-	glDeleteShader(fragmentShader);
-	glDeleteShader(vertexShader);
-
-	glDeleteBuffers(1, &ebo);
-	glDeleteBuffers(1, &vbo);
-
-	glDeleteVertexArrays(1, &vao);
 }
 
 void PlayState::update(const float ft) {
+	
+	//update health each frame
+	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
 
 	if (m_forward || m_backward || m_left || m_right) {
 		// convert ms to seconds
@@ -186,32 +96,20 @@ void PlayState::draw(sf::RenderWindow& window) {
 	calculateWalls();
 	calculateSprites();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_windowWidth, m_windowHeight, GL_RGB, GL_UNSIGNED_BYTE, m_buffer);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-	glUseProgram(0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	m_glRenderer.draw(m_buffer, m_windowWidth, m_windowHeight);
+	m_glRenderer.unbindBuffers();
 
 	window.pushGLStates();
 
 	//draw minimap
 	drawMinimap(&window);
 
-	//draw fps display
-	window.draw(m_fpsDisplay);
+	//draw Gui elements
+	drawGui(&window);
 
 	window.popGLStates();
 
-	// Create Vertex Array Object
-	glUseProgram(shaderProgram);
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBindTexture(GL_TEXTURE_2D, tex);
+	m_glRenderer.bindBuffers();
 
 	window.display();
 }
@@ -538,6 +436,16 @@ void PlayState::drawMinimap(sf::RenderWindow* window) const {
 	}
 }
 
+void PlayState::drawGui(sf::RenderWindow* window) const {
+	
+	//draw fps display
+	window->draw(m_fpsDisplay);
+
+	//draw player health
+	window->draw(m_playerHealthDisplay);
+
+}
+
 void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const {
 
 	if (x >= m_windowWidth || y >= m_windowHeight) {
@@ -609,7 +517,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 			m_backward = false;
 		}
 		if (event.key.code == sf::Keyboard::Escape)	{
-			cleanup();
+			m_glRenderer.destroy();
 			game.changeState(GameStateName::MAINMENU);
 		}
 	}

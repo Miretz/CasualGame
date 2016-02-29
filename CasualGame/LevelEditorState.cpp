@@ -48,11 +48,6 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_gui->get(m_spriteButtonId).background.setSize({100,100});
 }
 
-
-LevelEditorState::~LevelEditorState() {
-	//Empty
-}
-
 void LevelEditorState::update(const float ft) {
 	//Empty
 }

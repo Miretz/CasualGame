@@ -5,7 +5,7 @@
 class Clickable {
 public:
 	Clickable(const sf::Vector2f& size, const sf::Vector2f& position);
-	~Clickable();
+	virtual ~Clickable() = default;
 
 	void draw(sf::RenderWindow& window);
 	

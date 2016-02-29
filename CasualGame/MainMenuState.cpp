@@ -90,10 +90,6 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 }
 
-MainMenuState::~MainMenuState(){
-	//Empty
-}
-
 void MainMenuState::update(const float ft) {
 
 	sf::Transform rotation;

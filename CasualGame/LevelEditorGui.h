@@ -14,7 +14,7 @@ public:
 class LevelEditorGui {
 public:
 	LevelEditorGui(const int x, const int y, const int width);
-	~LevelEditorGui();
+	virtual ~LevelEditorGui() = default;
 
 	int addButton(const std::string& text);
 	void setTexturedButton(const int index, const sf::Texture* texture);

@@ -8,10 +8,6 @@ Clickable::Clickable(const sf::Vector2f & size, const sf::Vector2f & position) :
 	m_shape.setOutlineColor({ 255, 255, 255, 0 });
 }
 
-Clickable::~Clickable() {
-	//Empty
-}
-
 void Clickable::draw(sf::RenderWindow & window) {
 	m_shape.setOutlineColor({ 255, 255, 255, 255 });
 	m_shape.setOutlineThickness(2);

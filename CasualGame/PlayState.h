@@ -7,19 +7,12 @@
 #include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
-
-// Link statically with GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
-#pragma comment (lib, "../deps/lib/glew32s.lib") // Link to glew32s.lib
-
-// required for SFML to work with OpenGL
-#include <SFML/OpenGL.hpp>
+#include "GLRenderer.h"
 
 class PlayState : public GameState {
 public:
 	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	~PlayState();
+	virtual ~PlayState() = default;
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
@@ -52,23 +45,19 @@ private:
 
 	bool m_wasMouseClicked = false;
 
+	//Gui	
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;
+	sf::Text m_playerHealthDisplay;
 
-	//opengl stuffs
-	GLuint vao;
-	GLuint vbo;
-	GLuint ebo;
-	GLuint shaderProgram;
-	GLuint vertexShader;
-	GLuint fragmentShader;
-	GLuint tex;
+	//Gl renderer
+	GLRenderer m_glRenderer;
 
 	void calculateWalls();
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window) const;
+	void drawGui(sf::RenderWindow* window) const;
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const;
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
-	void cleanup() const;
 
 };

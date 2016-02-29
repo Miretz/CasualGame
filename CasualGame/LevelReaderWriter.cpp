@@ -39,10 +39,6 @@ LevelReaderWriter::LevelReaderWriter() {
 }
 
 
-LevelReaderWriter::~LevelReaderWriter(){
-	//Empty
-}
-
 void LevelReaderWriter::changeLevelTile(const int x, const int y, const int value) {
 	m_level[x][y] = value;
 }

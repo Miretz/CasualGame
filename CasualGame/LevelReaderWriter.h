@@ -9,7 +9,7 @@
 class LevelReaderWriter {
 public:
 	LevelReaderWriter();
-	~LevelReaderWriter();
+	virtual ~LevelReaderWriter() = default;
 	
 	const std::vector<std::vector<int> >& getLevel() const { return m_level;  }
 	const std::vector<Sprite>& getSprites() const { return m_sprites; };

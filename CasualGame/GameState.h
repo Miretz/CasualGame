@@ -11,6 +11,6 @@ public:
 	virtual void draw( sf::RenderWindow& window ) = 0;
 	virtual void handleInput( const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game ) = 0;
 
-	virtual ~GameState() {};
+	virtual ~GameState() = default;
 };
 

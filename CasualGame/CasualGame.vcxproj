@@ -162,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="Clickable.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GLRenderer.cpp" />
     <ClCompile Include="LevelEditorGui.cpp" />
     <ClCompile Include="LevelEditorState.cpp" />
     <ClCompile Include="LevelReaderWriter.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GLRenderer.h" />
     <ClInclude Include="LevelEditorGui.h" />
     <ClInclude Include="LevelEditorState.h" />
     <ClInclude Include="LevelReaderWriter.h" />
