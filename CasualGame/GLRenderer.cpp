@@ -83,7 +83,7 @@ void GLRenderer::init(unsigned char* buffer, int width, int height){
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void GLRenderer::destroy() const {
+void GLRenderer::cleanup() const {
 
 	glUseProgram(0);
 	glBindVertexArray(0);

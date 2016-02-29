@@ -2,14 +2,13 @@
 
 #include "Clickable.h"
 #include <algorithm>
-#include <sstream>
 #include <string>
 
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_windowWidth(w), 
 	m_windowHeight(h),
-	m_player(std::move(player)),
-	m_levelReader(std::move(levelReader)),
+	m_player(move(player)),
+	m_levelReader(move(levelReader)),
 	m_levelRef(m_levelReader->getLevel()),
 	m_spriteRef(m_levelReader->getSprites()),
 	m_levelSize(m_levelReader->getLevel().size()),
@@ -37,10 +36,9 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_playerHealthDisplay.setCharacterSize(40);
 	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
 	m_playerHealthDisplay.setColor(sf::Color::White);
-
-	m_buffer = new sf::Uint8[h * w * 3];
 	
-	m_glRenderer.init(m_buffer, w, h);
+	m_buffer.resize(h * w * 3);
+	m_glRenderer.init(&m_buffer[0], w, h);
 
 }
 
@@ -86,17 +84,14 @@ void PlayState::update(const float ft) {
 
 void PlayState::draw(sf::RenderWindow& window) {
 
-	//clear the buffer
-	const auto bufsize = m_windowHeight * m_windowWidth * 3;
-	for (auto i = bufsize; i-- >= 0;) {
-		m_buffer[i] = 0;
-	}
+	std::vector<unsigned char>().swap(m_buffer);
+	m_buffer.resize(m_windowWidth * m_windowHeight * 3);
 
 	//calculate a new buffer
 	calculateWalls();
 	calculateSprites();
 
-	m_glRenderer.draw(m_buffer, m_windowWidth, m_windowHeight);
+	m_glRenderer.draw(&m_buffer[0], m_windowWidth, m_windowHeight);
 	m_glRenderer.unbindBuffers();
 
 	window.pushGLStates();
@@ -446,7 +441,7 @@ void PlayState::drawGui(sf::RenderWindow* window) const {
 
 }
 
-void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const {
+void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) {
 
 	if (x >= m_windowWidth || y >= m_windowHeight) {
 		return;
@@ -517,7 +512,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 			m_backward = false;
 		}
 		if (event.key.code == sf::Keyboard::Escape)	{
-			m_glRenderer.destroy();
+			m_glRenderer.cleanup();
 			game.changeState(GameStateName::MAINMENU);
 		}
 	}

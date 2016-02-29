@@ -41,7 +41,8 @@ private:
 	std::vector<int> m_spriteOrder;
 	std::vector<double> m_spriteDistance;
 
-	sf::Uint8* m_buffer;
+	//main rendering buffer
+	std::vector<unsigned char> m_buffer;
 
 	bool m_wasMouseClicked = false;
 
@@ -57,7 +58,7 @@ private:
 	void calculateSprites();
 	void drawMinimap(sf::RenderWindow* window) const;
 	void drawGui(sf::RenderWindow* window) const;
-	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style) const;
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
 
 };

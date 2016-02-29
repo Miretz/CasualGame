@@ -16,7 +16,7 @@ public:
 	GLRenderer();
 	virtual ~GLRenderer() = default;
 	void init(unsigned char* buffer, int width, int height);
-	void destroy() const;
+	void cleanup() const;
 	void draw(unsigned char* buffer, int width, int height) const;
 	void unbindBuffers() const;
 	void bindBuffers() const;
