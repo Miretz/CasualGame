@@ -46,6 +46,7 @@ static const std::string g_textureFiles[13] = {
 };
 
 static const std::string g_gunSprite = "resources/sprites/gun.png";
+static const std::string g_gunSprite_fire = "resources/sprites/gun_fire.png";
 
 //Main menu
 
@@ -80,6 +81,9 @@ static const int g_playMinimapTransparency = 140;
 static const double g_Pi = 3.141592653589793238463;
 static const int g_playDrawDarkened = 1;
 static const int g_playhDrawHighlighted = 2;
+
+static const double g_gunShotTime = 0.25; //seconds
+static const double g_gunShotDelayTime = 0.35; //seconds
 
 static const char* g_playVertexSource =
 	"#version 150 core\n"

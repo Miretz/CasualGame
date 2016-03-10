@@ -19,6 +19,6 @@ void Clickable::draw(sf::RenderWindow* window) {
 	}
 }
 
-bool Clickable::isMouseOver(const sf::Vector2f & mousePosition) const {
-	return m_shape.getGlobalBounds().contains(mousePosition);
+bool Clickable::containsVector(const sf::Vector2f & position) const {
+	return m_shape.getGlobalBounds().contains(position);
 }

@@ -48,16 +48,18 @@ private:
 	// buffer of clickable items in the view
 	std::vector<Clickable> m_clickables;
 
-	bool m_wasMouseClicked = false;
-
 	//Gui	
 	sf::Font m_font;
 	sf::Text m_fpsDisplay;
 	sf::Text m_playerHealthDisplay;
 	sf::RectangleShape m_gunDisplay;
-	sf::Texture m_gunTexture;
+	sf::CircleShape m_crosshair;
+	sf::Texture m_textureGun;
+	sf::Texture m_textureGun_fire;
 	
-	double m_runningTime = 0;
+	double m_runningTime = 0.0;
+	double m_shotTime = -1.0;
+	double m_gunShotDelay = -1.0;
 
 	//Gl renderer
 	GLRenderer m_glRenderer;
@@ -68,5 +70,5 @@ private:
 	void drawGui(sf::RenderWindow* window);
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
-
+	void handleShot();
 };

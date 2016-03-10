@@ -41,31 +41,58 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_glRenderer.init(&m_buffer[0], w, h);
 
 	//Gun display
+	//idle texture
 	sf::Image gunImg;
 	gunImg.loadFromFile(g_gunSprite);
 	gunImg.createMaskFromColor(sf::Color::Black);
-	m_gunTexture.loadFromImage(gunImg);
+	m_textureGun.loadFromImage(gunImg);
+	
+	//fire texture
+	sf::Image gunImgFire;
+	gunImgFire.loadFromFile(g_gunSprite_fire);
+	gunImgFire.createMaskFromColor(sf::Color::Black);
+	m_textureGun_fire.loadFromImage(gunImgFire);
+	
+	//set gun size, position and texture
 	m_gunDisplay.setSize({ float(g_textureWidth * 2), float(g_textureHeight * 2) });
 	m_gunDisplay.setPosition({ float(w/2 - g_textureWidth), float(h - g_textureHeight*2 + 30) });
-	m_gunDisplay.setTexture(&m_gunTexture);
+	m_gunDisplay.setTexture(&m_textureGun);
+
+	//crosshair
+	m_crosshair.setRadius(2.0f);
+	m_crosshair.setPosition({ float(w / 2) - 1.0f, float(h / 2) - 1.0f });
+	m_crosshair.setFillColor(sf::Color::White);
+
+
 }
 
 void PlayState::update(const float ft) {
 	
 	//update health each frame
 	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
-		
+	
+	double fts = static_cast<double>(ft / 1000);
+
+	if(m_shotTime < 0.0){
+		m_gunDisplay.setTexture(&m_textureGun);
+	}
+	else {
+		m_shotTime -= fts;
+	}
+	if (m_gunShotDelay > 0.0) {
+		m_gunShotDelay -= fts;
+	}
+
 	//update position
 	if (m_forward || m_backward || m_left || m_right) {
 		// convert ms to seconds
-		double fts = static_cast<double>(ft / 1000);
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
 		double rotSpeed = fts * 3.0; //the constant value is in radians/second
 
 		//gun wobble
 		auto wobbleSpeed = fts * 10.0f;
 		auto newGunPos = m_gunDisplay.getPosition();
-		float DeltaHeight = (sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
+		float DeltaHeight = static_cast<float>(sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
 		newGunPos.y += DeltaHeight * 15.0f;
 		m_runningTime += wobbleSpeed;
 		m_gunDisplay.setPosition(newGunPos);
@@ -338,7 +365,8 @@ void PlayState::calculateSprites() {
 		const int texSize = textureData.size();
 		
 		//setup clickables
-		m_clickables[i].update(sf::Vector2f(spriteWidth / 2.0f, spriteHeight), sf::Vector2f(float(drawStartX + spriteWidth / 4.0f), float(drawStartY)));
+		m_clickables[i].update(sf::Vector2f(float(spriteWidth / 2.0f), float(spriteHeight)), sf::Vector2f(float(drawStartX + spriteWidth / 4.0f), float(drawStartY)));
+		m_clickables[i].setSpriteIndex(m_spriteOrder[i]);
 
 		//limit drawstart and drawend
 		if (drawStartY < 0) drawStartY = 0;
@@ -362,6 +390,7 @@ void PlayState::calculateSprites() {
 				for (int y = drawStartY; y < drawEndY; y++) {
 
 					m_clickables[i].setVisible(texNr != 12);
+					m_clickables[i].setDestructible(texNr != 12);
 
 					const int d = (y)* 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					const int texY = ((d * g_textureHeight) / spriteHeight) / 256;
@@ -440,7 +469,7 @@ void PlayState::drawGui(sf::RenderWindow* window) {
 	
 	//draw hud clickable items
 	for (auto& outline : m_clickables) {
-		if (outline.isMouseOver(m_mousePosition)) {
+		if (outline.containsVector(m_crosshair.getPosition())) {
 			outline.draw(window);
 			break;
 		}
@@ -457,6 +486,9 @@ void PlayState::drawGui(sf::RenderWindow* window) {
 
 	//draw player health
 	window->draw(m_playerHealthDisplay);
+
+	//draw crosshair
+	window->draw(m_crosshair);
 }
 
 void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) {
@@ -485,6 +517,22 @@ void PlayState::setPixel(int x, int y, const sf::Uint32 colorRgba, int style) {
 	}
 }
 
+void PlayState::handleShot(){
+
+	if (m_shotTime > 0.0 || m_gunShotDelay > 0.0) return;
+
+	m_gunDisplay.setTexture(&m_textureGun_fire);
+	m_shotTime = g_gunShotTime;
+	m_gunShotDelay = g_gunShotDelayTime;
+	for (auto& outline : m_clickables) {
+		if (outline.containsVector(m_crosshair.getPosition()) && outline.getDestructible()) {
+			outline.setDestructible(false);
+			m_levelReader->deleteSprite(outline.getSpriteIndex());
+			break;
+		}
+	}
+}
+
 void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition, Game & game) {
 
 	m_mousePosition = mousepPosition;
@@ -494,7 +542,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 	m_fpsDisplay.setOrigin(m_fpsDisplay.getGlobalBounds().width, 0.0f);
 
 	if (event.type == sf::Event::MouseButtonPressed) {
-		m_wasMouseClicked = true;
+		handleShot();
 	}
 
 	//escape go to main menu
@@ -511,6 +559,9 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		}
 		else if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))	{
 			m_backward = true;
+		}
+		else if ((event.key.code == sf::Keyboard::Space) || (event.key.code == sf::Keyboard::LControl)) {
+			handleShot();
 		}
 
 	}
