@@ -1,6 +1,6 @@
 #include "Clickable.h"
 
-Clickable::Clickable() : m_visible(false) {
+Clickable::Clickable() : m_visible(false), m_destructible(false), m_spriteIndex(-1) {
 	//Empty
 }
 

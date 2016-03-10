@@ -68,6 +68,11 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 void PlayState::update(const float ft) {
 	
+	//set indestructible until render calculation
+	for (auto& outline : m_clickables) {
+		outline.setDestructible(false);
+	}
+
 	//update health each frame
 	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
 	
@@ -475,7 +480,7 @@ void PlayState::drawGui(sf::RenderWindow* window) {
 		}
 	}
 	for (auto& outline : m_clickables) {
-		outline.setVisible(false);
+		outline.setVisible(false);		
 	}
 
 	//draw gun
@@ -524,11 +529,16 @@ void PlayState::handleShot(){
 	m_gunDisplay.setTexture(&m_textureGun_fire);
 	m_shotTime = g_gunShotTime;
 	m_gunShotDelay = g_gunShotDelayTime;
-	for (auto& outline : m_clickables) {
-		if (outline.containsVector(m_crosshair.getPosition()) && outline.getDestructible()) {
-			outline.setDestructible(false);
-			m_levelReader->deleteSprite(outline.getSpriteIndex());
-			break;
+
+	for (auto i = 0; i < m_clickables.size(); i++) {
+		if (m_clickables[i].containsVector(m_crosshair.getPosition()) && m_clickables[i].getDestructible()) {
+ 			m_clickables[i].setDestructible(false);
+			m_clickables[i].setVisible(false);
+			if (m_clickables[i].getSpriteIndex() != -1) {
+				m_levelReader->deleteSprite(m_clickables[i].getSpriteIndex());
+				m_clickables[i].setSpriteIndex(-1);
+			}
+			return;
 		}
 	}
 }
@@ -560,10 +570,6 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		else if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S))	{
 			m_backward = true;
 		}
-		else if ((event.key.code == sf::Keyboard::Space) || (event.key.code == sf::Keyboard::LControl)) {
-			handleShot();
-		}
-
 	}
 
 	if (event.type == sf::Event::KeyReleased) {
@@ -579,6 +585,9 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f & mousep
 		}
 		if ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S)) {
 			m_backward = false;
+		}
+		if ((event.key.code == sf::Keyboard::Space) || (event.key.code == sf::Keyboard::LControl)) {
+			handleShot();
 		}
 		if (event.key.code == sf::Keyboard::Escape)	{
 			m_glRenderer.cleanup();
