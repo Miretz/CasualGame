@@ -1,5 +1,6 @@
 #pragma once
-class Player {
+class Player
+{
 public:
 	double m_posX = 22.0;
 	double m_posY = 11.5;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <math.h> 
+#include <iostream> 
 
 #include "GameState.h"
 #include "Game.h"
@@ -10,14 +12,15 @@
 #include "GLRenderer.h"
 #include "Clickable.h"
 
-class PlayState : public GameState {
+class PlayState : public GameState
+{
 public:
 	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
 	virtual ~PlayState() = default;
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
-	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game) override;
+	void handleInput(const sf::Event& event, const sf::Vector2f mousePosition, Game& game) override;
 
 private:
 
@@ -34,8 +37,7 @@ private:
 	const std::vector<Sprite>& m_spriteRef;
 	const size_t m_levelSize;
 	const size_t m_spriteSize;
-	sf::Vector2f m_mousePosition;
-	
+
 	std::vector<double> m_ZBuffer;
 
 	//arrays used to sort the sprites
@@ -56,10 +58,12 @@ private:
 	sf::CircleShape m_crosshair;
 	sf::Texture m_textureGun;
 	sf::Texture m_textureGun_fire;
-	
+
 	double m_runningTime = 0.0;
 	double m_shotTime = -1.0;
 	double m_gunShotDelay = -1.0;
+
+	float m_mouseDeltaFromCenter;
 
 	//Gl renderer
 	GLRenderer m_glRenderer;
@@ -71,4 +75,6 @@ private:
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
 	void combSort(std::vector<int>& order, std::vector<double>& dist, int amount) const;
 	void handleShot();
+	void handleMouselook(const sf::Vector2f mouseMovePos);
+	void calculateShotTime(double fts);
 };

@@ -2,7 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-class GuiButton {
+class GuiButton 
+{
 public:
 	sf::Text text;
 	sf::RectangleShape background;
@@ -11,14 +12,15 @@ public:
 	GuiButton(sf::Text Text, sf::RectangleShape Background) : text(Text), background(Background), pressed(false) {}
 };
 
-class LevelEditorGui {
+class LevelEditorGui 
+{
 public:
 	LevelEditorGui(const int x, const int y, const int width);
 	virtual ~LevelEditorGui() = default;
 
 	int addButton(const std::string& text);
 	void setTexturedButton(const int index, const sf::Texture* texture);
-		
+
 	void addSpace();
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition);
 	void draw(sf::RenderWindow& window);
@@ -29,9 +31,9 @@ public:
 
 	int getWidth() const { return m_width; };
 	int getNumButtons() const { return m_buttons.size(); };
-		
+
 private:
-	
+
 	int m_padding = 10;
 
 	int m_xPos;

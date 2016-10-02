@@ -2,7 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-class Clickable {
+class Clickable
+{
 public:
 	Clickable();
 	virtual ~Clickable() = default;
@@ -10,9 +11,9 @@ public:
 	void update(const sf::Vector2f& size, const sf::Vector2f& position);
 	void draw(sf::RenderWindow* window);
 	bool containsVector(const sf::Vector2f& position) const;
-	bool isVisible() const { return m_visible;  };
+	bool isVisible() const { return m_visible; };
 	void setVisible(bool visible = true) { m_visible = visible; }
-	
+
 	void setSpriteIndex(int index) { m_spriteIndex = index; }
 	int getSpriteIndex() const { return m_spriteIndex; }
 

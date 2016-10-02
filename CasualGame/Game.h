@@ -8,7 +8,8 @@
 #include "LevelReaderWriter.h"
 #include "Config.h"
 
-class Game {
+class Game 
+{
 public:
 	Game();
 	virtual ~Game() = default;
@@ -21,7 +22,7 @@ public:
 	int getFps() const { return m_fps; }
 
 private:
-	
+
 	float m_lastFt = 0.f;
 	float m_currentSlice = 0.f;
 	bool m_running = true;
@@ -32,7 +33,7 @@ private:
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;
 	std::unique_ptr<GameState> m_currentState;
-	
+
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 	std::shared_ptr<Player> m_player;
 
@@ -41,6 +42,6 @@ private:
 	void draw() const;
 	void restart();
 	void updateTimers();
-	
+
 };
 

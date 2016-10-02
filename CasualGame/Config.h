@@ -9,7 +9,8 @@ static const int g_textureWidth = 128;
 static const int g_textureHeight = 128;
 
 // Game states
-enum class GameStateName {
+enum class GameStateName 
+{
 	MAINMENU,
 	PLAY,
 	RESTART,
@@ -86,26 +87,26 @@ static const double g_gunShotTime = 0.25; //seconds
 static const double g_gunShotDelayTime = 0.35; //seconds
 
 static const char* g_playVertexSource =
-	"#version 150 core\n"
-	"in vec2 position;"
-	"in vec4 color;"
-	"in vec2 texcoord;"
-	"out vec4 Color;"
-	"out vec2 Texcoord;"
-	"void main()"
-	"{"
-	"    Color = color;"
-	"    Texcoord = texcoord;"
-	"    gl_Position = vec4(position, 0.0, 1.0);"
-	"}";
+"#version 150 core\n"
+"in vec2 position;"
+"in vec4 color;"
+"in vec2 texcoord;"
+"out vec4 Color;"
+"out vec2 Texcoord;"
+"void main()"
+"{"
+"    Color = color;"
+"    Texcoord = texcoord;"
+"    gl_Position = vec4(position, 0.0, 1.0);"
+"}";
 
 static const char* g_playFragmentSource =
-	"#version 150 core\n"
-	"in vec4 Color;"
-	"in vec2 Texcoord;"
-	"out vec4 outColor;"
-	"uniform sampler2D tex;"
-	"void main()"
-	"{"
-	"    outColor = texture(tex, Texcoord) * Color;"
-	"}";
+"#version 150 core\n"
+"in vec4 Color;"
+"in vec2 Texcoord;"
+"out vec4 outColor;"
+"uniform sampler2D tex;"
+"void main()"
+"{"
+"    outColor = texture(tex, Texcoord) * Color;"
+"}";

@@ -1,10 +1,12 @@
 #include "GLRenderer.h"
 
-GLRenderer::GLRenderer(): vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0) {
+GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0)
+{
 	//Empty
 }
 
-void GLRenderer::init(unsigned char* buffer, int width, int height){
+void GLRenderer::init(unsigned char* buffer, int width, int height)
+{
 
 	// Initialize GLEW
 	glewExperimental = GL_TRUE;
@@ -83,7 +85,8 @@ void GLRenderer::init(unsigned char* buffer, int width, int height){
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void GLRenderer::cleanup() const {
+void GLRenderer::cleanup() const
+{
 
 	glUseProgram(0);
 	glBindVertexArray(0);
@@ -103,13 +106,15 @@ void GLRenderer::cleanup() const {
 	glDeleteVertexArrays(1, &vao);
 }
 
-void GLRenderer::draw(unsigned char* buffer, int width, int height) const {
+void GLRenderer::draw(unsigned char* buffer, int width, int height) const
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void GLRenderer::unbindBuffers() const {
+void GLRenderer::unbindBuffers() const
+{
 	glUseProgram(0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -117,7 +122,8 @@ void GLRenderer::unbindBuffers() const {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLRenderer::bindBuffers() const {
+void GLRenderer::bindBuffers() const
+{
 	// Create Vertex Array Object
 	glUseProgram(shaderProgram);
 	glBindVertexArray(vao);
