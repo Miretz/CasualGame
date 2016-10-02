@@ -3,7 +3,7 @@
 PlayerInputManager::PlayerInputManager() {}
 PlayerInputManager::~PlayerInputManager() {}
 
-void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f mousePosition)
+void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f mousePosition, Game& game)
 {
 
 	if (event.type == sf::Event::MouseButtonPressed)
@@ -11,7 +11,10 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 		handleShot();
 	}
 
-	handleMouselook(mousePosition);
+	if (event.type == sf::Event::MouseMoved)
+	{
+		handleMouselook(event, game.getWindow());
+	}
 
 	//escape go to main menu
 	if (event.type == sf::Event::KeyPressed)
@@ -74,7 +77,7 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	{
 		// convert ms to seconds
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
-		double rotSpeed = fts * fabs(m_mouseDeltaFromCenter / m_windowWidth) * 5.0f; //the constant value is in radians/second
+		double rotSpeed = fts * fabs(m_mouseDelta) * 3.0; //the constant value is in radians/second
 
 		if (m_left)
 		{
@@ -106,6 +109,10 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX -= m_player->m_dirX * moveSpeed;
 			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == false) m_player->m_posY -= m_player->m_dirY * moveSpeed;
 		}
+
+		//stop rotating on mouselook
+		m_left = false;
+		m_right = false;
 	}
 }
 
@@ -138,17 +145,27 @@ void PlayerInputManager::handleShot()
 }
 
 
-void PlayerInputManager::handleMouselook(const sf::Vector2f mouseMovePos)
+void PlayerInputManager::handleMouselook(const sf::Event & event, const sf::RenderWindow& window)
 {
-	float centerX = m_windowWidth / 2.0f;
-	m_mouseDeltaFromCenter = centerX - mouseMovePos.x;
+	m_mouseDelta = event.mouseMove.x - m_lastMouseX;
+	m_lastMouseX = event.mouseMove.x;
 
-	if (m_mouseDeltaFromCenter > 10.0f)
+	//if mouse is out of screen, put it to the center
+	if (event.mouseMove.x <= 100.0f || event.mouseMove.x >= window.getSize().x - 100.0f ||
+		event.mouseMove.y <= 100.0f || event.mouseMove.y >= window.getSize().y - 100.0f)
+	{
+		auto centerX = window.getSize().x / 2.0f;
+		auto centerY = window.getSize().y / 2.0f;
+		sf::Mouse::setPosition(sf::Vector2i(centerX, centerY), window);
+		m_lastMouseX = centerX;
+	}
+
+	if (m_mouseDelta < 0.0f)
 	{
 		m_right = false;
 		m_left = true;
 	}
-	else if (m_mouseDeltaFromCenter < -10.0f)
+	else if (m_mouseDelta > 0.0f)
 	{
 		m_left = false;
 		m_right = true;
@@ -158,4 +175,5 @@ void PlayerInputManager::handleMouselook(const sf::Vector2f mouseMovePos)
 		m_left = false;
 		m_right = false;
 	}
+
 }

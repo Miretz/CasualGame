@@ -21,6 +21,8 @@ public:
 	
 	int getFps() const { return m_fps; }
 
+	sf::RenderWindow& getWindow() const { return *m_window; }
+	
 private:
 
 	float m_lastFt = 0.f;

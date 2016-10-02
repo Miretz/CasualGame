@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <math.h> 
-#include <iostream> 
 
 #include "GameState.h"
 #include "Game.h"

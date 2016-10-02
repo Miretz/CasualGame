@@ -11,8 +11,6 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_levelSize = m_levelReader->getLevel().size();
 	m_spriteSize = m_levelReader->getSprites().size();
 
-	m_inputManager.setWindowWidth(w);
-
 	m_glRaycaster.initialize(w, h, m_player, m_levelReader);
 
 	//TODO create separate font loader
@@ -219,7 +217,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f mousePos
 	}
 
 	//send events to player controller
-	m_inputManager.handleInput(event, mousePosition);
+	m_inputManager.handleInput(event, mousePosition, game);
 
 	//im shooting
 	if (m_inputManager.isShooting())
