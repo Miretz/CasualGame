@@ -84,15 +84,19 @@ void Game::changeState(GameStateName newState)
 	switch (newState)
 	{
 	case GameStateName::MAINMENU:
+		m_window->setMouseCursorVisible(true);
 		m_currentState = std::move(std::make_unique<MainMenuState>(m_window->getSize().x, m_window->getSize().y));
 		break;
 	case GameStateName::PLAY:
+		m_window->setMouseCursorVisible(false);
 		m_currentState = std::move(std::make_unique<PlayState>(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader));
 		break;
 	case GameStateName::RESTART:
+		m_window->setMouseCursorVisible(false);
 		restart();
 		break;
 	case GameStateName::LEVEL_EDITOR:
+		m_window->setMouseCursorVisible(true);
 		m_currentState = std::move(std::make_unique<LevelEditorState>(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader));
 		break;
 	case GameStateName::SWITCH_FULLSCREEN:

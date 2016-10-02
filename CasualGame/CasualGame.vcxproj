@@ -162,12 +162,14 @@
   <ItemGroup>
     <ClCompile Include="Clickable.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GLRaycaster.cpp" />
     <ClCompile Include="GLRenderer.cpp" />
     <ClCompile Include="LevelEditorGui.cpp" />
     <ClCompile Include="LevelEditorState.cpp" />
     <ClCompile Include="LevelReaderWriter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
+    <ClCompile Include="PlayerInputManager.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
   </ItemGroup>
@@ -176,16 +178,18 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GLRaycaster.h" />
     <ClInclude Include="GLRenderer.h" />
     <ClInclude Include="LevelEditorGui.h" />
     <ClInclude Include="LevelEditorState.h" />
     <ClInclude Include="LevelReaderWriter.h" />
     <ClInclude Include="MainMenuState.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerInputManager.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="RandomGenerator.h" />
     <ClInclude Include="Sprite.h" />
-    <ClInclude Include="VectorUtils.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="resources\font\OtherF.ttf" />

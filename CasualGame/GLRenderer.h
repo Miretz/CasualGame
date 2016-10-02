@@ -20,6 +20,7 @@ public:
 	void draw(unsigned char* buffer, int width, int height) const;
 	void unbindBuffers() const;
 	void bindBuffers() const;
+
 private:
 	//opengl stuffs
 	GLuint vao;
