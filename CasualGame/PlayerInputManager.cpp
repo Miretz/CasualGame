@@ -105,13 +105,17 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 		}
 		if (m_forward)
 		{
-			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX += m_player->m_dirX * moveSpeed;
-			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == false) m_player->m_posY += m_player->m_dirY * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0) 
+				m_player->m_posX += m_player->m_dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == 0)
+				m_player->m_posY += m_player->m_dirY * moveSpeed;
 		}
 		if (m_backward)
 		{
-			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == false) m_player->m_posX -= m_player->m_dirX * moveSpeed;
-			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == false) m_player->m_posY -= m_player->m_dirY * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0) 
+				m_player->m_posX -= m_player->m_dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == 0) 
+				m_player->m_posY -= m_player->m_dirY * moveSpeed;
 		}
 
 		//stop rotating on mouselook

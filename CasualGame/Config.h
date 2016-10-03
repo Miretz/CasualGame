@@ -74,8 +74,8 @@ static const double g_Pi = 3.141592653589793238463;
 static const int g_playDrawDarkened = 1;
 static const int g_playhDrawHighlighted = 2;
 
-static const double g_gunShotTime = 0.25; //seconds
-static const double g_gunShotDelayTime = 0.35; //seconds
+static const double g_gunShotTime = 0.15; //seconds
+static const double g_gunShotDelayTime = 0.5; //seconds
 
 static const char* g_playVertexSource =
 "#version 150 core\n"

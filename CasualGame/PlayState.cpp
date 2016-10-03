@@ -248,7 +248,7 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f mousePos
 					m_levelReader->deleteSprite(clickables[i].getSpriteIndex());
 					clickables[i].setSpriteIndex(-1);
 				}
-				break;
+				return;
 			}
 		}
 	}
