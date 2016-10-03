@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Game.h"
-#include "Player.h"
-#include <iostream> 
+#include <SFML/Graphics.hpp>
+#include <memory>
+
+class Game;
+class Player;
 
 class PlayerInputManager
 {
@@ -27,8 +29,9 @@ private:
 	double m_shotTime = -1.0;
 	double m_gunShotDelay = -1.0;
 
-	float m_mouseDelta;
-	float m_lastMouseX;
+	int m_mouseDelta;
+	int m_lastMouseX;
+	int m_mouseBorder = 100;
 
 	void handleMouselook(const sf::Event& event, const sf::RenderWindow& window);
 	void handleShot();

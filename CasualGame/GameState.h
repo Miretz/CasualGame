@@ -4,6 +4,17 @@
 
 class Game;
 
+// Game states
+enum class GameStateName
+{
+	MAINMENU,
+	PLAY,
+	RESTART,
+	LEVEL_EDITOR,
+	SWITCH_FULLSCREEN,
+	QUIT
+};
+
 class GameState 
 {
 public:

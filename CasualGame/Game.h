@@ -4,9 +4,9 @@
 #include <memory>
 
 #include "GameState.h"
-#include "Player.h"
-#include "LevelReaderWriter.h"
-#include "Config.h"
+
+class Player;
+class LevelReaderWriter;
 
 class Game 
 {

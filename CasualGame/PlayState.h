@@ -1,18 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <math.h> 
+#include <memory>
 
 #include "GameState.h"
-#include "Game.h"
-#include "Sprite.h"
-#include "Player.h"
-#include "LevelReaderWriter.h"
-#include "GLRenderer.h"
-#include "GLRaycaster.h"
-#include "Clickable.h"
-#include "PlayerInputManager.h"
-#include "Utils.h"
+
+class Player;
+class PlayerInputManager;
+class GLRaycaster;
+class LevelReaderWriter;
 
 class PlayState : public GameState
 {
@@ -32,7 +27,8 @@ private:
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 
-	PlayerInputManager m_inputManager;
+	std::unique_ptr<PlayerInputManager> m_inputManager;
+	std::unique_ptr<GLRaycaster> m_glRaycaster;
 
 	double m_runningTime = 0.0;
 
@@ -44,9 +40,7 @@ private:
 	sf::CircleShape m_crosshair;
 	sf::Texture m_textureGun;
 	sf::Texture m_textureGun_fire;
-
-	GLRaycaster m_glRaycaster;
-
+	
 	void drawMinimap(sf::RenderWindow* window) const;
 	void drawGui(sf::RenderWindow* window);
 

@@ -1,10 +1,8 @@
 #pragma once
 
-#include <fstream>
-#include <vector>
-
 #include <SFML/Graphics.hpp>
-#include "Sprite.h"
+
+struct Sprite;
 
 class LevelReaderWriter
 {

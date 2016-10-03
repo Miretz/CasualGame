@@ -1,5 +1,7 @@
 #include "GLRenderer.h"
 
+#include "Config.h"
+
 GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0)
 {
 	//Empty

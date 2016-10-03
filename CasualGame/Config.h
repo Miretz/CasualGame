@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 static const auto g_gameTitle = "Casual Game by Miretz";
 
 static const auto g_defaultWidth = 1024;
@@ -7,17 +9,6 @@ static const auto g_defaultHeight = 768;
 
 static const int g_textureWidth = 128;
 static const int g_textureHeight = 128;
-
-// Game states
-enum class GameStateName 
-{
-	MAINMENU,
-	PLAY,
-	RESTART,
-	LEVEL_EDITOR,
-	SWITCH_FULLSCREEN,
-	QUIT
-};
 
 // Resources
 

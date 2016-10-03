@@ -1,4 +1,5 @@
 #include "LevelEditorGui.h"
+
 #include "Config.h"
 
 LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :

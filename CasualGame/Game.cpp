@@ -4,6 +4,10 @@
 #include "PlayState.h"
 #include "LevelEditorState.h"
 
+#include "Player.h"
+#include "LevelReaderWriter.h"
+#include "Config.h"
+
 Game::Game()
 {
 	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(g_defaultWidth, g_defaultHeight), g_gameTitle, sf::Style::Close);

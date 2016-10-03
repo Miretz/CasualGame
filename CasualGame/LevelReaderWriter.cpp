@@ -1,10 +1,12 @@
 #include "LevelReaderWriter.h"
 
-#include "Config.h"
-
+#include <fstream>
+#include <vector>
 #include <sstream>
-#include <string>
 #include <filesystem>
+
+#include "Config.h"
+#include "Sprite.h"
 
 namespace fs = std::tr2::sys;
 

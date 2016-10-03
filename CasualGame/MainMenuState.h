@@ -1,8 +1,9 @@
 #pragma once
 
 #include "GameState.h"
-#include "Game.h"
-#include "RandomGenerator.h"
+
+class Game;
+class RandomGenerator;
 
 class MainMenuState : public GameState
 {

@@ -1,6 +1,17 @@
 #include "GLRaycaster.h"
 
-GLRaycaster::GLRaycaster() {}
+#include "GLRenderer.h"
+#include "LevelReaderWriter.h"
+#include "Player.h"
+#include "Sprite.h"
+#include "Clickable.h"
+#include "Utils.h"
+#include "Config.h"
+
+GLRaycaster::GLRaycaster() 
+{
+	m_glRenderer = std::make_unique<GLRenderer>();
+}
 GLRaycaster::~GLRaycaster() {}
 
 void GLRaycaster::initialize(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader)
@@ -16,7 +27,7 @@ void GLRaycaster::initialize(const int w, const int h, std::shared_ptr<Player> p
 	m_clickables.resize(m_levelReader->getSprites().size());
 
 	m_buffer.resize(h * w * 3);
-	m_glRenderer.init(&m_buffer[0], w, h);
+	m_glRenderer->init(&m_buffer[0], w, h);
 
 }
 
@@ -29,19 +40,19 @@ void GLRaycaster::draw(const int windowWidth, const int windowHeight)
 	calculateWalls(windowWidth, windowHeight);
 	calculateSprites(windowWidth, windowHeight);
 
-	m_glRenderer.draw(&m_buffer[0], windowWidth, windowHeight);
-	m_glRenderer.unbindBuffers();
+	m_glRenderer->draw(&m_buffer[0], windowWidth, windowHeight);
+	m_glRenderer->unbindBuffers();
 
 }
 
 void GLRaycaster::bindGlBuffers()
 {
-	m_glRenderer.bindBuffers();
+	m_glRenderer->bindBuffers();
 }
 
 void GLRaycaster::cleanup()
 {
-	m_glRenderer.cleanup();
+	m_glRenderer->cleanup();
 }
 
 void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
@@ -340,7 +351,7 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 }
 
 
-void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style, const int windowWidth, const int windowHeight)
+void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style, int windowWidth, int windowHeight)
 {
 
 	if (x >= windowWidth || y >= windowHeight)

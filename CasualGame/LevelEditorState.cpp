@@ -1,5 +1,12 @@
 #include "LevelEditorState.h"
 
+#include "Sprite.h"
+#include "Game.h"
+#include "Player.h"
+#include "LevelReaderWriter.h"
+#include "LevelEditorGui.h"
+#include "Config.h"
+
 LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_windowWidth(w),
 	m_windowHeight(h),

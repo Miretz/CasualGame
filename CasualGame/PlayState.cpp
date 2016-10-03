@@ -1,7 +1,15 @@
 #include "PlayState.h"
 
-#include <algorithm>
-#include <string>
+#include "Game.h"
+#include "Sprite.h"
+#include "Player.h"
+#include "LevelReaderWriter.h"
+#include "GLRenderer.h"
+#include "GLRaycaster.h"
+#include "Clickable.h"
+#include "PlayerInputManager.h"
+#include "Utils.h"
+#include "Config.h"
 
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_player(move(player)),
@@ -11,7 +19,10 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_levelSize = m_levelReader->getLevel().size();
 	m_spriteSize = m_levelReader->getSprites().size();
 
-	m_glRaycaster.initialize(w, h, m_player, m_levelReader);
+	m_inputManager = std::make_unique<PlayerInputManager>();
+
+	m_glRaycaster = std::make_unique<GLRaycaster>();
+	m_glRaycaster->initialize(w, h, m_player, m_levelReader);
 
 	//TODO create separate font loader
 	m_font.loadFromFile(g_fontPath);
@@ -59,7 +70,7 @@ void PlayState::update(const float ft)
 {
 
 	//set indestructible until render calculation
-	for (auto& outline : m_glRaycaster.getClickables())
+	for (auto& outline : m_glRaycaster->getClickables())
 	{
 		outline.setDestructible(false);
 	}
@@ -70,10 +81,10 @@ void PlayState::update(const float ft)
 	double fts = static_cast<double>(ft / 1000.0f);
 
 	//update player movement
-	m_inputManager.updatePlayerMovement(fts, m_player, m_levelReader->getLevel());
+	m_inputManager->updatePlayerMovement(fts, m_player, m_levelReader->getLevel());
 
 	//wobble gun
-	if (m_inputManager.isMoving())
+	if (m_inputManager->isMoving())
 	{
 		auto wobbleSpeed = fts * 10.0f;
 		auto newGunPos = m_gunDisplay.getPosition();
@@ -84,7 +95,7 @@ void PlayState::update(const float ft)
 	}
 
 	//reset gun texture
-	if (!m_inputManager.isShooting())
+	if (!m_inputManager->isShooting())
 	{
 		m_gunDisplay.setTexture(&m_textureGun);
 	}
@@ -96,7 +107,7 @@ void PlayState::draw(sf::RenderWindow& window)
 	auto windowWidth = window.getSize().x;
 	auto windowHeight = window.getSize().y;
 
-	m_glRaycaster.draw(windowWidth, windowHeight);
+	m_glRaycaster->draw(windowWidth, windowHeight);
 
 	window.pushGLStates();
 
@@ -108,7 +119,7 @@ void PlayState::draw(sf::RenderWindow& window)
 
 	window.popGLStates();
 
-	m_glRaycaster.bindGlBuffers();
+	m_glRaycaster->bindGlBuffers();
 
 	window.display();
 }
@@ -177,7 +188,7 @@ void PlayState::drawGui(sf::RenderWindow* window)
 {
 
 	//draw hud clickable items
-	for (auto& outline : m_glRaycaster.getClickables())
+	for (auto& outline : m_glRaycaster->getClickables())
 	{
 		if (outline.containsVector(m_crosshair.getPosition()))
 		{
@@ -185,7 +196,7 @@ void PlayState::drawGui(sf::RenderWindow* window)
 			break;
 		}
 	}
-	for (auto& outline : m_glRaycaster.getClickables())
+	for (auto& outline : m_glRaycaster->getClickables())
 	{
 		outline.setVisible(false);
 	}
@@ -212,19 +223,19 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f mousePos
 	//escape to quit to main menu
 	if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 	{
-		m_glRaycaster.cleanup();
+		m_glRaycaster->cleanup();
 		game.changeState(GameStateName::MAINMENU);
 	}
 
 	//send events to player controller
-	m_inputManager.handleInput(event, mousePosition, game);
+	m_inputManager->handleInput(event, mousePosition, game);
 
 	//im shooting
-	if (m_inputManager.isShooting())
+	if (m_inputManager->isShooting())
 	{
 		m_gunDisplay.setTexture(&m_textureGun_fire);
 
-		auto& clickables = m_glRaycaster.getClickables();
+		auto& clickables = m_glRaycaster->getClickables();
 
 		for (size_t i = 0; i < clickables.size(); i++)
 		{

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "Game.h"
-#include "GLRenderer.h"
-#include "Clickable.h"
-#include "Utils.h"
+#include <SFML/Graphics.hpp>
+#include <memory>
+
+class Game;
+class GLRenderer;
+class Clickable;
+class LevelReaderWriter;
+class Player;
 
 class GLRaycaster
 {
@@ -14,7 +18,7 @@ public:
 	void initialize(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
 	void calculateWalls(const int windowWidth, const int windowHeight);
 	void calculateSprites(const int windowWidth, const int windowHeight);
-	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style, const int windowWidth, const int windowHeight);
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style, int windowWidth, int windowHeight);
 	void draw(const int windowWidth, const int windowHeight);
 	void bindGlBuffers();
 	void cleanup();
@@ -23,7 +27,8 @@ public:
 
 private:
 
-	GLRenderer m_glRenderer;
+	std::unique_ptr<GLRenderer> m_glRenderer;
+	
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 	size_t m_spriteSize;

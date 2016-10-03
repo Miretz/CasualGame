@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Game.h"
-
 // Link statically with GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>

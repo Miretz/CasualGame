@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
+
 #include "GameState.h"
-#include "Game.h"
-#include "Player.h"
-#include "LevelReaderWriter.h"
-#include "LevelEditorGui.h"
+
+class Game;
+class Player;
+class LevelReaderWriter;
+class LevelEditorGui;
 
 class LevelEditorState : public GameState
 {

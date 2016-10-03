@@ -1,5 +1,9 @@
 #include "MainMenuState.h"
 
+#include "Game.h"
+#include "RandomGenerator.h"
+#include "Config.h"
+
 RandomGenerator MainMenuState::gen = RandomGenerator();
 
 MainMenuState::MainMenuState(const int w, const int h) :

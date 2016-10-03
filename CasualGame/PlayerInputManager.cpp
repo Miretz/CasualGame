@@ -1,5 +1,9 @@
 #include "PlayerInputManager.h"
 
+#include "Game.h"
+#include "Player.h"
+#include "Config.h"
+
 PlayerInputManager::PlayerInputManager() {}
 PlayerInputManager::~PlayerInputManager() {}
 
@@ -77,7 +81,7 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	{
 		// convert ms to seconds
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
-		double rotSpeed = fts * fabs(m_mouseDelta) * 3.0; //the constant value is in radians/second
+		double rotSpeed = fts * abs(m_mouseDelta) * 3.0; //the constant value is in radians/second
 
 		if (m_left)
 		{
@@ -147,25 +151,31 @@ void PlayerInputManager::handleShot()
 
 void PlayerInputManager::handleMouselook(const sf::Event & event, const sf::RenderWindow& window)
 {
-	m_mouseDelta = event.mouseMove.x - m_lastMouseX;
-	m_lastMouseX = event.mouseMove.x;
+	int mouseX = event.mouseMove.x;
+	int mouseY = event.mouseMove.y;
+
+	m_mouseDelta = mouseX - m_lastMouseX;
+	m_lastMouseX = mouseX;
+	
+	int windowX = static_cast<int>(window.getSize().x);
+	int windowY = static_cast<int>(window.getSize().y);
 
 	//if mouse is out of screen, put it to the center
-	if (event.mouseMove.x <= 100.0f || event.mouseMove.x >= window.getSize().x - 100.0f ||
-		event.mouseMove.y <= 100.0f || event.mouseMove.y >= window.getSize().y - 100.0f)
+	if (mouseX <= m_mouseBorder || mouseX >= windowX - m_mouseBorder ||
+		mouseY <= m_mouseBorder || mouseY >= windowY - m_mouseBorder)
 	{
-		auto centerX = window.getSize().x / 2.0f;
-		auto centerY = window.getSize().y / 2.0f;
+		auto centerX = windowX / 2;
+		auto centerY = windowY / 2;
 		sf::Mouse::setPosition(sf::Vector2i(centerX, centerY), window);
 		m_lastMouseX = centerX;
 	}
 
-	if (m_mouseDelta < 0.0f)
+	if (m_mouseDelta < 0)
 	{
 		m_right = false;
 		m_left = true;
 	}
-	else if (m_mouseDelta > 0.0f)
+	else if (m_mouseDelta > 0)
 	{
 		m_left = false;
 		m_right = true;
