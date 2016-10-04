@@ -49,6 +49,5 @@ private:
 	// buffer of clickable items in the view
 	std::vector<Clickable> m_clickables;
 
-	void calculateFloor(int side, const double &rayDirX, int mapX, int mapY, double wallX, const double &rayDirY, int &drawEnd, double perpWallDist, const double &rayPosX, const double &rayPosY, const std::vector<sf::Uint32> & tex8, const std::vector<sf::Uint32> & tex9, int x);
 };
 

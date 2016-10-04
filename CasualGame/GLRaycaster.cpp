@@ -201,59 +201,54 @@ void GLRaycaster::calculateWalls()
 		m_ZBuffer[x] = perpWallDist; //perpendicular distance is used
 
 		//FLOOR CASTING
-		calculateFloor(side, rayDirX, mapX, mapY, wallX, rayDirY, drawEnd, perpWallDist, rayPosX, rayPosY, tex8, tex9, x);
-	}
+		double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
 
-}
+		if (side == 0 && rayDirX > 0)
+		{
+			floorXWall = mapX;
+			floorYWall = mapY + wallX;
+		}
+		else if (side == 0 && rayDirX < 0)
+		{
+			floorXWall = mapX + 1.0;
+			floorYWall = mapY + wallX;
+		}
+		else if (side == 1 && rayDirY > 0)
+		{
+			floorXWall = mapX + wallX;
+			floorYWall = mapY;
+		}
+		else
+		{
+			floorXWall = mapX + wallX;
+			floorYWall = mapY + 1.0;
+		}
 
-void GLRaycaster::calculateFloor(int side, const double &rayDirX, int mapX, int mapY, double wallX, const double &rayDirY, int &drawEnd,  double perpWallDist, const double &rayPosX, const double &rayPosY, const std::vector<sf::Uint32> & tex8, const std::vector<sf::Uint32> & tex9, int x)
-{
-	double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
+		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
-	if (side == 0 && rayDirX > 0)
-	{
-		floorXWall = mapX;
-		floorYWall = mapY + wallX;
-	}
-	else if (side == 0 && rayDirX < 0)
-	{
-		floorXWall = mapX + 1.0;
-		floorYWall = mapY + wallX;
-	}
-	else if (side == 1 && rayDirY > 0)
-	{
-		floorXWall = mapX + wallX;
-		floorYWall = mapY;
-	}
-	else
-	{
-		floorXWall = mapX + wallX;
-		floorYWall = mapY + 1.0;
-	}
+												   //draw the floor from drawEnd to the bottom of the screen
+		for (int y = drawEnd + 1; y < m_windowHeight; y++)
+		{
 
-	if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
+			const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+			const double weight = currentDist / perpWallDist;
 
-											 //draw the floor from drawEnd to the bottom of the screen
-	for (int y = drawEnd + 1; y < m_windowHeight; y++)
-	{
+			const double currentFloorX = weight * floorXWall + (1.0 - weight) * rayPosX;
+			const double currentFloorY = weight * floorYWall + (1.0 - weight) * rayPosY;
 
-		const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
-		const double weight = currentDist / perpWallDist;
+			const int floorTexX = static_cast<int>(currentFloorX * g_textureWidth) % g_textureWidth;
+			const int floorTexY = static_cast<int>(currentFloorY * g_textureHeight) % g_textureHeight;
 
-		const double currentFloorX = weight * floorXWall + (1.0 - weight) * rayPosX;
-		const double currentFloorY = weight * floorYWall + (1.0 - weight) * rayPosY;
+			//floor textures
+			sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
+			sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
 
-		const int floorTexX = static_cast<int>(currentFloorX * g_textureWidth) % g_textureWidth;
-		const int floorTexY = static_cast<int>(currentFloorY * g_textureHeight) % g_textureHeight;
-
-		//floor textures
-		sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
-		sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
-
-		setPixel(x, y, color1, false);
-		setPixel(x, m_windowHeight - y, color2, false);
+			setPixel(x, y, color1, false);
+			setPixel(x, m_windowHeight - y, color2, false);
+		}
 	}
 }
+
 
 void GLRaycaster::calculateSprites()
 {
