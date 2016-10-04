@@ -14,33 +14,39 @@ GLRaycaster::GLRaycaster()
 }
 GLRaycaster::~GLRaycaster() {}
 
-void GLRaycaster::initialize(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader)
+void GLRaycaster::initialize(
+	const int windowWidth, const int windowHeight,
+	std::shared_ptr<Player> player, 
+	std::shared_ptr<LevelReaderWriter> levelReader)
 {
+	m_windowWidth = windowWidth;
+	m_windowHeight = windowHeight;
+	
 	m_player = move(player);
 	m_levelReader = move(levelReader);
 
 	m_spriteSize = m_levelReader->getSprites().size();
 
-	m_ZBuffer.resize(w);
+	m_ZBuffer.resize(windowWidth);
 	m_spriteOrder.resize(m_levelReader->getSprites().size());
 	m_spriteDistance.resize(m_levelReader->getSprites().size());
 	m_clickables.resize(m_levelReader->getSprites().size());
 
-	m_buffer.resize(h * w * 3);
-	m_glRenderer->init(&m_buffer[0], w, h);
+	m_buffer.resize(windowHeight * windowWidth * 3);
+	m_glRenderer->init(&m_buffer[0], windowWidth, windowHeight);
 
 }
 
-void GLRaycaster::draw(const int windowWidth, const int windowHeight)
+void GLRaycaster::draw()
 {
 	std::vector<unsigned char>().swap(m_buffer);
-	m_buffer.resize(windowWidth * windowHeight * 3);
+	m_buffer.resize(m_windowWidth * m_windowHeight * 3);
 
 	//calculate a new buffer
-	calculateWalls(windowWidth, windowHeight);
-	calculateSprites(windowWidth, windowHeight);
+	calculateWalls();
+	calculateSprites();
 
-	m_glRenderer->draw(&m_buffer[0], windowWidth, windowHeight);
+	m_glRenderer->draw(&m_buffer[0], m_windowWidth, m_windowHeight);
 	m_glRenderer->unbindBuffers();
 
 }
@@ -55,7 +61,7 @@ void GLRaycaster::cleanup()
 	m_glRenderer->cleanup();
 }
 
-void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
+void GLRaycaster::calculateWalls()
 {
 
 	const double rayPosX = m_player->m_posX;
@@ -72,21 +78,21 @@ void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
 	double perpWallDist;
 	double wallX; //where exactly the wall was hit
 
-	const std::vector<sf::Uint32>& tex8 = m_levelReader->getTexture(8);//floor
-	const std::vector<sf::Uint32>& tex9 = m_levelReader->getTexture(9);//ceiling
-
-																	   //2d raycaster
-	for (int x = 0; x < windowWidth; x++)
+	auto& tex8 = m_levelReader->getTexture(8);//floor
+	auto& tex9 = m_levelReader->getTexture(9);//ceiling
+	
+	for (int x = 0; x < m_windowWidth; x++)
 	{
-		//calculate ray position and direction
-		const double cameraX = 2 * x / double(windowWidth) - 1; //x-coordinate in camera space
-
-		const double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
-		const double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
-
+		
 		//which box of the map we're in
 		int mapX = static_cast<int>(rayPosX);
 		int mapY = static_cast<int>(rayPosY);
+
+		//calculate ray position and direction
+		const double cameraX = 2.0 * x / m_windowWidth - 1.0; //x-coordinate in camera space
+
+		const double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
+		const double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
 
 		//length of ray from one x or y-side to next x or y-side
 		const double rayDirXsq = rayDirX * rayDirX;
@@ -116,10 +122,10 @@ void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
 			sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
 		}
 
-		auto hit = 0; //was there a wall hit?
-		auto side = 0; //was a NS or a EW wall hit?
+		int hit = 0; //was there a wall hit?
+		int side = 0; //was a NS or a EW wall hit?
 
-					   //perform DDA
+		//perform DDA
 		while (hit == 0)
 		{
 			//jump to next map square, OR in x-direction, OR in y-direction
@@ -142,24 +148,21 @@ void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
 		if (side == 0)
 		{
-			perpWallDist = fabs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
+			perpWallDist = std::abs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
 		}
 		else
 		{
-			perpWallDist = fabs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
+			perpWallDist = std::abs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
 		}
 
 		//Calculate height of line to draw on screen
-		const int lineHeight = static_cast<int>(std::abs(windowHeight / perpWallDist));
+		const int lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + windowHeight / 2;
+		int drawStart = -lineHeight / 2 + m_windowHeight / 2;
 		if (drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + windowHeight / 2;
-		if (drawEnd >= windowHeight)drawEnd = windowHeight - 1;
-
-		//texturing calculations
-		const int texNum = m_levelReader->getLevel()[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		int drawEnd = lineHeight / 2 + m_windowHeight / 2;
+		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
 
 		if (side == 1)
 		{
@@ -176,79 +179,83 @@ void GLRaycaster::calculateWalls(const int windowWidth, const int windowHeight)
 		if (side == 0 && rayDirX > 0) texX = g_textureWidth - texX - 1;
 		if (side == 1 && rayDirY < 0) texX = g_textureWidth - texX - 1;
 
+		const int texNum = m_levelReader->getLevel()[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 		const std::vector<sf::Uint32>& texture = m_levelReader->getTexture(texNum);
-		const size_t texSize = texture.size();
+		const int texSize = static_cast<int>(texture.size());
 
-		//darker sides
 		for (int y = drawStart; y < drawEnd; y++)
 		{
 
-			const int d = y * 256 - windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
-			const int texY = ((d * g_textureHeight) / lineHeight) / 256;
-			const unsigned int texNumY = g_textureHeight * texX + texY;
+			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+			int texY = ((d * g_textureHeight) / lineHeight) / 256;
+			int texNumY = g_textureHeight * texX + texY;
 
 			if (texNumY < texSize)
 			{
 				auto color = texture[texNumY];
-				setPixel(x, y, color, side == 1, windowWidth, windowHeight);
+				setPixel(x, y, color, side == 1);
 			}
 		}
 
 		//SET THE ZBUFFER FOR THE SPRITE CASTING
 		m_ZBuffer[x] = perpWallDist; //perpendicular distance is used
 
-									 //FLOOR CASTING
-		double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
-
-									   //4 different wall directions possible
-		if (side == 0 && rayDirX > 0)
-		{
-			floorXWall = mapX;
-			floorYWall = mapY + wallX;
-		}
-		else if (side == 0 && rayDirX < 0)
-		{
-			floorXWall = mapX + 1.0;
-			floorYWall = mapY + wallX;
-		}
-		else if (side == 1 && rayDirY > 0)
-		{
-			floorXWall = mapX + wallX;
-			floorYWall = mapY;
-		}
-		else
-		{
-			floorXWall = mapX + wallX;
-			floorYWall = mapY + 1.0;
-		}
-
-		if (drawEnd < 0) drawEnd = windowHeight; //becomes < 0 when the integer overflows
-
-												 //draw the floor from drawEnd to the bottom of the screen
-		for (int y = drawEnd + 1; y < windowHeight; y++)
-		{
-
-			const double currentDist = windowHeight / (2.0 * y - windowHeight); //you could make a small lookup table for this instead
-			const double weight = currentDist / perpWallDist;
-
-			const double currentFloorX = weight * floorXWall + (1.0 - weight) * m_player->m_posX;
-			const double currentFloorY = weight * floorYWall + (1.0 - weight) * m_player->m_posY;
-
-			const int floorTexX = int(currentFloorX * g_textureWidth) % g_textureWidth;
-			const int floorTexY = int(currentFloorY * g_textureHeight) % g_textureHeight;
-
-			//floor textures
-			sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
-			sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
-
-			setPixel(x, y, color1, false, windowWidth, windowHeight);
-			setPixel(x, windowHeight - y, color2, false, windowWidth, windowHeight);
-		}
+		//FLOOR CASTING
+		calculateFloor(side, rayDirX, mapX, mapY, wallX, rayDirY, drawEnd, perpWallDist, rayPosX, rayPosY, tex8, tex9, x);
 	}
 
 }
 
-void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight)
+void GLRaycaster::calculateFloor(int side, const double &rayDirX, int mapX, int mapY, double wallX, const double &rayDirY, int &drawEnd,  double perpWallDist, const double &rayPosX, const double &rayPosY, const std::vector<sf::Uint32> & tex8, const std::vector<sf::Uint32> & tex9, int x)
+{
+	double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
+
+	if (side == 0 && rayDirX > 0)
+	{
+		floorXWall = mapX;
+		floorYWall = mapY + wallX;
+	}
+	else if (side == 0 && rayDirX < 0)
+	{
+		floorXWall = mapX + 1.0;
+		floorYWall = mapY + wallX;
+	}
+	else if (side == 1 && rayDirY > 0)
+	{
+		floorXWall = mapX + wallX;
+		floorYWall = mapY;
+	}
+	else
+	{
+		floorXWall = mapX + wallX;
+		floorYWall = mapY + 1.0;
+	}
+
+	if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
+
+											 //draw the floor from drawEnd to the bottom of the screen
+	for (int y = drawEnd + 1; y < m_windowHeight; y++)
+	{
+
+		const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+		const double weight = currentDist / perpWallDist;
+
+		const double currentFloorX = weight * floorXWall + (1.0 - weight) * rayPosX;
+		const double currentFloorY = weight * floorYWall + (1.0 - weight) * rayPosY;
+
+		const int floorTexX = static_cast<int>(currentFloorX * g_textureWidth) % g_textureWidth;
+		const int floorTexY = static_cast<int>(currentFloorY * g_textureHeight) % g_textureHeight;
+
+		//floor textures
+		sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
+		sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
+
+		setPixel(x, y, color1, false);
+		setPixel(x, m_windowHeight - y, color2, false);
+	}
+}
+
+void GLRaycaster::calculateSprites()
 {
 
 	//SPRITE CASTING
@@ -276,14 +283,14 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 		const double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
 		const double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
 		const double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
-		const int spriteScreenX = int((windowWidth / 2) * (1 + transformX / transformY));
+		const int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen
-		const int spriteHeight = abs(int(windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
+		const int spriteHeight = abs(int(m_windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
 
 																		//calculate lowest and highest pixel to fill in current stripe
-		int drawStartY = -spriteHeight / 2 + windowHeight / 2;
-		int drawEndY = spriteHeight / 2 + windowHeight / 2;
+		int drawStartY = -spriteHeight / 2 + m_windowHeight / 2;
+		int drawEndY = spriteHeight / 2 + m_windowHeight / 2;
 
 		//calculate width of the sprite
 		int spriteWidth = spriteHeight;
@@ -302,9 +309,9 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 
 		//limit drawstart and drawend
 		if (drawStartY < 0) drawStartY = 0;
-		if (drawEndY >= windowHeight) drawEndY = windowHeight - 1;
+		if (drawEndY >= m_windowHeight) drawEndY = m_windowHeight - 1;
 		if (drawStartX < 0) drawStartX = 0;
-		if (drawEndX >= windowWidth) drawEndX = windowWidth - 1;
+		if (drawEndX >= m_windowWidth) drawEndX = m_windowWidth - 1;
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
@@ -317,7 +324,7 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 			//2) it's on the screen (left)
 			//3) it's on the screen (right)
 			//4) ZBuffer, with perpendicular distance
-			if (transformY > 0 && stripe > 0 && stripe < windowWidth && transformY < m_ZBuffer[stripe])
+			if (transformY > 0 && stripe > 0 && stripe < m_windowWidth && transformY < m_ZBuffer[stripe])
 			{
 
 				//for every pixel of the current stripe
@@ -327,7 +334,7 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 					m_clickables[i].setVisible(texNr != 12);
 					m_clickables[i].setDestructible(texNr != 12);
 
-					const int d = (y) * 256 - windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+					const int d = (y) * 256 - m_windowHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					const int texY = ((d * g_textureHeight) / spriteHeight) / 256;
 					const int texPix = g_textureWidth * texX + texY;
 
@@ -339,7 +346,7 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 																// black is invisible!!!
 						if ((color & 0x00FFFFFF) != 0)
 						{
-							setPixel(stripe, y, color, 0, windowWidth, windowHeight);
+							setPixel(stripe, y, color, 0);
 						}
 					}
 				}
@@ -351,16 +358,16 @@ void GLRaycaster::calculateSprites(const int windowWidth, const int windowHeight
 }
 
 
-void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style, int windowWidth, int windowHeight)
+void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style)
 {
 
-	if (x >= windowWidth || y >= windowHeight)
+	if (x >= m_windowWidth || y >= m_windowHeight)
 	{
 		return;
 	}
 
 	auto colors = (sf::Uint8*)&colorRgba;
-	auto index = (y * windowWidth + x) * 3;
+	auto index = (y * m_windowWidth + x) * 3;
 
 	if (style == g_playDrawDarkened)
 	{

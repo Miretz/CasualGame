@@ -2,6 +2,31 @@
 
 #include "Config.h"
 
+static const char* g_playVertexSource =
+"#version 150 core\n"
+"in vec2 position;"
+"in vec4 color;"
+"in vec2 texcoord;"
+"out vec4 Color;"
+"out vec2 Texcoord;"
+"void main()"
+"{"
+"    Color = color;"
+"    Texcoord = texcoord;"
+"    gl_Position = vec4(position, 0.0, 1.0);"
+"}";
+
+static const char* g_playFragmentSource =
+"#version 150 core\n"
+"in vec4 Color;"
+"in vec2 Texcoord;"
+"out vec4 outColor;"
+"uniform sampler2D tex;"
+"void main()"
+"{"
+"    outColor = texture(tex, Texcoord) * Color;"
+"}";
+
 GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0)
 {
 	//Empty

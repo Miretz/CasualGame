@@ -15,11 +15,12 @@ public:
 	GLRaycaster();
 	~GLRaycaster();
 
-	void initialize(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	void calculateWalls(const int windowWidth, const int windowHeight);
-	void calculateSprites(const int windowWidth, const int windowHeight);
-	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style, int windowWidth, int windowHeight);
-	void draw(const int windowWidth, const int windowHeight);
+	void initialize(const int windowWidth, const int windowHeight, 
+		std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
+	void calculateWalls();
+	void calculateSprites();
+	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
+	void draw();
 	void bindGlBuffers();
 	void cleanup();
 
@@ -27,8 +28,11 @@ public:
 
 private:
 
+	int m_windowWidth = 0;
+	int m_windowHeight = 0;
+
 	std::unique_ptr<GLRenderer> m_glRenderer;
-	
+
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
 	size_t m_spriteSize;
@@ -45,5 +49,6 @@ private:
 	// buffer of clickable items in the view
 	std::vector<Clickable> m_clickables;
 
+	void calculateFloor(int side, const double &rayDirX, int mapX, int mapY, double wallX, const double &rayDirY, int &drawEnd, double perpWallDist, const double &rayPosX, const double &rayPosY, const std::vector<sf::Uint32> & tex8, const std::vector<sf::Uint32> & tex9, int x);
 };
 

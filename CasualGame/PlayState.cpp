@@ -107,7 +107,7 @@ void PlayState::draw(sf::RenderWindow& window)
 	auto windowWidth = window.getSize().x;
 	auto windowHeight = window.getSize().y;
 
-	m_glRaycaster->draw(windowWidth, windowHeight);
+	m_glRaycaster->draw();
 
 	window.pushGLStates();
 
