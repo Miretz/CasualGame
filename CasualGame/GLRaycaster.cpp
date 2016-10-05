@@ -382,5 +382,6 @@ void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style)
 		m_buffer[index + 1] = colors[1];
 		m_buffer[index + 2] = colors[2];
 	}
+
 }
 
