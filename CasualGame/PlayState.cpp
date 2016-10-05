@@ -68,21 +68,24 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 void PlayState::update(const float ft)
 {
+	double fts = static_cast<double>(ft / 1000.0f);
+	
+	//TODO: this is just a test
+	//move aimed at sprite towards the player
+	moveAimedAtSprite(fts);
 
 	//set indestructible until render calculation
 	for (auto& outline : m_glRaycaster->getClickables())
 	{
 		outline.setDestructible(false);
 	}
-
+	
 	//update health each frame
 	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
 
-	double fts = static_cast<double>(ft / 1000.0f);
-
 	//update player movement
 	m_inputManager->updatePlayerMovement(fts, m_player, m_levelReader->getLevel());
-
+	
 	//wobble gun
 	if (m_inputManager->isMoving())
 	{
@@ -104,9 +107,6 @@ void PlayState::update(const float ft)
 
 void PlayState::draw(sf::RenderWindow& window)
 {
-	auto windowWidth = window.getSize().x;
-	auto windowHeight = window.getSize().y;
-
 	m_glRaycaster->draw();
 
 	window.pushGLStates();
@@ -235,23 +235,50 @@ void PlayState::handleInput(const sf::Event & event, const sf::Vector2f mousePos
 	{
 		m_gunDisplay.setTexture(&m_textureGun_fire);
 
-		auto& clickables = m_glRaycaster->getClickables();
+		destroyAimedAtSprite();
+	}
+}
 
-		for (size_t i = 0; i < clickables.size(); i++)
+void PlayState::destroyAimedAtSprite()
+{
+	auto& clickables = m_glRaycaster->getClickables();
+
+	for (size_t i = 0; i < clickables.size(); i++)
+	{
+		if (clickables[i].getDestructible() && clickables[i].containsVector(m_crosshair.getPosition()))
 		{
-			if (clickables[i].getDestructible() && clickables[i].containsVector(m_crosshair.getPosition()))
+			clickables[i].setDestructible(false);
+			clickables[i].setVisible(false);
+			if (clickables[i].getSpriteIndex() != -1)
 			{
-				clickables[i].setDestructible(false);
-				clickables[i].setVisible(false);
-				if (clickables[i].getSpriteIndex() != -1)
-				{
-					m_levelReader->deleteSprite(clickables[i].getSpriteIndex());
-					clickables[i].setSpriteIndex(-1);
-				}
-				return;
+				m_levelReader->deleteSprite(clickables[i].getSpriteIndex());
+				clickables[i].setSpriteIndex(-1);
 			}
+			return;
 		}
 	}
 }
 
+void PlayState::moveAimedAtSprite(const double fts)
+{
+	auto& clickables = m_glRaycaster->getClickables();
+	auto& sprites = m_levelReader->getSprites();
 
+	for (size_t i = 0; i < clickables.size(); i++)
+	{
+		if (clickables[i].getDestructible() && clickables[i].containsVector(m_crosshair.getPosition()))
+		{
+			if (clickables[i].getSpriteIndex() != -1)
+			{
+				auto x = sprites[clickables[i].getSpriteIndex()].x;
+				auto y = sprites[clickables[i].getSpriteIndex()].y;
+
+				x -= fts * 2.0 * m_player->m_dirX;
+				y -= fts * 2.0 * m_player->m_dirY;
+								
+				m_levelReader->moveSprite(clickables[i].getSpriteIndex(), x, y);
+			}
+			return;
+		}
+	}
+}

@@ -44,4 +44,7 @@ private:
 	void drawMinimap(sf::RenderWindow* window) const;
 	void drawGui(sf::RenderWindow* window);
 
+	void destroyAimedAtSprite();
+	void moveAimedAtSprite(const double fts);
+
 };

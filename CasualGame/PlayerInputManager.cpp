@@ -26,13 +26,11 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 		// handle controls
 		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
-			//TODO: sidestep
-			//m_left = true;
+			m_stepLeft = true;
 		}
 		else if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
-			//TODO: sidestep
-			//m_right = true;
+			m_stepRight = true;
 		}
 		else if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
@@ -49,13 +47,11 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 		// handle controls
 		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
-			//TODO: sidestep
-			//m_left = false;
+			m_stepLeft = false;
 		}
 		if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
-			//TODO: sidestep
-			//m_right = false;
+			m_stepRight = false;
 		}
 		if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
@@ -116,6 +112,28 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 				m_player->m_posX -= m_player->m_dirX * moveSpeed;
 			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == 0) 
 				m_player->m_posY -= m_player->m_dirY * moveSpeed;
+		}
+		if (m_stepLeft)
+		{
+			// rotate vector in 90 ccw use Vector(-y, x)
+			auto dirX = -m_player->m_dirY;
+			auto dirY = m_player->m_dirX;
+
+			if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
+				m_player->m_posX += dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + dirY * moveSpeed)] == 0)
+				m_player->m_posY += dirY * moveSpeed;
+		}
+		if (m_stepRight)
+		{
+			// rotate vector in 90 cw use Vector(y, -x)
+			auto dirX = m_player->m_dirY;
+			auto dirY = -m_player->m_dirX;
+
+			if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
+				m_player->m_posX += dirX * moveSpeed;
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + dirY * moveSpeed)] == 0)
+				m_player->m_posY += dirY * moveSpeed;
 		}
 
 		//stop rotating on mouselook
