@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "FontLoader.h"
+
 static const auto g_gameTitle = "Casual Game by Miretz";
 
 static const auto g_defaultWidth = 1024;
@@ -12,7 +14,7 @@ static const int g_textureHeight = 128;
 
 // Resources
 
-static const auto g_fontPath = "resources/font/OtherF.ttf";
+static const FontLoader* g_fontLoader = new FontLoader("resources/font/OtherF.ttf");
 
 static const auto g_defaultLevelFile = "resources/levels/level1.txt";
 static const auto g_defaultLevelSpriteFile = "resources/levels/level1_sprites.txt";

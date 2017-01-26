@@ -15,10 +15,7 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 {
 	m_scale = float(h - 30) / m_levelReader->getLevel().size();
 
-	//FIXME create separate font loader
-	m_font.loadFromFile("resources/font/OtherF.ttf");
-
-	m_statusBar.setFont(m_font);
+	m_statusBar.setFont(g_fontLoader->getFont());
 	m_statusBar.setString(g_editorTxtModeWall);
 	m_statusBar.setCharacterSize(32);
 

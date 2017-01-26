@@ -22,7 +22,6 @@ private:
 	const int m_windowWidth;
 	const int m_windowHeight;
 
-	sf::Font m_font;
 	std::vector<sf::Text> m_menuItems;
 	sf::Text m_titleText;
 	sf::Vector2f m_mousePos;

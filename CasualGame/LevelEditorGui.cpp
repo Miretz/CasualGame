@@ -7,13 +7,13 @@ LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :
 	m_yPos(y),
 	m_width(width)
 {
-	m_font.loadFromFile(g_fontPath);
+	//Empty
 }
 
 int LevelEditorGui::addButton(const std::string & text)
 {
 	sf::Text btnText;
-	btnText.setFont(m_font);
+	btnText.setFont(g_fontLoader->getFont());
 	btnText.setString(text);
 	btnText.setCharacterSize(22);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);

@@ -37,7 +37,6 @@ private:
 	bool m_editEntities = false;
 	int m_entitySelected = -1;
 
-	sf::Font m_font;
 	sf::Text m_statusBar;
 	sf::Vector2f m_mousePos;
 	std::string m_customLevelName = "<enter filename>";

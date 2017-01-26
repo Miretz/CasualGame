@@ -11,12 +11,10 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	m_windowHeight(h)
 {
 
-	m_font.loadFromFile(g_fontPath);
-
 	// Game Title
 	sf::Color textColor = sf::Color::White;
 
-	m_titleText.setFont(m_font);
+	m_titleText.setFont(g_fontLoader->getFont());
 	m_titleText.setString(g_mainTxtTitle);
 	m_titleText.setCharacterSize(50);
 	m_titleText.setPosition(m_windowWidth / 2.0f, 200);
@@ -26,7 +24,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	// Menu Items
 	// Start Game
 	sf::Text startGame;
-	startGame.setFont(m_font);
+	startGame.setFont(g_fontLoader->getFont());
 	startGame.setString(g_mainTxtStartGame);
 	startGame.setCharacterSize(30);
 	startGame.setPosition(m_windowWidth / 2.0f, 300);
@@ -37,7 +35,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	// Restart Game
 	sf::Text restartGame;
-	restartGame.setFont(m_font);
+	restartGame.setFont(g_fontLoader->getFont());
 	restartGame.setString(g_mainTxtRestartGame);
 	restartGame.setCharacterSize(30);
 	restartGame.setPosition(m_windowWidth / 2.0f, 350);
@@ -48,7 +46,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	// Level Editor 
 	sf::Text levelEditor;
-	levelEditor.setFont(m_font);
+	levelEditor.setFont(g_fontLoader->getFont());
 	levelEditor.setString(g_mainTxtLevelEditor);
 	levelEditor.setCharacterSize(30);
 	levelEditor.setPosition(m_windowWidth / 2.0f, 400);
@@ -59,7 +57,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	//Toggle Fullscreen
 	sf::Text switchFullscreen;
-	switchFullscreen.setFont(m_font);
+	switchFullscreen.setFont(g_fontLoader->getFont());
 	switchFullscreen.setString(g_mainTxtToggleFullscreen);
 	switchFullscreen.setCharacterSize(30);
 	switchFullscreen.setPosition(m_windowWidth / 2.0f, 450);
@@ -70,7 +68,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	//Quit Game
 	sf::Text quitGame;
-	quitGame.setFont(m_font);
+	quitGame.setFont(g_fontLoader->getFont());
 	quitGame.setString(g_mainTxtQuit);
 	quitGame.setCharacterSize(30);
 	quitGame.setPosition(m_windowWidth / 2.0f, 500);

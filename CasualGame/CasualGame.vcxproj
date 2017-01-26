@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Clickable.cpp" />
+    <ClCompile Include="FontLoader.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GLRaycaster.cpp" />
     <ClCompile Include="GLRenderer.cpp" />
@@ -179,6 +180,7 @@
   <ItemGroup>
     <ClInclude Include="Clickable.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="FontLoader.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GLRaycaster.h" />

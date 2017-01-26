@@ -43,7 +43,6 @@ private:
 	sf::Color m_idleColor = sf::Color::White;
 	sf::Color m_hoverColor = sf::Color::Green;
 
-	sf::Font m_font;
 	std::vector<GuiButton> m_buttons;
 
 };

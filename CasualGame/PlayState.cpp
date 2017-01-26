@@ -24,18 +24,15 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_glRaycaster = std::make_unique<GLRaycaster>();
 	m_glRaycaster->initialize(w, h, m_player, m_levelReader);
 
-	//TODO create separate font loader
-	m_font.loadFromFile(g_fontPath);
-
 	//Fps display
-	m_fpsDisplay.setFont(m_font);
+	m_fpsDisplay.setFont(g_fontLoader->getFont());
 	m_fpsDisplay.setString("fps");
 	m_fpsDisplay.setCharacterSize(32);
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
 	m_fpsDisplay.setFillColor(sf::Color::Yellow);
 
 	//Health display
-	m_playerHealthDisplay.setFont(m_font);
+	m_playerHealthDisplay.setFont(g_fontLoader->getFont());
 	m_playerHealthDisplay.setString("health");
 	m_playerHealthDisplay.setCharacterSize(40);
 	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
@@ -72,7 +69,7 @@ void PlayState::update(const float ft)
 	
 	//TODO: this is just a test
 	//move aimed at sprite towards the player
-	moveAimedAtSprite(fts);
+	//moveAimedAtSprite(fts);
 
 	//set indestructible until render calculation
 	for (auto& outline : m_glRaycaster->getClickables())

@@ -33,7 +33,6 @@ private:
 	double m_runningTime = 0.0;
 
 	//Gui	
-	sf::Font m_font;
 	sf::Text m_fpsDisplay;
 	sf::Text m_playerHealthDisplay;
 	sf::RectangleShape m_gunDisplay;
