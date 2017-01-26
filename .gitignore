@@ -1,6 +1,9 @@
 Debug/
 Release/
 .vs/
+packages/
+x64/
+CasualGame/x64
 
 # Visual C++ cache files
 ipch/

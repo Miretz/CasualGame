@@ -21,7 +21,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	m_titleText.setCharacterSize(50);
 	m_titleText.setPosition(m_windowWidth / 2.0f, 200);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2.0f, m_titleText.getGlobalBounds().height / 2.0f);
-	m_titleText.setColor(textColor);
+	m_titleText.setFillColor(textColor);
 
 	// Menu Items
 	// Start Game
@@ -31,7 +31,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	startGame.setCharacterSize(30);
 	startGame.setPosition(m_windowWidth / 2.0f, 300);
 	startGame.setOrigin(startGame.getGlobalBounds().width / 2.0f, startGame.getGlobalBounds().height / 2.0f);
-	startGame.setColor(textColor);
+	startGame.setFillColor(textColor);
 
 	m_menuItems.push_back(startGame);
 
@@ -42,7 +42,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	restartGame.setCharacterSize(30);
 	restartGame.setPosition(m_windowWidth / 2.0f, 350);
 	restartGame.setOrigin(restartGame.getGlobalBounds().width / 2.0f, restartGame.getGlobalBounds().height / 2.0f);
-	restartGame.setColor(textColor);
+	restartGame.setFillColor(textColor);
 
 	m_menuItems.push_back(restartGame);
 
@@ -53,7 +53,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	levelEditor.setCharacterSize(30);
 	levelEditor.setPosition(m_windowWidth / 2.0f, 400);
 	levelEditor.setOrigin(levelEditor.getGlobalBounds().width / 2.0f, levelEditor.getGlobalBounds().height / 2.0f);
-	levelEditor.setColor(textColor);
+	levelEditor.setFillColor(textColor);
 
 	m_menuItems.push_back(levelEditor);
 
@@ -64,7 +64,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	switchFullscreen.setCharacterSize(30);
 	switchFullscreen.setPosition(m_windowWidth / 2.0f, 450);
 	switchFullscreen.setOrigin(switchFullscreen.getGlobalBounds().width / 2.0f, switchFullscreen.getGlobalBounds().height / 2.0f);
-	switchFullscreen.setColor(textColor);
+	switchFullscreen.setFillColor(textColor);
 
 	m_menuItems.push_back(switchFullscreen);
 
@@ -75,7 +75,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	quitGame.setCharacterSize(30);
 	quitGame.setPosition(m_windowWidth / 2.0f, 500);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
-	quitGame.setColor(textColor);
+	quitGame.setFillColor(textColor);
 
 	m_menuItems.push_back(quitGame);
 

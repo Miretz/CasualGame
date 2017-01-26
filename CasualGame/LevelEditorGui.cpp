@@ -18,7 +18,7 @@ int LevelEditorGui::addButton(const std::string & text)
 	btnText.setCharacterSize(22);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
 	btnText.setPosition(m_xPos + m_padding + 4.0f, float(m_yPos));
-	btnText.setColor(m_idleColor);
+	btnText.setFillColor(m_idleColor);
 
 	sf::RectangleShape rectShape(sf::Vector2f(float(m_width - 2 * m_padding), btnText.getGlobalBounds().height * 2.0f));
 	rectShape.setPosition(float(m_xPos + m_padding), float(m_yPos));
@@ -54,13 +54,13 @@ void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & m
 		if (button.background.getGlobalBounds().contains(mousepPosition))
 		{
 			button.background.setOutlineColor(m_hoverColor);
-			button.text.setColor(m_hoverColor);
+			button.text.setFillColor(m_hoverColor);
 			button.pressed = mousePressed;
 		}
 		else
 		{
 			button.background.setOutlineColor(m_idleColor);
-			button.text.setColor(m_idleColor);
+			button.text.setFillColor(m_idleColor);
 		}
 	}
 }

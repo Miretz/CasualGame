@@ -30,7 +30,7 @@ public:
 	GuiButton& get(const int index) { return m_buttons[index]; };
 
 	int getWidth() const { return m_width; };
-	int getNumButtons() const { return m_buttons.size(); };
+	int getNumButtons() const { return (int) m_buttons.size(); };
 
 private:
 

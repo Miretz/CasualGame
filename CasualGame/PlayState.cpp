@@ -32,14 +32,14 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_fpsDisplay.setString("fps");
 	m_fpsDisplay.setCharacterSize(32);
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
-	m_fpsDisplay.setColor(sf::Color::Yellow);
+	m_fpsDisplay.setFillColor(sf::Color::Yellow);
 
 	//Health display
 	m_playerHealthDisplay.setFont(m_font);
 	m_playerHealthDisplay.setString("health");
 	m_playerHealthDisplay.setCharacterSize(40);
 	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
-	m_playerHealthDisplay.setColor(sf::Color::White);
+	m_playerHealthDisplay.setFillColor(sf::Color::White);
 
 	//Gun display
 	//idle texture

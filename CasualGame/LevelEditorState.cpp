@@ -25,7 +25,7 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_statusBar.setPosition(10.f, float(h));
 	m_statusBar.setOrigin(0.0f, m_statusBar.getGlobalBounds().height * 2.0f);
 
-	m_statusBar.setColor(sf::Color::Black);
+	m_statusBar.setFillColor(sf::Color::Black);
 
 	m_customLevels = m_levelReader->getCustomLevels();
 

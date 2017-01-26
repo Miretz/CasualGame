@@ -1,11 +1,6 @@
 #pragma once
 
-// Link statically with GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
-#pragma comment (lib, "../deps/lib/glew32s.lib") // Link to glew32s.lib
-
-// required for SFML to work with OpenGL
+#include "GL/glew.h"
 #include <SFML/OpenGL.hpp>
 
 class GLRenderer
