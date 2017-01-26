@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GL/glew.h"
-#include <SFML/OpenGL.hpp>
+typedef unsigned int GLuint;
 
 class GLRenderer
 {

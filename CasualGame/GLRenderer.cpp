@@ -2,6 +2,9 @@
 
 #include "Config.h"
 
+#include "GL/glew.h"
+#include <SFML/OpenGL.hpp>
+
 static const char* g_playVertexSource =
 "#version 150 core\n"
 "in vec2 position;"
