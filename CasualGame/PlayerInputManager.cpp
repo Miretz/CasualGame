@@ -77,7 +77,7 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	{
 		// convert ms to seconds
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
-		double rotSpeed = fts * std::abs(m_mouseDelta) * 3.0; //the constant value is in radians/second
+		double rotSpeed = fts * std::abs(m_mouseDelta) * g_lookSpeed;
 
 		if (m_left)
 		{

@@ -12,6 +12,9 @@ static const auto g_defaultHeight = 768;
 static const int g_textureWidth = 128;
 static const int g_textureHeight = 128;
 
+//the constant value is in radians/second
+static const double g_lookSpeed = 3.0; //TODO Make configurable in game
+
 // Resources
 
 static const FontLoader* g_fontLoader = new FontLoader("resources/font/OtherF.ttf");
