@@ -7,7 +7,7 @@ class Game;
 class GLRenderer;
 class Clickable;
 class LevelReaderWriter;
-class Player;
+struct Player;
 
 class GLRaycaster
 {

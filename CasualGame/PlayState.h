@@ -4,7 +4,7 @@
 
 #include "GameState.h"
 
-class Player;
+struct Player;
 class PlayerInputManager;
 class GLRaycaster;
 class LevelReaderWriter;

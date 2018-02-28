@@ -1,10 +1,10 @@
 #include "Game.h"
 
+#include "Player.h"
 #include "MainMenuState.h"
 #include "PlayState.h"
 #include "LevelEditorState.h"
 
-#include "Player.h"
 #include "LevelReaderWriter.h"
 #include "Config.h"
 

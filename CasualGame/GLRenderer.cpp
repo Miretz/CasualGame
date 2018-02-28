@@ -1,36 +1,11 @@
 #include "GLRenderer.h"
 
 #include "Config.h"
+#include "Utils.h"
 
 #include "GL/glew.h"
 #include <SFML/OpenGL.hpp>
 
-//TODO: move shaders to external files
-
-static const char* g_playVertexSource =
-"#version 150 core\n"
-"in vec2 position;"
-"in vec4 color;"
-"in vec2 texcoord;"
-"out vec4 Color;"
-"out vec2 Texcoord;"
-"void main()"
-"{"
-"    Color = color;"
-"    Texcoord = texcoord;"
-"    gl_Position = vec4(position, 0.0, 1.0);"
-"}";
-
-static const char* g_playFragmentSource =
-"#version 150 core\n"
-"in vec4 Color;"
-"in vec2 Texcoord;"
-"out vec4 outColor;"
-"uniform sampler2D tex;"
-"void main()"
-"{"
-"    outColor = texture(tex, Texcoord) * Color;"
-"}";
 
 GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0)
 {
@@ -39,6 +14,10 @@ GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShade
 
 void GLRenderer::init(unsigned char* buffer, int width, int height)
 {
+	std::string vertSrcStr = Utils::readFile(g_mainVertexShader);
+	std::string fragSrcStr = Utils::readFile(g_mainFragmentShader);
+	const char* vertSrc = vertSrcStr.c_str();
+	const char* fragSrc = fragSrcStr.c_str();
 
 	// Initialize GLEW
 	glewExperimental = GL_TRUE;
@@ -74,12 +53,12 @@ void GLRenderer::init(unsigned char* buffer, int width, int height)
 
 	// Create and compile the vertex shader
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &g_playVertexSource, nullptr);
+	glShaderSource(vertexShader, 1, &vertSrc, nullptr);
 	glCompileShader(vertexShader);
 
 	// Create and compile the fragment shader
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &g_playFragmentSource, nullptr);
+	glShaderSource(fragmentShader, 1, &fragSrc, nullptr);
 	glCompileShader(fragmentShader);
 
 	// Link the vertex and fragment shader into a shader program

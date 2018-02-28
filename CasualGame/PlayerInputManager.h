@@ -4,7 +4,7 @@
 #include <memory>
 
 class Game;
-class Player;
+struct Player;
 
 class PlayerInputManager
 {

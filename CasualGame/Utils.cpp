@@ -1,5 +1,9 @@
 #include "Utils.h"
 
+#include <string>
+#include <fstream>
+#include <streambuf>
+
 const sf::Vector2f& Utils::normalize(const sf::Vector2f& source)
 {
 	sf::Vector2f result(source.x, source.y);
@@ -41,4 +45,14 @@ void Utils::combSort(std::vector<int>& order, std::vector<double>& dist, int amo
 			}
 		}
 	}
+}
+
+std::string Utils::readFile(const std::string path)
+{
+	std::ifstream stream(path);
+
+	std::string result((std::istreambuf_iterator<char>(stream)),
+		(std::istreambuf_iterator<char>()));
+
+	return result;
 }

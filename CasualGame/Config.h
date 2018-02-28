@@ -45,6 +45,9 @@ static const std::string g_textureFiles[13] = {
 static const std::string g_gunSprite = "resources/sprites/gun.png";
 static const std::string g_gunSprite_fire = "resources/sprites/gun_fire.png";
 
+static const std::string g_mainVertexShader = "resources/shaders/main.vert";
+static const std::string g_mainFragmentShader = "resources/shaders/main.frag";
+
 //Main menu
 
 static const auto g_mainTxtTitle = "Casual Game";

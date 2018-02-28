@@ -4,8 +4,8 @@
 
 #include "GameState.h"
 
+struct Player;
 class Game;
-class Player;
 class LevelReaderWriter;
 class LevelEditorGui;
 
