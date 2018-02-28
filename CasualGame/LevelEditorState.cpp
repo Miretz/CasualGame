@@ -100,7 +100,7 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 
 }
 
-void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f mousepPosition, Game & game)
+void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& mousepPosition, Game & game)
 {
 
 	m_mousePos = mousepPosition;

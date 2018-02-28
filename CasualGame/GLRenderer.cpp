@@ -5,6 +5,8 @@
 #include "GL/glew.h"
 #include <SFML/OpenGL.hpp>
 
+//TODO: move shaders to external files
+
 static const char* g_playVertexSource =
 "#version 150 core\n"
 "in vec2 position;"

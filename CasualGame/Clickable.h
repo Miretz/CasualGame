@@ -9,7 +9,7 @@ public:
 	virtual ~Clickable() = default;
 
 	void update(const sf::Vector2f& size, const sf::Vector2f& position);
-	void draw(sf::RenderWindow* window);
+	void draw(sf::RenderWindow& window);
 	bool containsVector(const sf::Vector2f& position) const;
 	bool isVisible() const { return m_visible; };
 	void setVisible(bool visible = true) { m_visible = visible; }

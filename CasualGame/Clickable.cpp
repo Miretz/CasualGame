@@ -13,13 +13,13 @@ void Clickable::update(const sf::Vector2f & size, const sf::Vector2f & position)
 	m_shape.setOutlineColor({ 255, 255, 255, 0 });
 }
 
-void Clickable::draw(sf::RenderWindow* window)
+void Clickable::draw(sf::RenderWindow& window)
 {
 	if (m_visible)
 	{
 		m_shape.setOutlineColor({ 255, 255, 255, 255 });
 		m_shape.setOutlineThickness(1);
-		window->draw(m_shape);
+		window.draw(m_shape);
 	}
 }
 

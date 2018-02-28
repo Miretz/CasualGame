@@ -2,17 +2,16 @@
 
 #include <SFML/Graphics.hpp>
 
-class GuiButton 
+struct GuiButton
 {
-public:
 	sf::Text text;
 	sf::RectangleShape background;
-	bool pressed;
+	bool pressed = false;
 
-	GuiButton(sf::Text Text, sf::RectangleShape Background) : text(Text), background(Background), pressed(false) {}
+	GuiButton(sf::Text mText, sf::RectangleShape mBack) : text(mText), background(mBack) {}
 };
 
-class LevelEditorGui 
+class LevelEditorGui
 {
 public:
 	LevelEditorGui(const int x, const int y, const int width);
@@ -30,7 +29,7 @@ public:
 	GuiButton& get(const int index) { return m_buttons[index]; };
 
 	int getWidth() const { return m_width; };
-	int getNumButtons() const { return (int) m_buttons.size(); };
+	int getNumButtons() const { return (int)m_buttons.size(); };
 
 private:
 

@@ -9,7 +9,7 @@
 
 PlayerInputManager::PlayerInputManager() {}
 
-void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f mousePosition, Game& game)
+void PlayerInputManager::handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game)
 {
 
 	if (event.type == sf::Event::MouseButtonPressed)

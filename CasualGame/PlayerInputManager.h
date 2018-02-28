@@ -12,7 +12,7 @@ public:
 	PlayerInputManager();
 	virtual ~PlayerInputManager() = default;
 
-	void handleInput(const sf::Event& event, const sf::Vector2f mousePosition, Game& game);
+	void handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game);
 	void updatePlayerMovement(const double fts, std::shared_ptr<Player> m_player, const std::vector<std::vector<int> >& m_levelRef);
 
 	bool isShooting() const { return m_shooting; };

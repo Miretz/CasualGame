@@ -34,10 +34,9 @@ void Game::run()
 
 void Game::checkInput()
 {
-	sf::Event event;
-
 	auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*m_window));
 
+	sf::Event event;
 	while (m_window->pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
@@ -46,9 +45,7 @@ void Game::checkInput()
 		}
 		else
 		{
-			if (m_currentState != NULL) {
-				m_currentState->handleInput(event, mousePosition, *this);
-			}
+			m_currentState->handleInput(event, mousePosition, *this);
 		}
 	}
 }

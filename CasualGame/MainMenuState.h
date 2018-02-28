@@ -13,7 +13,7 @@ public:
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
-	void handleInput(const sf::Event& event, const sf::Vector2f mousepPosition, Game& game) override;
+	void handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game) override;
 
 private:
 

@@ -115,10 +115,10 @@ void PlayState::draw(sf::RenderWindow& window)
 	window.pushGLStates();
 
 	//draw minimap
-	drawMinimap(&window);
+	drawMinimap(window);
 
 	//draw Gui elements
-	drawGui(&window);
+	drawGui(window);
 
 	window.popGLStates();
 
@@ -190,29 +190,29 @@ void PlayState::updateMinimapEntities()
 }
 
 //Render minimap
-void PlayState::drawMinimap(sf::RenderWindow* window) const
+void PlayState::drawMinimap(sf::RenderWindow& window) const
 {
 
 	//minimap background
-	window->draw(m_minimapBackground);
+	window.draw(m_minimapBackground);
 
 	//draw walls
 	for (auto wall : m_minimapWallBuffer)
 	{
-		window->draw(wall);
+		window.draw(wall);
 	}
 
 	//draw entities
 	for (auto entity : m_minimapEntityBuffer)
 	{
-		window->draw(entity);
+		window.draw(entity);
 	}
 
 	// Render Player on minimap
-	window->draw(m_minimapPlayer);
+	window.draw(m_minimapPlayer);
 }
 
-void PlayState::drawGui(sf::RenderWindow* window)
+void PlayState::drawGui(sf::RenderWindow& window)
 {
 
 	//draw hud clickable items
@@ -230,19 +230,19 @@ void PlayState::drawGui(sf::RenderWindow* window)
 	}
 
 	//draw gun
-	window->draw(m_gunDisplay);
+	window.draw(m_gunDisplay);
 
 	//draw fps display
-	window->draw(m_fpsDisplay);
+	window.draw(m_fpsDisplay);
 
 	//draw player health
-	window->draw(m_playerHealthDisplay);
+	window.draw(m_playerHealthDisplay);
 
 	//draw crosshair
-	window->draw(m_crosshair);
+	window.draw(m_crosshair);
 }
 
-void PlayState::handleInput(const sf::Event & event, const sf::Vector2f mousePosition, Game & game)
+void PlayState::handleInput(const sf::Event & event, const sf::Vector2f& mousePosition, Game & game)
 {
 	//update fps from game
 	m_fpsDisplay.setString(std::to_string(game.getFps()));

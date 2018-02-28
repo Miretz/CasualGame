@@ -17,7 +17,7 @@ public:
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
-	void handleInput(const sf::Event& event, const sf::Vector2f mousePosition, Game& game) override;
+	void handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game) override;
 
 private:
 
@@ -48,8 +48,8 @@ private:
 	
 	void generateMinimap();
 	void updateMinimapEntities();
-	void drawMinimap(sf::RenderWindow* window) const;
-	void drawGui(sf::RenderWindow* window);
+	void drawMinimap(sf::RenderWindow& window) const;
+	void drawGui(sf::RenderWindow& window);
 
 	void destroyAimedAtSprite();
 	void moveAimedAtSprite(const double fts);

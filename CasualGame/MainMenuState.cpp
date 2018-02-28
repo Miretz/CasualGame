@@ -173,10 +173,10 @@ void MainMenuState::draw(sf::RenderWindow& window)
 	window.display();
 }
 
-void MainMenuState::handleInput(const sf::Event & event, const sf::Vector2f mousepPosition, Game& game)
+void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game)
 {
 
-	m_mousePos = mousepPosition;
+	m_mousePos = mousePosition;
 
 	//exit
 	if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))
