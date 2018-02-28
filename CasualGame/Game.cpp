@@ -15,7 +15,6 @@ Game::Game()
 	m_clock = std::make_unique<sf::Clock>();
 
 	m_window->setFramerateLimit(500);
-
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 	m_player = std::make_shared<Player>();
 }
@@ -25,10 +24,10 @@ void Game::run()
 	//Main Loop
 	while (m_running)
 	{
-		checkInput();
 		update();
 		draw();
 		updateTimers();
+		checkInput();
 	}
 	m_window->close();
 }
@@ -47,7 +46,9 @@ void Game::checkInput()
 		}
 		else
 		{
-			m_currentState->handleInput(event, mousePosition, *this);
+			if (m_currentState != NULL) {
+				m_currentState->handleInput(event, mousePosition, *this);
+			}
 		}
 	}
 }
@@ -55,7 +56,7 @@ void Game::checkInput()
 void Game::update()
 {
 	m_currentSlice += m_lastFt;
-	for (; m_currentSlice >= 1.0f; m_currentSlice -= 1.0f)
+	for (; m_currentSlice >= 1; m_currentSlice -= 1)
 	{
 		m_currentState->update(1.0f);
 	}
@@ -68,13 +69,12 @@ void Game::draw() const
 
 void Game::updateTimers()
 {
-	auto ft = static_cast<float>(m_clock->restart().asMilliseconds());
-	m_lastFt = ft;
+	m_lastFt = m_clock->restart().asMilliseconds();
 
 	if (m_fpsShowTimer == 0)
 	{
 		m_fpsShowTimer = 2;
-		auto ftSeconds = ft / 1000.f;
+		auto ftSeconds = m_lastFt / 1000.f;
 		if (ftSeconds > 0.f)
 		{
 			m_fps = static_cast<int>(1.f / ftSeconds);
@@ -85,37 +85,43 @@ void Game::updateTimers()
 
 void Game::changeState(GameStateName newState)
 {
+
+	const auto sizeX = m_window->getSize().x;
+	const auto sizeY = m_window->getSize().y;
+
 	switch (newState)
 	{
 	case GameStateName::MAINMENU:
 		m_window->setMouseCursorVisible(true);
-		m_currentState = std::move(std::make_unique<MainMenuState>(m_window->getSize().x, m_window->getSize().y));
+		m_currentState.reset(new MainMenuState(sizeX, sizeY));
 		break;
 	case GameStateName::PLAY:
 		m_window->setMouseCursorVisible(false);
-		m_currentState = std::move(std::make_unique<PlayState>(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader));
+		m_currentState.reset(new PlayState(sizeX, sizeY, m_player, m_levelReader));
 		break;
 	case GameStateName::RESTART:
 		m_window->setMouseCursorVisible(false);
-		restart();
+		resetLevel();
+		m_currentState.reset(new PlayState(sizeX, sizeY, m_player, m_levelReader));
 		break;
 	case GameStateName::LEVEL_EDITOR:
 		m_window->setMouseCursorVisible(true);
-		m_currentState = std::move(std::make_unique<LevelEditorState>(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader));
+		m_currentState.reset(new LevelEditorState(sizeX, sizeY, m_player, m_levelReader));
 		break;
 	case GameStateName::SWITCH_FULLSCREEN:
 		switchFullscreen();
+		m_currentState.reset(new MainMenuState(m_window->getSize().x, m_window->getSize().y));
 		break;
 	case GameStateName::QUIT:
 		m_running = false;
 		break;
 	default:
-		m_currentState = std::move(std::make_unique<MainMenuState>(m_window->getSize().x, m_window->getSize().y));
+		m_currentState.reset(new MainMenuState(sizeX, sizeY));
 		break;
 	}
 }
 
-void Game::restart()
+void Game::resetLevel()
 {
 	//reset player position
 	m_player->m_posX = 22.0;
@@ -128,7 +134,6 @@ void Game::restart()
 	//reload level
 	m_levelReader->loadDefaultLevel();
 
-	m_currentState = std::move(std::make_unique<PlayState>(m_window->getSize().x, m_window->getSize().y, m_player, m_levelReader));
 }
 
 void Game::switchFullscreen()
@@ -137,14 +142,12 @@ void Game::switchFullscreen()
 	{
 		m_window->close();
 		m_window->create(sf::VideoMode::getDesktopMode(), g_gameTitle, sf::Style::Fullscreen);
-		changeState(GameStateName::MAINMENU);
 		m_fullscreen = true;
 	}
 	else
 	{
 		m_window->close();
 		m_window->create(sf::VideoMode(1024, 768), g_gameTitle, sf::Style::Close);
-		changeState(GameStateName::MAINMENU);
 		m_fullscreen = false;
 	}
 	m_window->setFramerateLimit(500);

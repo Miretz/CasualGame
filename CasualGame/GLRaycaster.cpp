@@ -193,7 +193,7 @@ void GLRaycaster::calculateWalls()
 			if (texNumY < texSize)
 			{
 				auto color = texture[texNumY];
-				setPixel(x, y, color, side == 1);
+				setPixel(x, y, color, side);
 			}
 		}
 
@@ -243,8 +243,8 @@ void GLRaycaster::calculateWalls()
 			sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
 			sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
 
-			setPixel(x, y, color1, false);
-			setPixel(x, m_windowHeight - y, color2, false);
+			setPixel(x, y, color1, 0);
+			setPixel(x, m_windowHeight - y, color2, 0);
 		}
 	}
 }

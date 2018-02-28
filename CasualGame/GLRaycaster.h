@@ -13,7 +13,7 @@ class GLRaycaster
 {
 public:
 	GLRaycaster();
-	~GLRaycaster();
+	virtual ~GLRaycaster();
 
 	void initialize(const int windowWidth, const int windowHeight, 
 		std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);

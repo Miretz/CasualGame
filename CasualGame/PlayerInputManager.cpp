@@ -4,8 +4,10 @@
 #include "Player.h"
 #include "Config.h"
 
+#include <cmath>
+
+
 PlayerInputManager::PlayerInputManager() {}
-PlayerInputManager::~PlayerInputManager() {}
 
 void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f mousePosition, Game& game)
 {
@@ -17,7 +19,7 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 
 	if (event.type == sf::Event::MouseMoved)
 	{
-		handleMouselook(event, game.getWindow());
+		//handleMouselook(event, game.getWindow());
 	}
 
 	//escape go to main menu
@@ -26,11 +28,11 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 		// handle controls
 		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
-			m_stepLeft = true;
+			m_left = true;
 		}
 		else if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
-			m_stepRight = true;
+			m_right = true;
 		}
 		else if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
@@ -47,11 +49,11 @@ void PlayerInputManager::handleInput(const sf::Event & event, const sf::Vector2f
 		// handle controls
 		if ((event.key.code == sf::Keyboard::Left) || (event.key.code == sf::Keyboard::A))
 		{
-			m_stepLeft = false;
+			m_left = false;
 		}
 		if ((event.key.code == sf::Keyboard::Right) || (event.key.code == sf::Keyboard::D))
 		{
-			m_stepRight = false;
+			m_right = false;
 		}
 		if ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W))
 		{
@@ -77,40 +79,40 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	{
 		// convert ms to seconds
 		double moveSpeed = fts * 5.0; //the constant value is in squares/second
-		double rotSpeed = fts * std::abs(m_mouseDelta) * g_lookSpeed;
+		double rotSpeed = fts * g_lookSpeed;
 
 		if (m_left)
 		{
 			//both camera direction and camera plane must be rotated
 			double oldDirX = m_player->m_dirX;
-			m_player->m_dirX = m_player->m_dirX * cos(rotSpeed) - m_player->m_dirY * sin(rotSpeed);
-			m_player->m_dirY = oldDirX * sin(rotSpeed) + m_player->m_dirY * cos(rotSpeed);
+			m_player->m_dirX = m_player->m_dirX * std::cos(rotSpeed) - m_player->m_dirY * std::sin(rotSpeed);
+			m_player->m_dirY = oldDirX * std::sin(rotSpeed) + m_player->m_dirY * std::cos(rotSpeed);
 			double oldPlaneX = m_player->m_planeX;
-			m_player->m_planeX = m_player->m_planeX * cos(rotSpeed) - m_player->m_planeY * sin(rotSpeed);
-			m_player->m_planeY = oldPlaneX * sin(rotSpeed) + m_player->m_planeY * cos(rotSpeed);
+			m_player->m_planeX = m_player->m_planeX * std::cos(rotSpeed) - m_player->m_planeY * std::sin(rotSpeed);
+			m_player->m_planeY = oldPlaneX * std::sin(rotSpeed) + m_player->m_planeY * std::cos(rotSpeed);
 		}
 		if (m_right)
 		{
 			//both camera direction and camera plane must be rotated
 			double oldDirX = m_player->m_dirX;
-			m_player->m_dirX = m_player->m_dirX * cos(-rotSpeed) - m_player->m_dirY * sin(-rotSpeed);
-			m_player->m_dirY = oldDirX * sin(-rotSpeed) + m_player->m_dirY * cos(-rotSpeed);
+			m_player->m_dirX = m_player->m_dirX * std::cos(-rotSpeed) - m_player->m_dirY * std::sin(-rotSpeed);
+			m_player->m_dirY = oldDirX * std::sin(-rotSpeed) + m_player->m_dirY * std::cos(-rotSpeed);
 			double oldPlaneX = m_player->m_planeX;
-			m_player->m_planeX = m_player->m_planeX * cos(-rotSpeed) - m_player->m_planeY * sin(-rotSpeed);
-			m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * cos(-rotSpeed);
+			m_player->m_planeX = m_player->m_planeX * std::cos(-rotSpeed) - m_player->m_planeY * std::sin(-rotSpeed);
+			m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * std::cos(-rotSpeed);
 		}
 		if (m_forward)
 		{
-			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0) 
+			if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0)
 				m_player->m_posX += m_player->m_dirX * moveSpeed;
 			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == 0)
 				m_player->m_posY += m_player->m_dirY * moveSpeed;
 		}
 		if (m_backward)
 		{
-			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0) 
+			if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0)
 				m_player->m_posX -= m_player->m_dirX * moveSpeed;
-			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == 0) 
+			if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == 0)
 				m_player->m_posY -= m_player->m_dirY * moveSpeed;
 		}
 		if (m_stepLeft)
@@ -137,8 +139,8 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 		}
 
 		//stop rotating on mouselook
-		m_left = false;
-		m_right = false;
+		//m_left = false;
+		//m_right = false;
 	}
 }
 
@@ -178,7 +180,7 @@ void PlayerInputManager::handleMouselook(const sf::Event & event, const sf::Rend
 
 	m_mouseDelta = mouseX - m_lastMouseX;
 	m_lastMouseX = mouseX;
-	
+
 	int windowX = static_cast<int>(window.getSize().x);
 	int windowY = static_cast<int>(window.getSize().y);
 

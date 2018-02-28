@@ -39,7 +39,15 @@ private:
 	sf::CircleShape m_crosshair;
 	sf::Texture m_textureGun;
 	sf::Texture m_textureGun_fire;
+
+	//Minimap
+	std::vector<sf::RectangleShape> m_minimapWallBuffer;
+	std::vector<sf::CircleShape> m_minimapEntityBuffer;
+	sf::RectangleShape m_minimapBackground;
+	sf::ConvexShape m_minimapPlayer;
 	
+	void generateMinimap();
+	void updateMinimapEntities();
 	void drawMinimap(sf::RenderWindow* window) const;
 	void drawGui(sf::RenderWindow* window);
 

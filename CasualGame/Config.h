@@ -6,8 +6,8 @@
 
 static const auto g_gameTitle = "Casual Game by Miretz";
 
-static const auto g_defaultWidth = 1024;
-static const auto g_defaultHeight = 768;
+static const auto g_defaultWidth = 800;
+static const auto g_defaultHeight = 600;
 
 static const int g_textureWidth = 128;
 static const int g_textureHeight = 128;

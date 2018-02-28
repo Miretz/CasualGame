@@ -8,7 +8,7 @@
 class Player;
 class LevelReaderWriter;
 
-class Game 
+class Game
 {
 public:
 	Game();
@@ -18,15 +18,15 @@ public:
 	void changeState(GameStateName newState);
 	bool isRunning() const { return m_running; };
 	void switchFullscreen();
-	
+
 	int getFps() const { return m_fps; }
 
 	sf::RenderWindow& getWindow() const { return *m_window; }
-	
+
 private:
 
-	float m_lastFt = 0.f;
-	float m_currentSlice = 0.f;
+	int m_lastFt = 0;
+	int m_currentSlice = 0;
 	bool m_running = true;
 	int m_fpsShowTimer = 0;
 	bool m_fullscreen = false;
@@ -34,6 +34,7 @@ private:
 
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<sf::Clock> m_clock;
+
 	std::unique_ptr<GameState> m_currentState;
 
 	std::shared_ptr<LevelReaderWriter> m_levelReader;
@@ -42,8 +43,7 @@ private:
 	void checkInput();
 	void update();
 	void draw() const;
-	void restart();
+	void resetLevel();
 	void updateTimers();
 
 };
-
