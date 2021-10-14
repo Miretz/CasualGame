@@ -183,7 +183,7 @@ void GLRaycaster::calculateWalls()
 		const std::vector<sf::Uint32>& texture = m_levelReader->getTexture(texNum);
 		const int texSize = static_cast<int>(texture.size());
 
-		for (int y = drawStart; y < drawEnd; y++)
+		for (int y = drawStart; y < drawEnd + 1; y++)
 		{
 
 			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
@@ -245,6 +245,7 @@ void GLRaycaster::calculateWalls()
 
 			setPixel(x, y, color1, 0);
 			setPixel(x, m_windowHeight - y, color2, 0);
+			setPixel(x, m_windowHeight - y - 1, color2, 0);
 		}
 	}
 }
@@ -334,7 +335,7 @@ void GLRaycaster::calculateSprites()
 					const int texPix = g_textureWidth * texX + texY;
 
 					// prevent exception when accessing tex pixel out of range
-					if (texPix < texSize)
+					if (texPix < texSize && texPix > 0)
 					{
 						sf::Uint32 color = textureData[texPix]; //get current color from the texture
 
