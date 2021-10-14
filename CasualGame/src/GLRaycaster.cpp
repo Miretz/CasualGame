@@ -14,37 +14,31 @@ GLRaycaster::GLRaycaster()
 }
 GLRaycaster::~GLRaycaster() {}
 
-void GLRaycaster::initialize(
-	const int windowWidth, const int windowHeight,
-	std::shared_ptr<Player> player, 
-	std::shared_ptr<LevelReaderWriter> levelReader)
+void GLRaycaster::initialize(const int windowWidth, const int windowHeight, const int spriteSize)
 {
 	m_windowWidth = windowWidth;
 	m_windowHeight = windowHeight;
-	
-	m_player = move(player);
-	m_levelReader = move(levelReader);
 
-	m_spriteSize = m_levelReader->getSprites().size();
+	m_spriteSize = spriteSize;
 
 	m_ZBuffer.resize(windowWidth);
-	m_spriteOrder.resize(m_levelReader->getSprites().size());
-	m_spriteDistance.resize(m_levelReader->getSprites().size());
-	m_clickables.resize(m_levelReader->getSprites().size());
+	m_spriteOrder.resize(spriteSize);
+	m_spriteDistance.resize(spriteSize);
+	m_clickables.resize(spriteSize);
 
 	m_buffer.resize(windowHeight * windowWidth * 3);
 	m_glRenderer->init(&m_buffer[0], windowWidth, windowHeight);
 
 }
 
-void GLRaycaster::draw()
+void GLRaycaster::draw(const Player& player, const LevelReaderWriter& levelReader)
 {
 	std::vector<unsigned char>().swap(m_buffer);
 	m_buffer.resize(m_windowWidth * m_windowHeight * 3);
 
 	//calculate a new buffer
-	calculateWalls();
-	calculateSprites();
+	calculateWalls(player, levelReader);
+	calculateSprites(player, levelReader);
 
 	m_glRenderer->draw(&m_buffer[0], m_windowWidth, m_windowHeight);
 	m_glRenderer->unbindBuffers();
@@ -61,11 +55,11 @@ void GLRaycaster::cleanup()
 	m_glRenderer->cleanup();
 }
 
-void GLRaycaster::calculateWalls()
+void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& levelReader)
 {
 
-	const double rayPosX = m_player->m_posX;
-	const double rayPosY = m_player->m_posY;
+	const double rayPosX = player.m_posX;
+	const double rayPosY = player.m_posY;
 
 	//what direction to step in x or y-direction (either +1 or -1)
 	int stepX;
@@ -78,8 +72,9 @@ void GLRaycaster::calculateWalls()
 	double perpWallDist;
 	double wallX; //where exactly the wall was hit
 
-	auto& tex8 = m_levelReader->getTexture(8);//floor
-	auto& tex9 = m_levelReader->getTexture(9);//ceiling
+	const auto& tex8 = levelReader.getTexture(8);//floor
+	const auto& tex9 = levelReader.getTexture(9);//ceiling
+	const auto& level = levelReader.getLevel();
 	
 	for (int x = 0; x < m_windowWidth; x++)
 	{
@@ -91,8 +86,8 @@ void GLRaycaster::calculateWalls()
 		//calculate ray position and direction
 		const double cameraX = 2.0 * x / m_windowWidth - 1.0; //x-coordinate in camera space
 
-		const double rayDirX = m_player->m_dirX + m_player->m_planeX * cameraX;
-		const double rayDirY = m_player->m_dirY + m_player->m_planeY * cameraX;
+		const double rayDirX = player.m_dirX + player.m_planeX * cameraX;
+		const double rayDirY = player.m_dirY + player.m_planeY * cameraX;
 
 		//length of ray from one x or y-side to next x or y-side
 		const double rayDirXsq = rayDirX * rayDirX;
@@ -142,7 +137,7 @@ void GLRaycaster::calculateWalls()
 				side = 1;
 			}
 			//Check if ray has hit a wall
-			if (m_levelReader->getLevel()[mapX][mapY] > 0) hit = 1;
+			if (level[mapX][mapY] > 0) hit = 1;
 		}
 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
@@ -179,8 +174,8 @@ void GLRaycaster::calculateWalls()
 		if (side == 0 && rayDirX > 0) texX = g_textureWidth - texX - 1;
 		if (side == 1 && rayDirY < 0) texX = g_textureWidth - texX - 1;
 
-		const int texNum = m_levelReader->getLevel()[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
-		const std::vector<sf::Uint32>& texture = m_levelReader->getTexture(texNum);
+		const int texNum = level[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+		const auto& texture = levelReader.getTexture(texNum);
 		const int texSize = static_cast<int>(texture.size());
 
 		for (int y = drawStart; y < drawEnd + 1; y++)
@@ -251,20 +246,20 @@ void GLRaycaster::calculateWalls()
 }
 
 
-void GLRaycaster::calculateSprites()
+void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter& levelReader)
 {
 
 	//SPRITE CASTING
 	//sort sprites from far to close
 
-	auto sprites = m_levelReader->getSprites();
+	const auto& sprites = levelReader.getSprites();
 
 	for (size_t i = 0; i < m_spriteSize; i++)
 	{
 		m_spriteOrder[i] = i;
 		m_spriteDistance[i] = (
-			(m_player->m_posX - sprites[i].x) * (m_player->m_posX - sprites[i].x) +
-			(m_player->m_posY - sprites[i].y) * (m_player->m_posY - sprites[i].y)); //sqrt not taken, unneeded
+			(player.m_posX - sprites[i].x) * (player.m_posX - sprites[i].x) +
+			(player.m_posY - sprites[i].y) * (player.m_posY - sprites[i].y)); //sqrt not taken, unneeded
 	}
 	Utils::combSort(m_spriteOrder, m_spriteDistance, sprites.size());
 
@@ -273,12 +268,12 @@ void GLRaycaster::calculateSprites()
 	{
 
 		//translate sprite position to relative to camera
-		const double spriteX = sprites[m_spriteOrder[i]].x - m_player->m_posX;
-		const double spriteY = sprites[m_spriteOrder[i]].y - m_player->m_posY;
+		const double spriteX = sprites[m_spriteOrder[i]].x - player.m_posX;
+		const double spriteY = sprites[m_spriteOrder[i]].y - player.m_posY;
 
-		const double invDet = 1.0 / (m_player->m_planeX * m_player->m_dirY - m_player->m_dirX * m_player->m_planeY); //required for correct matrix multiplication
-		const double transformX = invDet * (m_player->m_dirY * spriteX - m_player->m_dirX * spriteY);
-		const double transformY = invDet * (-m_player->m_planeY * spriteX + m_player->m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
+		const double invDet = 1.0 / (player.m_planeX * player.m_dirY - player.m_dirX * player.m_planeY); //required for correct matrix multiplication
+		const double transformX = invDet * (player.m_dirY * spriteX - player.m_dirX * spriteY);
+		const double transformY = invDet * (-player.m_planeY * spriteX + player.m_planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D       
 		const int spriteScreenX = int((m_windowWidth / 2) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen
@@ -294,7 +289,7 @@ void GLRaycaster::calculateSprites()
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
 
 		const int texNr = sprites[m_spriteOrder[i]].texture;
-		const std::vector<sf::Uint32>& textureData = m_levelReader->getTexture(texNr);
+		const auto& textureData = levelReader.getTexture(texNr);
 		const int texSize = textureData.size();
 
 		//setup clickables

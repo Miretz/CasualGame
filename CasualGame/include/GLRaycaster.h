@@ -15,12 +15,11 @@ public:
 	GLRaycaster();
 	virtual ~GLRaycaster();
 
-	void initialize(const int windowWidth, const int windowHeight, 
-		std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	void calculateWalls();
-	void calculateSprites();
+	void initialize(const int windowWidth, const int windowHeight, const int spriteSize);
+	void calculateWalls(const Player& player, const LevelReaderWriter& levelReader);
+	void calculateSprites(const Player& player, const LevelReaderWriter& levelReader);
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, int style);
-	void draw();
+	void draw(const Player& player, const LevelReaderWriter& levelReader);
 	void bindGlBuffers();
 	void cleanup();
 
@@ -33,8 +32,6 @@ private:
 
 	std::unique_ptr<GLRenderer> m_glRenderer;
 
-	std::shared_ptr<Player> m_player;
-	std::shared_ptr<LevelReaderWriter> m_levelReader;
 	size_t m_spriteSize;
 
 	std::vector<double> m_ZBuffer;
