@@ -52,5 +52,5 @@ private:
 	void drawSprites(sf::RenderWindow& window) const;
 
 	void handleInputField(const sf::Event& event);
-	void handleMenuCallbacks(const sf::Event& event, Game & game);
+	bool handleMenuCallbacks(const sf::Event& event, Game & game);
 };

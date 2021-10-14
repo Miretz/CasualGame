@@ -159,7 +159,7 @@ void MainMenuState::draw(sf::RenderWindow& window)
 		// draw selection box
 		if (boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i)
 		{
-			m_mouseOverIndex = i;
+			m_mouseOverIndex = static_cast<int>(i);
 
 			sf::RectangleShape selector(sf::Vector2f(boundsWithPadding.width, boundsWithPadding.height));
 			selector.setPosition(boundsWithPadding.left, boundsWithPadding.top);

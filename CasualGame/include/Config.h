@@ -78,9 +78,7 @@ static const auto g_editorTxtModeEntity = "Entities Mode (LMB - Select/Move, RMB
 static const float g_playMinimapScale = 8.0f;
 static const int g_playMinimapTransparency = 140;
 
-static const double g_Pi = 3.141592653589793238463;
-static const int g_playDrawDarkened = 1;
-static const int g_playhDrawHighlighted = 2;
+static const double g_Pi = 3.14159;
 
 static const double g_gunShotTime = 0.15; //seconds
 static const double g_gunShotDelayTime = 0.5; //seconds

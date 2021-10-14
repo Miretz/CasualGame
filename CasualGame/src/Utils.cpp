@@ -4,7 +4,7 @@
 #include <fstream>
 #include <streambuf>
 
-const sf::Vector2f& Utils::normalize(const sf::Vector2f& source)
+const sf::Vector2f Utils::normalize(const sf::Vector2f& source)
 {
 	sf::Vector2f result(source.x, source.y);
 	auto vecLen = length(result);

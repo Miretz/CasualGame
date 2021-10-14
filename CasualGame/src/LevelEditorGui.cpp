@@ -30,7 +30,7 @@ int LevelEditorGui::addButton(const std::string & text)
 
 	m_yPos = m_yPos + m_padding + int(rectShape.getGlobalBounds().height);
 
-	return m_buttons.size() - 1;
+	return static_cast<int>(m_buttons.size()) - 1;
 }
 
 void LevelEditorGui::setTexturedButton(const int index, const sf::Texture* texture)

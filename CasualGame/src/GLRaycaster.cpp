@@ -8,7 +8,7 @@
 #include "Utils.h"
 #include "Config.h"
 
-GLRaycaster::GLRaycaster() 
+GLRaycaster::GLRaycaster()
 {
 	m_glRenderer = std::make_unique<GLRenderer>();
 }
@@ -18,8 +18,6 @@ void GLRaycaster::initialize(const int windowWidth, const int windowHeight, cons
 {
 	m_windowWidth = windowWidth;
 	m_windowHeight = windowHeight;
-
-	m_spriteSize = spriteSize;
 
 	m_ZBuffer.resize(windowWidth);
 	m_spriteOrder.resize(spriteSize);
@@ -72,16 +70,14 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 	double perpWallDist;
 	double wallX; //where exactly the wall was hit
 
+	int side = 0; //was a NS or a EW wall hit?
+
 	const auto& tex8 = levelReader.getTexture(8);//floor
 	const auto& tex9 = levelReader.getTexture(9);//ceiling
 	const auto& level = levelReader.getLevel();
-	
+
 	for (int x = 0; x < m_windowWidth; x++)
 	{
-		
-		//which box of the map we're in
-		int mapX = static_cast<int>(rayPosX);
-		int mapY = static_cast<int>(rayPosY);
 
 		//calculate ray position and direction
 		const double cameraX = 2.0 * x / m_windowWidth - 1.0; //x-coordinate in camera space
@@ -90,10 +86,12 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		const double rayDirY = player.m_dirY + player.m_planeY * cameraX;
 
 		//length of ray from one x or y-side to next x or y-side
-		const double rayDirXsq = rayDirX * rayDirX;
-		const double rayDirYsq = rayDirY * rayDirY;
-		const double deltaDistX = sqrt(1 + rayDirYsq / rayDirXsq);
-		const double deltaDistY = sqrt(1 + rayDirXsq / rayDirYsq);
+		const double deltaDistX = std::sqrt(1.0 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
+		const double deltaDistY = std::sqrt(1.0 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+
+		//which box of the map we're in
+		int mapX = static_cast<int>(rayPosX);
+		int mapY = static_cast<int>(rayPosY);
 
 		//calculate step and initial sideDist
 		if (rayDirX < 0)
@@ -106,6 +104,7 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 			stepX = 1;
 			sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX;
 		}
+
 		if (rayDirY < 0)
 		{
 			stepY = -1;
@@ -117,11 +116,8 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 			sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
 		}
 
-		int hit = 0; //was there a wall hit?
-		int side = 0; //was a NS or a EW wall hit?
-
-		//perform DDA
-		while (hit == 0)
+		//perform ray walking
+		while (level[mapX][mapY] == 0)
 		{
 			//jump to next map square, OR in x-direction, OR in y-direction
 			if (sideDistX < sideDistY)
@@ -136,19 +132,20 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 				mapY += stepY;
 				side = 1;
 			}
-			//Check if ray has hit a wall
-			if (level[mapX][mapY] > 0) hit = 1;
 		}
 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
 		if (side == 0)
 		{
 			perpWallDist = std::abs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
+			wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2) / rayDirX) * rayDirY;
 		}
 		else
 		{
 			perpWallDist = std::abs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
+			wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2) / rayDirY) * rayDirX;
 		}
+		wallX -= std::floor(wallX);
 
 		//Calculate height of line to draw on screen
 		const int lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
@@ -159,16 +156,6 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		int drawEnd = lineHeight / 2 + m_windowHeight / 2;
 		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
 
-		if (side == 1)
-		{
-			wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2) / rayDirY) * rayDirX;
-		}
-		else
-		{
-			wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2) / rayDirX) * rayDirY;
-		}
-		wallX -= floor(wallX);
-
 		//x coordinate on the texture
 		int texX = static_cast<int>(wallX * g_textureWidth);
 		if (side == 0 && rayDirX > 0) texX = g_textureWidth - texX - 1;
@@ -178,17 +165,16 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		const auto& texture = levelReader.getTexture(texNum);
 		const int texSize = static_cast<int>(texture.size());
 
+		// draw the vertical stripe
 		for (int y = drawStart; y < drawEnd + 1; y++)
 		{
-
 			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			int texY = ((d * g_textureHeight) / lineHeight) / 256;
 			int texNumY = g_textureHeight * texX + texY;
 
-			if (texNumY < texSize)
+			if (texNumY < texSize && texNumY >= 0)
 			{
-				auto color = texture[texNumY];
-				setPixel(x, y, color, side);
+				setPixel(x, y, texture[texNumY], side);
 			}
 		}
 
@@ -196,14 +182,15 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		m_ZBuffer[x] = perpWallDist; //perpendicular distance is used
 
 		//FLOOR CASTING
-		double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
+		double floorXWall;
+		double floorYWall;
 
 		if (side == 0 && rayDirX > 0)
 		{
 			floorXWall = mapX;
 			floorYWall = mapY + wallX;
 		}
-		else if (side == 0 && rayDirX < 0)
+		else if (side == 0 && rayDirX <= 0)
 		{
 			floorXWall = mapX + 1.0;
 			floorYWall = mapY + wallX;
@@ -221,7 +208,7 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 
 		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
-												   //draw the floor from drawEnd to the bottom of the screen
+		//draw the floor from drawEnd to the bottom of the screen
 		for (int y = drawEnd + 1; y < m_windowHeight; y++)
 		{
 
@@ -234,13 +221,10 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 			const int floorTexX = static_cast<int>(currentFloorX * g_textureWidth) % g_textureWidth;
 			const int floorTexY = static_cast<int>(currentFloorY * g_textureHeight) % g_textureHeight;
 
-			//floor textures
-			sf::Uint32 color1 = tex8[g_textureWidth * floorTexY + floorTexX];
-			sf::Uint32 color2 = tex9[g_textureWidth * floorTexY + floorTexX];
+			setPixel(x, y, tex8[g_textureWidth * floorTexY + floorTexX], 0);
+			setPixel(x, m_windowHeight - y, tex9[g_textureWidth * floorTexY + floorTexX], 0);
+			setPixel(x, m_windowHeight - y - 1, tex9[g_textureWidth * floorTexY + floorTexX], 0);
 
-			setPixel(x, y, color1, 0);
-			setPixel(x, m_windowHeight - y, color2, 0);
-			setPixel(x, m_windowHeight - y - 1, color2, 0);
 		}
 	}
 }
@@ -254,14 +238,14 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 
 	const auto& sprites = levelReader.getSprites();
 
-	for (size_t i = 0; i < m_spriteSize; i++)
+	for (size_t i = 0; i < sprites.size(); i++)
 	{
-		m_spriteOrder[i] = i;
+		m_spriteOrder[i] = static_cast<int>(i);
 		m_spriteDistance[i] = (
 			(player.m_posX - sprites[i].x) * (player.m_posX - sprites[i].x) +
 			(player.m_posY - sprites[i].y) * (player.m_posY - sprites[i].y)); //sqrt not taken, unneeded
 	}
-	Utils::combSort(m_spriteOrder, m_spriteDistance, sprites.size());
+	Utils::combSort(m_spriteOrder, m_spriteDistance, static_cast<int>(sprites.size()));
 
 	//after sorting the sprites, do the projection and draw them
 	for (size_t i = 0; i < sprites.size(); i++)
@@ -290,7 +274,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 
 		const int texNr = sprites[m_spriteOrder[i]].texture;
 		const auto& textureData = levelReader.getTexture(texNr);
-		const int texSize = textureData.size();
+		const int texSize = static_cast<int>(textureData.size());
 
 		//setup clickables
 		m_clickables[i].update(
@@ -349,7 +333,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 }
 
 
-void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style)
+void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, unsigned int style)
 {
 
 	if (x >= m_windowWidth || y >= m_windowHeight)
@@ -360,13 +344,13 @@ void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, int style)
 	auto colors = (sf::Uint8*)&colorRgba;
 	auto index = (y * m_windowWidth + x) * 3;
 
-	if (style == g_playDrawDarkened)
+	if (style == 1)
 	{
 		m_buffer[index] = colors[0] / 2;
 		m_buffer[index + 1] = colors[1] / 2;
 		m_buffer[index + 2] = colors[2] / 2;
 	}
-	else if (style == g_playhDrawHighlighted)
+	else if (style == 2)
 	{
 		m_buffer[index] = std::min(colors[0] + 25, 255);
 		m_buffer[index + 1] = std::min(colors[1] + 25, 255);

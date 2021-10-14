@@ -114,7 +114,12 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 
 	//gui events
 	m_gui->handleInput(event, mousepPosition);
-	handleMenuCallbacks(event, game);
+	
+	if (handleMenuCallbacks(event, game))
+	{
+		// quitting the editor
+		return;
+	}
 
 	//is the mouse inside the editor area
 	const auto levelSize = m_levelReader->getLevel().size();
@@ -202,7 +207,7 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 						object.setOrigin(m_scale / 2.0f, m_scale / 2.0f);
 						if (object.getGlobalBounds().contains(mousepPosition))
 						{
-							m_entitySelected = i;
+							m_entitySelected = static_cast<int>(i);
 						}
 					}
 				}
@@ -380,7 +385,7 @@ void LevelEditorState::handleInputField(const sf::Event& event)
 	}
 }
 
-void LevelEditorState::handleMenuCallbacks(const sf::Event & event, Game & game)
+bool LevelEditorState::handleMenuCallbacks(const sf::Event & event, Game & game)
 {
 	//process gui events first
 	if (m_gui->getPressed(g_editorTxtSwitchMode))
@@ -418,6 +423,7 @@ void LevelEditorState::handleMenuCallbacks(const sf::Event & event, Game & game)
 	if (m_gui->getPressed(g_editorTxtQuit))
 	{
 		game.changeState(GameStateName::MAINMENU);
+		return true;
 	}
 	if (m_gui->getPressed(g_editorTxtTexture))
 	{
@@ -450,6 +456,8 @@ void LevelEditorState::handleMenuCallbacks(const sf::Event & event, Game & game)
 
 		m_gui->setTexturedButton(m_spriteButtonId, m_levelReader->getTextureSfml(m_selectedSprite - 1));
 	}
+
+	return false;
 }
 
 

@@ -22,7 +22,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_inputManager = std::make_unique<PlayerInputManager>();
 
 	m_glRaycaster = std::make_unique<GLRaycaster>();
-	m_glRaycaster->initialize(w, h, m_levelReader->getSprites().size());
+	m_glRaycaster->initialize(w, h, static_cast<int>(m_spriteSize));
 
 	//Fps display
 	m_fpsDisplay.setFont(g_fontLoader->getFont());
