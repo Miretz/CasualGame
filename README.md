@@ -26,5 +26,5 @@ Build should now work.
 
 To run:
 
-- Copy the .dll files from SFML and GLEW bin folders to the folder with CasualGame.exe
-- Copy and the CasualGame/resources folder to the folder with CasualGame.exe
+- Copy the *.dll files* from SFML and GLEW bin/ folders to the folder with CasualGame.exe
+- Copy the *CasualGame/resources* folder to the folder with CasualGame.exe
