@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "Utils.h"
 
-#include "GL/glew.h"
+#include "gl/glew.h"
 #include <SFML/OpenGL.hpp>
 
 

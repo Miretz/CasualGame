@@ -4,6 +4,8 @@ Release/
 packages/
 x64/
 CasualGame/x64
+CasualGame/libraries
+CasualGame/.vs
 
 # Visual C++ cache files
 ipch/
@@ -15,3 +17,4 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+

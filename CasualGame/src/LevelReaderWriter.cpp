@@ -8,7 +8,7 @@
 #include "Config.h"
 #include "Sprite.h"
 
-namespace fs = std::tr2::sys;
+namespace fs = std::filesystem;
 
 LevelReaderWriter::LevelReaderWriter()
 {
