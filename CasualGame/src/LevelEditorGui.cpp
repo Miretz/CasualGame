@@ -17,7 +17,7 @@ int LevelEditorGui::addButton(const std::string & text)
 	btnText.setString(text);
 	btnText.setCharacterSize(22);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
-	btnText.setPosition(m_xPos + m_padding + 4.0f, float(m_yPos));
+	btnText.setPosition(static_cast<float>(m_xPos + m_padding) + 4.0f, float(m_yPos));
 	btnText.setFillColor(m_idleColor);
 
 	sf::RectangleShape rectShape(sf::Vector2f(float(m_width - 2 * m_padding), btnText.getGlobalBounds().height * 2.0f));
@@ -65,7 +65,7 @@ void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & m
 	}
 }
 
-void LevelEditorGui::draw(sf::RenderWindow & window)
+void LevelEditorGui::draw(sf::RenderWindow & window) const
 {
 	for (const auto& button : m_buttons)
 	{

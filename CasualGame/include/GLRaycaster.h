@@ -13,7 +13,7 @@ class GLRaycaster
 {
 public:
 	GLRaycaster();
-	virtual ~GLRaycaster();
+	virtual ~GLRaycaster() = default;
 
 	void initialize(const int windowWidth, const int windowHeight, const int spriteSize);
 	void calculateWalls(const Player& player, const LevelReaderWriter& levelReader);
@@ -27,6 +27,8 @@ public:
 
 private:
 
+	void drawSpriteVerticalStripe(int x, int start, int end, int spriteHeight, int texX, const std::vector<sf::Uint32>& textureData);
+
 	int m_windowWidth = 0;
 	int m_windowHeight = 0;
 
@@ -35,14 +37,11 @@ private:
 	// buffer of clickable items in the view
 	std::vector<Clickable> m_clickables;
 
-	//it makes sense for these to be raw pointers
 	//main rendering buffer
-	unsigned char* m_buffer = nullptr;
+	std::vector<unsigned char> m_buffer;
 
 	// Z buffer for sprites
-	double* m_ZBuffer;
-
-
+	std::vector<double> m_ZBuffer;
 
 };
 

@@ -13,7 +13,7 @@ class LevelEditorState : public GameState
 {
 public:
 	LevelEditorState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	virtual ~LevelEditorState() = default;
+	~LevelEditorState() override = default;
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
@@ -52,5 +52,8 @@ private:
 	void drawSprites(sf::RenderWindow& window) const;
 
 	void handleInputField(const sf::Event& event);
-	bool handleMenuCallbacks(const sf::Event& event, Game & game);
+	bool handleMenuCallbacks(Game& game);
+	void handleKeyEvent(const sf::Event& event, Game& game, bool mouseInEditor);
+	void handleMouseEditEntities(const sf::Event& event);
+	void handleMouseEditWalls(const sf::Event& event) const;
 };

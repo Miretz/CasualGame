@@ -22,7 +22,7 @@ public:
 
 	void addSpace();
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition);
-	void draw(sf::RenderWindow& window);
+	void draw(sf::RenderWindow& window) const;
 
 	bool getPressed(const std::string& text);
 

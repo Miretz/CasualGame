@@ -100,10 +100,10 @@ void LevelEditorState::draw(sf::RenderWindow& window)
 
 }
 
-void LevelEditorState::handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game)
+void LevelEditorState::handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game)
 {
 
-	m_mousePos = mousepPosition;
+	m_mousePos = mousePosition;
 
 	//filename editing mode
 	if (m_filenameMode)
@@ -113,9 +113,9 @@ void LevelEditorState::handleInput(const sf::Event& event, const sf::Vector2f& m
 	}
 
 	//gui events
-	m_gui->handleInput(event, mousepPosition);
+	m_gui->handleInput(event, mousePosition);
 
-	if (handleMenuCallbacks(event, game))
+	if (handleMenuCallbacks(game))
 	{
 		// quitting the editor
 		return;
@@ -123,132 +123,145 @@ void LevelEditorState::handleInput(const sf::Event& event, const sf::Vector2f& m
 
 	//is the mouse inside the editor area
 	const auto levelSize = static_cast<float>(m_levelReader->getLevel().size());
-	auto mouseInEditor = (mousepPosition.x < levelSize* m_scale);
+	const auto mouseInEditor = (mousePosition.x < levelSize* m_scale);
 
 	//process button press
 	if (event.type == sf::Event::KeyReleased)
 	{
-		if (event.key.code == sf::Keyboard::Escape)
-		{
-			if (m_entitySelected != -1)
-			{
-				m_entitySelected = -1;
-			}
-			else
-			{
-				game.changeState(GameStateName::MAINMENU);
-			}
-		}
-		if (event.key.code == sf::Keyboard::Space)
-		{
-			toggleMode();
-		}
-
-		//entity move with arrow keys
-		if (m_editEntities && mouseInEditor && m_entitySelected != -1)
-		{
-
-			if (event.key.code == sf::Keyboard::Left)
-			{
-				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-				spr.y -= 0.1;
-				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
-			}
-			if (event.key.code == sf::Keyboard::Right)
-			{
-				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-				spr.y += 0.1;
-				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
-			}
-			if (event.key.code == sf::Keyboard::Up)
-			{
-				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-				spr.x -= 0.1;
-				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
-			}
-			if (event.key.code == sf::Keyboard::Down)
-			{
-				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-				spr.x += 0.1;
-				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
-			}
-			if (event.key.code == sf::Keyboard::Delete)
-			{
-				m_levelReader->deleteSprite(m_entitySelected);
-				m_entitySelected = -1;
-			}
-
-		}
+		handleKeyEvent(event, game, mouseInEditor);
 	}
 
 	//process mouse click
 	if (event.type == sf::Event::MouseButtonPressed && mouseInEditor)
 	{
-
-		const auto x = mousepPosition.x / m_scale;
-		const auto y = mousepPosition.y / m_scale;
-
-		//SPRITE EDITING
 		if (m_editEntities)
 		{
-
-			if (event.mouseButton.button == sf::Mouse::Left)
-			{
-				if (m_entitySelected != -1)
-				{
-					//move sprite data
-					m_levelReader->moveSprite(m_entitySelected, y, x);
-					m_entitySelected = -1;
-				}
-				else
-				{
-					const auto spritesSize = m_levelReader->getSprites().size();
-					for (size_t i = 0; i < spritesSize; i++)
-					{
-						sf::RectangleShape object(sf::Vector2f(m_scale - 2.0f, m_scale - 2.0f));
-						object.setPosition(float(m_levelReader->getSprites()[i].y) * m_scale, float(m_levelReader->getSprites()[i].x) * m_scale);
-						object.setOrigin(m_scale / 2.0f, m_scale / 2.0f);
-						if (object.getGlobalBounds().contains(mousepPosition))
-						{
-							m_entitySelected = static_cast<int>(i);
-						}
-					}
-				}
-			}
-			else
-			{
-				m_levelReader->createSprite(y, x, m_selectedSprite - 1);
-			}
-
+			handleMouseEditEntities(event);
 		}
 		// WALL EDITING
 		else
 		{
-			auto xi = static_cast<int>(x);
-			auto yi = static_cast<int>(y);
+			handleMouseEditWalls(event);
+		}
+	}
+}
 
-			if (event.mouseButton.button == sf::Mouse::Left)
+void LevelEditorState::handleKeyEvent(const sf::Event& event, Game& game, bool mouseInEditor)
+{
+	if (event.key.code == sf::Keyboard::Escape)
+	{
+		if (m_entitySelected != -1)
+		{
+			m_entitySelected = -1;
+		}
+		else
+		{
+			game.changeState(GameStateName::MAINMENU);
+		}
+	}
+	if (event.key.code == sf::Keyboard::Space)
+	{
+		toggleMode();
+	}
+
+	// move sprite with arrow keys
+	if (m_editEntities && mouseInEditor && m_entitySelected != -1)
+	{
+
+		if (event.key.code == sf::Keyboard::Left)
+		{
+			Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+			spr.y -= 0.1;
+			m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+		}
+		if (event.key.code == sf::Keyboard::Right)
+		{
+			Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+			spr.y += 0.1;
+			m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+		}
+		if (event.key.code == sf::Keyboard::Up)
+		{
+			Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+			spr.x -= 0.1;
+			m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+		}
+		if (event.key.code == sf::Keyboard::Down)
+		{
+			Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+			spr.x += 0.1;
+			m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+		}
+		if (event.key.code == sf::Keyboard::Delete)
+		{
+			m_levelReader->deleteSprite(m_entitySelected);
+			m_entitySelected = -1;
+		}
+
+	}
+}
+
+void LevelEditorState::handleMouseEditEntities(const sf::Event& event)
+{
+	const auto x = m_mousePos.x / m_scale;
+	const auto y = m_mousePos.y / m_scale;
+
+	if (event.mouseButton.button == sf::Mouse::Right)
+	{
+		m_levelReader->createSprite(y, x, m_selectedSprite - 1);
+		return;
+
+	}
+
+	// if sprite is selected, then move, else select
+	if (m_entitySelected != -1)
+	{
+		m_levelReader->moveSprite(m_entitySelected, y, x);
+		m_entitySelected = -1;
+	}
+	else
+	{
+		const auto spritesSize = m_levelReader->getSprites().size();
+		for (size_t i = 0; i < spritesSize; i++)
+		{
+			sf::RectangleShape object(sf::Vector2f(m_scale - 2.0f, m_scale - 2.0f));
+			object.setPosition(float(m_levelReader->getSprites()[i].y) * m_scale, float(m_levelReader->getSprites()[i].x) * m_scale);
+			object.setOrigin(m_scale / 2.0f, m_scale / 2.0f);
+			if (object.getGlobalBounds().contains(m_mousePos))
 			{
-				//set wall texture with left click
-				m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
+				m_entitySelected = static_cast<int>(i);
 			}
-			else
-			{
-				//delete walls with right click			
-				//Do not allow to delete the level outer walls, this breaks the raycaster
-				if (xi == 0 || xi == static_cast<int>(levelSize) - 1)
-				{
-					m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
-				}
-				else if (yi == 0 || yi == static_cast<int>(levelSize) - 1)
-				{
-					m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
-				}
-				else
-				{
-					m_levelReader->changeLevelTile(yi, xi, 0);
-				}
-			}
+		}
+	}
+
+}
+
+void LevelEditorState::handleMouseEditWalls(const sf::Event& event) const
+{
+	auto xi = static_cast<int>(m_mousePos.x / m_scale);
+	auto yi = static_cast<int>(m_mousePos.y / m_scale);
+
+	if (event.mouseButton.button == sf::Mouse::Left)
+	{
+		//set wall texture with left click
+		m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
+	}
+	else
+	{
+		//delete walls with right click			
+		//Do not allow to delete the level outer walls, this breaks the raycaster
+		const auto levelSize = static_cast<float>(m_levelReader->getLevel().size());
+		if (xi == 0 || xi == static_cast<int>(levelSize) - 1)
+		{
+			m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
+		}
+		else if (yi == 0 || yi == static_cast<int>(levelSize) - 1)
+		{
+			m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
+		}
+		else
+		{
+			m_levelReader->changeLevelTile(yi, xi, 0);
 		}
 	}
 }
@@ -309,23 +322,25 @@ void LevelEditorState::drawWalls(sf::RenderWindow& window) const
 		for (size_t x = 0; x < levelSize; x++)
 		{
 			auto id = m_levelReader->getLevel()[y][x];
-			if (id > 0 && id < 9)
+			if (id <= 0 || id >= 9)
 			{
-				sf::RectangleShape wall(sf::Vector2f(m_scale - 2.0f, m_scale - 2.0f));
-				wall.setPosition(x * m_scale, y * m_scale);
-				wall.setTexture(m_levelReader->getTextureSfml(id - 1));
-				wall.setOutlineThickness(2);
-				if (!m_editEntities)
-				{
-					wall.setOutlineColor(sf::Color(0, 0, 0, 255));
-				}
-				else
-				{
-					wall.setFillColor(sf::Color(255, 255, 255, 100));
-					wall.setOutlineColor(sf::Color(0, 0, 0, 100));
-				}
-				window.draw(wall);
+				continue;
 			}
+
+			sf::RectangleShape wall(sf::Vector2f(m_scale - 2.0f, m_scale - 2.0f));
+			wall.setPosition(static_cast<float>(x) * m_scale, static_cast<float>(y) * m_scale);
+			wall.setTexture(m_levelReader->getTextureSfml(id - 1));
+			wall.setOutlineThickness(2);
+			if (!m_editEntities)
+			{
+				wall.setOutlineColor(sf::Color(0, 0, 0, 255));
+			}
+			else
+			{
+				wall.setFillColor(sf::Color(255, 255, 255, 100));
+				wall.setOutlineColor(sf::Color(0, 0, 0, 100));
+			}
+			window.draw(wall);
 		}
 	}
 }
@@ -375,17 +390,14 @@ void LevelEditorState::handleInputField(const sf::Event& event)
 			m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
 		}
 	}
-	else if (event.type == sf::Event::TextEntered)
+	else if (event.type == sf::Event::TextEntered && (event.text.unicode > 65 && event.text.unicode < 123) || (event.text.unicode > 48 && event.text.unicode < 58))
 	{
-		if ((event.text.unicode > 65 && event.text.unicode < 123) || (event.text.unicode > 48 && event.text.unicode < 58))
-		{
-			m_customLevelName += static_cast<char>(event.text.unicode);
-			m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
-		}
+		m_customLevelName += static_cast<char>(event.text.unicode);
+		m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
 	}
 }
 
-bool LevelEditorState::handleMenuCallbacks(const sf::Event& event, Game& game)
+bool LevelEditorState::handleMenuCallbacks(Game& game)
 {
 	//process gui events first
 	if (m_gui->getPressed(g_editorTxtSwitchMode))
@@ -399,7 +411,7 @@ bool LevelEditorState::handleMenuCallbacks(const sf::Event& event, Game& game)
 
 		m_levelReader->loadDefaultLevel();
 	}
-	for (auto& cl : m_customLevels)
+	for (const auto& cl : m_customLevels)
 	{
 		if (m_gui->getPressed(cl))
 		{
