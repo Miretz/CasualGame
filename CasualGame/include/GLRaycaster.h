@@ -32,17 +32,17 @@ private:
 
 	std::unique_ptr<GLRenderer> m_glRenderer;
 
-	std::vector<double> m_ZBuffer;
-
-	//arrays used to sort the sprites
-	std::vector<int> m_spriteOrder;
-	std::vector<double> m_spriteDistance;
-
-	//main rendering buffer
-	std::vector<unsigned char> m_buffer;
-
 	// buffer of clickable items in the view
 	std::vector<Clickable> m_clickables;
+
+	//it makes sense for these to be raw pointers
+	//main rendering buffer
+	unsigned char* m_buffer = NULL;
+
+	// Z buffer for sprites
+	double* m_ZBuffer;
+
+
 
 };
 

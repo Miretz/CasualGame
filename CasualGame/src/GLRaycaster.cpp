@@ -8,39 +8,47 @@
 #include "Utils.h"
 #include "Config.h"
 
+#include <SFML/Graphics.hpp>
+
+#include <functional>
+#include <iterator>
+#include <numeric>
+
 GLRaycaster::GLRaycaster()
 {
 	m_glRenderer = std::make_unique<GLRenderer>();
 }
-GLRaycaster::~GLRaycaster() {}
+GLRaycaster::~GLRaycaster()
+{
+	delete[] m_buffer;
+	m_buffer = NULL;
+
+	delete[] m_ZBuffer;
+	m_ZBuffer = NULL;
+}
 
 void GLRaycaster::initialize(const int windowWidth, const int windowHeight, const int spriteSize)
 {
 	m_windowWidth = windowWidth;
 	m_windowHeight = windowHeight;
 
-	m_ZBuffer.resize(windowWidth);
-	m_spriteOrder.resize(spriteSize);
-	m_spriteDistance.resize(spriteSize);
 	m_clickables.resize(spriteSize);
 
-	m_buffer.resize(windowHeight * windowWidth * 3);
-	m_glRenderer->init(&m_buffer[0], windowWidth, windowHeight);
+	m_ZBuffer = new double[windowWidth];
+	m_buffer = new unsigned char[windowHeight * windowWidth * 4];
+
+	m_glRenderer->init(m_buffer, windowWidth, windowHeight);
 
 }
 
 void GLRaycaster::draw(const Player& player, const LevelReaderWriter& levelReader)
 {
-	std::vector<unsigned char>().swap(m_buffer);
-	m_buffer.resize(m_windowWidth * m_windowHeight * 3);
-
 	//calculate a new buffer
 	calculateWalls(player, levelReader);
 	calculateSprites(player, levelReader);
 
-	m_glRenderer->draw(&m_buffer[0], m_windowWidth, m_windowHeight);
+	m_glRenderer->draw(m_buffer, m_windowWidth, m_windowHeight);
 	m_glRenderer->unbindBuffers();
-
 }
 
 void GLRaycaster::bindGlBuffers()
@@ -234,26 +242,31 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 {
 
 	//SPRITE CASTING
-	//sort sprites from far to close
-
 	const auto& sprites = levelReader.getSprites();
 
-	for (size_t i = 0; i < sprites.size(); i++)
-	{
-		m_spriteOrder[i] = static_cast<int>(i);
-		m_spriteDistance[i] = (
-			(player.m_posX - sprites[i].x) * (player.m_posX - sprites[i].x) +
-			(player.m_posY - sprites[i].y) * (player.m_posY - sprites[i].y)); //sqrt not taken, unneeded
-	}
-	Utils::combSort(m_spriteOrder, m_spriteDistance, static_cast<int>(sprites.size()));
+	std::vector<int> spriteOrder(sprites.size());
+	std::iota(spriteOrder.begin(), spriteOrder.end(), 0);
+
+	std::vector<double> spriteDistance;
+	std::transform(
+		sprites.begin(),
+		sprites.end(),
+		std::back_inserter(spriteDistance),
+		[&player](const auto& sprite) -> double
+		{
+			return ((player.m_posX - sprite.x) * (player.m_posX - sprite.x) +
+				(player.m_posY - sprite.y) * (player.m_posY - sprite.y));
+		});
+
+	Utils::combSort(spriteOrder, spriteDistance, static_cast<int>(sprites.size()));
 
 	//after sorting the sprites, do the projection and draw them
 	for (size_t i = 0; i < sprites.size(); i++)
 	{
 
 		//translate sprite position to relative to camera
-		const double spriteX = sprites[m_spriteOrder[i]].x - player.m_posX;
-		const double spriteY = sprites[m_spriteOrder[i]].y - player.m_posY;
+		const double spriteX = sprites[spriteOrder[i]].x - player.m_posX;
+		const double spriteY = sprites[spriteOrder[i]].y - player.m_posY;
 
 		const double invDet = 1.0 / (player.m_planeX * player.m_dirY - player.m_dirX * player.m_planeY); //required for correct matrix multiplication
 		const double transformX = invDet * (player.m_dirY * spriteX - player.m_dirX * spriteY);
@@ -263,7 +276,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 		//calculate height of the sprite on screen
 		const int spriteHeight = abs(int(m_windowHeight / (transformY))); //using "transformY" instead of the real distance prevents fisheye
 
-																		//calculate lowest and highest pixel to fill in current stripe
+		//calculate lowest and highest pixel to fill in current stripe
 		int drawStartY = -spriteHeight / 2 + m_windowHeight / 2;
 		int drawEndY = spriteHeight / 2 + m_windowHeight / 2;
 
@@ -272,7 +285,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
 
-		const int texNr = sprites[m_spriteOrder[i]].texture;
+		const int texNr = sprites[spriteOrder[i]].texture;
 		const auto& textureData = levelReader.getTexture(texNr);
 		const int texSize = static_cast<int>(textureData.size());
 
@@ -280,7 +293,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 		m_clickables[i].update(
 			sf::Vector2f(float(spriteWidth / 2.0f), float(spriteHeight)),
 			sf::Vector2f(float(drawStartX + spriteWidth / 4.0f), float(drawStartY)));
-		m_clickables[i].setSpriteIndex(m_spriteOrder[i]);
+		m_clickables[i].setSpriteIndex(spriteOrder[i]);
 
 		//limit drawstart and drawend
 		if (drawStartY < 0) drawStartY = 0;
@@ -317,8 +330,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 					if (texPix < texSize && texPix > 0)
 					{
 						sf::Uint32 color = textureData[texPix]; //get current color from the texture
-
-																// black is invisible!!!
+						// black color is transparent
 						if ((color & 0x00FFFFFF) != 0)
 						{
 							setPixel(stripe, y, color, 0);
@@ -335,33 +347,10 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 
 void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, unsigned int style)
 {
-
-	if (x >= m_windowWidth || y >= m_windowHeight)
-	{
-		return;
-	}
-
 	auto colors = (sf::Uint8*)&colorRgba;
-	auto index = (y * m_windowWidth + x) * 3;
-
-	if (style == 1)
-	{
-		m_buffer[index] = colors[0] / 2;
-		m_buffer[index + 1] = colors[1] / 2;
-		m_buffer[index + 2] = colors[2] / 2;
-	}
-	else if (style == 2)
-	{
-		m_buffer[index] = std::min(colors[0] + 25, 255);
-		m_buffer[index + 1] = std::min(colors[1] + 25, 255);
-		m_buffer[index + 2] = std::min(colors[2] + 25, 255);
-	}
-	else
-	{
-		m_buffer[index] = colors[0];
-		m_buffer[index + 1] = colors[1];
-		m_buffer[index + 2] = colors[2];
-	}
-
+	const int index = (y * m_windowWidth + x) * 3;
+	m_buffer[index] = colors[0] >> style;
+	m_buffer[index + 1] = colors[1] >> style;
+	m_buffer[index + 2] = colors[2] >> style;
 }
 
