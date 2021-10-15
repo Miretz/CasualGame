@@ -8,7 +8,7 @@ struct GuiButton
 	sf::RectangleShape background;
 	bool pressed = false;
 
-	GuiButton(sf::Text mText, sf::RectangleShape mBack) : text(mText), background(mBack) {}
+	GuiButton(const sf::Text& mText, const sf::RectangleShape& mBack) : text(mText), background(mBack) {}
 };
 
 class LevelEditorGui

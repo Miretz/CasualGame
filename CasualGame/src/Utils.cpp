@@ -47,7 +47,7 @@ void Utils::combSort(std::vector<int>& order, std::vector<double>& dist, int amo
 	}
 }
 
-std::string Utils::readFile(const std::string path)
+std::string Utils::readFile(const std::string& path)
 {
 	std::ifstream stream(path);
 

@@ -14,20 +14,20 @@ MainMenuState::MainMenuState(const int w, const int h) :
 	// Game Title
 	sf::Color textColor = sf::Color::White;
 
-	m_titleText.setFont(g_fontLoader->getFont());
+	m_titleText.setFont(g_fontLoader.getFont());
 	m_titleText.setString(g_mainTxtTitle);
 	m_titleText.setCharacterSize(50);
-	m_titleText.setPosition(m_windowWidth / 2.0f, 200);
+	m_titleText.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 200);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2.0f, m_titleText.getGlobalBounds().height / 2.0f);
 	m_titleText.setFillColor(textColor);
 
 	// Menu Items
 	// Start Game
 	sf::Text startGame;
-	startGame.setFont(g_fontLoader->getFont());
+	startGame.setFont(g_fontLoader.getFont());
 	startGame.setString(g_mainTxtStartGame);
 	startGame.setCharacterSize(30);
-	startGame.setPosition(m_windowWidth / 2.0f, 300);
+	startGame.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 300);
 	startGame.setOrigin(startGame.getGlobalBounds().width / 2.0f, startGame.getGlobalBounds().height / 2.0f);
 	startGame.setFillColor(textColor);
 
@@ -35,10 +35,10 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	// Restart Game
 	sf::Text restartGame;
-	restartGame.setFont(g_fontLoader->getFont());
+	restartGame.setFont(g_fontLoader.getFont());
 	restartGame.setString(g_mainTxtRestartGame);
 	restartGame.setCharacterSize(30);
-	restartGame.setPosition(m_windowWidth / 2.0f, 350);
+	restartGame.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 350);
 	restartGame.setOrigin(restartGame.getGlobalBounds().width / 2.0f, restartGame.getGlobalBounds().height / 2.0f);
 	restartGame.setFillColor(textColor);
 
@@ -46,10 +46,10 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	// Level Editor 
 	sf::Text levelEditor;
-	levelEditor.setFont(g_fontLoader->getFont());
+	levelEditor.setFont(g_fontLoader.getFont());
 	levelEditor.setString(g_mainTxtLevelEditor);
 	levelEditor.setCharacterSize(30);
-	levelEditor.setPosition(m_windowWidth / 2.0f, 400);
+	levelEditor.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 400);
 	levelEditor.setOrigin(levelEditor.getGlobalBounds().width / 2.0f, levelEditor.getGlobalBounds().height / 2.0f);
 	levelEditor.setFillColor(textColor);
 
@@ -57,10 +57,10 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	//Toggle Fullscreen
 	sf::Text switchFullscreen;
-	switchFullscreen.setFont(g_fontLoader->getFont());
+	switchFullscreen.setFont(g_fontLoader.getFont());
 	switchFullscreen.setString(g_mainTxtToggleFullscreen);
 	switchFullscreen.setCharacterSize(30);
-	switchFullscreen.setPosition(m_windowWidth / 2.0f, 450);
+	switchFullscreen.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 450);
 	switchFullscreen.setOrigin(switchFullscreen.getGlobalBounds().width / 2.0f, switchFullscreen.getGlobalBounds().height / 2.0f);
 	switchFullscreen.setFillColor(textColor);
 
@@ -68,10 +68,10 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 	//Quit Game
 	sf::Text quitGame;
-	quitGame.setFont(g_fontLoader->getFont());
+	quitGame.setFont(g_fontLoader.getFont());
 	quitGame.setString(g_mainTxtQuit);
 	quitGame.setCharacterSize(30);
-	quitGame.setPosition(m_windowWidth / 2.0f, 500);
+	quitGame.setPosition(static_cast<float>(m_windowWidth) / 2.0f, 500);
 	quitGame.setOrigin(quitGame.getGlobalBounds().width / 2.0f, quitGame.getGlobalBounds().height / 2.0f);
 	quitGame.setFillColor(textColor);
 
@@ -98,32 +98,32 @@ void MainMenuState::update(const float ft)
 {
 
 	sf::Transform rotation;
-	rotation.rotate(0.01f, m_windowWidth / 2.0f, m_windowHeight / 2.0f);
-	for (size_t i = 0; i < m_followers.size(); ++i)
+	rotation.rotate(0.01f, static_cast<float>(m_windowWidth) / 2.0f, static_cast<float>(m_windowHeight) / 2.0f);
+	for (auto& follower : m_followers)
 	{
-		m_followers[i].setPosition(rotation.transformPoint(m_followers[i].getPosition()));
+		follower.setPosition(rotation.transformPoint(follower.getPosition()));
 	}
 
 	const int colorMax = 100;
 
 	//slight bg color update
-	for (size_t i = 0; i < m_bgColors.size(); ++i)
+	for (auto& bgColor : m_bgColors)
 	{
 
 		if (gen.randomInt(0, 100) < 10)
 		{
-			m_bgColors[i].r += gen.randomInt(-2, 2);
-			m_bgColors[i].g += gen.randomInt(-2, 2);
-			m_bgColors[i].b += gen.randomInt(-2, 2);
+			bgColor.r += gen.randomInt(-2, 2);
+			bgColor.g += gen.randomInt(-2, 2);
+			bgColor.b += gen.randomInt(-2, 2);
 		}
 
 		//limit color max
-		if (m_bgColors[i].r > colorMax) m_bgColors[i].r = colorMax;
-		if (m_bgColors[i].g > colorMax) m_bgColors[i].g = colorMax;
-		if (m_bgColors[i].b > colorMax) m_bgColors[i].b = colorMax;
-		if (m_bgColors[i].r <= 0) m_bgColors[i].r = 0;
-		if (m_bgColors[i].g <= 0) m_bgColors[i].g = 0;
-		if (m_bgColors[i].b <= 0) m_bgColors[i].b = 0;
+		if (bgColor.r > colorMax) bgColor.r = colorMax;
+		if (bgColor.g > colorMax) bgColor.g = colorMax;
+		if (bgColor.b > colorMax) bgColor.b = colorMax;
+		if (bgColor.r <= 0) bgColor.r = 0;
+		if (bgColor.g <= 0) bgColor.g = 0;
+		if (bgColor.b <= 0) bgColor.b = 0;
 	}
 
 }

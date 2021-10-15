@@ -15,9 +15,6 @@ LevelReaderWriter::LevelReaderWriter()
 
 	loadLevel(g_defaultLevelFile, m_level, m_sprites);
 
-	//texture generator 
-	//generateTextures();
-
 	//load textures
 	m_texture.resize(g_textureCount);
 	m_sfmlTextures.resize(g_textureCount);
@@ -146,11 +143,10 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 	std::string line;
 	while (std::getline(file, line))
 	{
-		if (!file.good())
+		if (!file.good() || line.size() == 0)
+		{
 			break;
-
-		if (line.size() == 0)
-			break;
+		}
 
 		std::stringstream iss(line);
 		std::string val;
@@ -198,30 +194,6 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 			}
 		}
 		sprites.push_back(spr);
-	}
-}
-
-// generates some textures for testing
-void LevelReaderWriter::generateTextures()
-{
-	for (int i = 0; i < 8; i++) m_texture[i].resize(g_textureWidth * g_textureHeight);
-	for (int x = 0; x < g_textureWidth; x++)
-	{
-		for (int y = 0; y < g_textureHeight; y++)
-		{
-			int xorcolor = (x * 256 / g_textureWidth) ^ (y * 256 / g_textureHeight);
-			//int xcolor = x * 256 / g_textureWidth;
-			int ycolor = y * 256 / g_textureHeight;
-			int xycolor = y * 128 / g_textureHeight + x * 128 / g_textureWidth;
-			m_texture[0][g_textureWidth * y + x] = 65536 * 254 * (x != y && x != g_textureWidth - y); //flat red texture with black cross
-			m_texture[1][g_textureWidth * y + x] = xycolor + 256 * xycolor + 65536 * xycolor; //sloped greyscale
-			m_texture[2][g_textureWidth * y + x] = 256 * xycolor + 65536 * xycolor; //sloped yellow gradient
-			m_texture[3][g_textureWidth * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; //xor greyscale
-			m_texture[4][g_textureWidth * y + x] = 256 * xorcolor; //xor green
-			m_texture[5][g_textureWidth * y + x] = 65536 * 192 * (x % 16 && y % 16); //red bricks
-			m_texture[6][g_textureWidth * y + x] = 65536 * ycolor; //red gradient
-			m_texture[7][g_textureWidth * y + x] = 128 + 256 * 128 + 65536 * 128; //flat grey texture
-		}
 	}
 }
 

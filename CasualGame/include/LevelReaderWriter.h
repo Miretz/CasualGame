@@ -37,7 +37,6 @@ private:
 	std::vector<sf::Texture> m_sfmlTextures;
 
 	void loadLevel(const std::string& path, std::vector<std::vector<int> >& level, std::vector<Sprite>& sprites) const;
-	void generateTextures();
 	void loadTexture(const int index, const std::string& fileName);
 };
 

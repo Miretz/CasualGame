@@ -13,7 +13,7 @@ class PlayState : public GameState
 {
 public:
 	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	virtual ~PlayState() = default;
+	~PlayState() override = default;
 
 	void update(const float ft) override;
 	void draw(sf::RenderWindow& window) override;
@@ -49,9 +49,8 @@ private:
 	void generateMinimap();
 	void updateMinimapEntities();
 	void drawMinimap(sf::RenderWindow& window) const;
-	void drawGui(sf::RenderWindow& window);
+	void drawGui(sf::RenderWindow& window) const;
 
 	void destroyAimedAtSprite();
-	void moveAimedAtSprite(const double fts);
 
 };

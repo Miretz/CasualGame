@@ -5,7 +5,7 @@
 class Clickable
 {
 public:
-	Clickable();
+	Clickable() = default;
 	virtual ~Clickable() = default;
 
 	void update(const sf::Vector2f& size, const sf::Vector2f& position);
@@ -22,8 +22,8 @@ public:
 
 private:
 	sf::RectangleShape m_shape;
-	bool m_visible;
-	bool m_destructible;
-	int m_spriteIndex;
+	bool m_visible = false;
+	bool m_destructible = false;
+	int m_spriteIndex = -1;
 };
 

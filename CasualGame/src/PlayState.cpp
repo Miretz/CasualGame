@@ -25,14 +25,14 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_glRaycaster->initialize(w, h, static_cast<int>(m_spriteSize));
 
 	//Fps display
-	m_fpsDisplay.setFont(g_fontLoader->getFont());
+	m_fpsDisplay.setFont(g_fontLoader.getFont());
 	m_fpsDisplay.setString("fps");
 	m_fpsDisplay.setCharacterSize(32);
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
 	m_fpsDisplay.setFillColor(sf::Color::Yellow);
 
 	//Health display
-	m_playerHealthDisplay.setFont(g_fontLoader->getFont());
+	m_playerHealthDisplay.setFont(g_fontLoader.getFont());
 	m_playerHealthDisplay.setString("health");
 	m_playerHealthDisplay.setCharacterSize(40);
 	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
@@ -66,11 +66,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 void PlayState::update(const float ft)
 {
-	double fts = static_cast<double>(ft / 1000.0f);
-
-	//TODO: this is just a test
-	//move aimed at sprite towards the player
-	//moveAimedAtSprite(fts);
+	auto fts = static_cast<double>(ft / 1000.0f);
 
 	//set indestructible until render calculation
 	for (auto& outline : m_glRaycaster->getClickables())
@@ -94,8 +90,8 @@ void PlayState::update(const float ft)
 	{
 		auto wobbleSpeed = fts * 10.0f;
 		auto newGunPos = m_gunDisplay.getPosition();
-		float DeltaHeight = static_cast<float>(sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
-		newGunPos.y += DeltaHeight * 15.0f;
+		auto deltaHeight = static_cast<float>(sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
+		newGunPos.y += deltaHeight * 15.0f;
 		m_runningTime += wobbleSpeed;
 		m_gunDisplay.setPosition(newGunPos);
 	}
@@ -147,7 +143,7 @@ void PlayState::generateMinimap()
 	auto levelSize = m_levelReader->getLevel().size();
 
 	//Minimap background
-	m_minimapBackground.setSize(sf::Vector2f(levelSize * g_playMinimapScale, levelSize * g_playMinimapScale));
+	m_minimapBackground.setSize(sf::Vector2f(static_cast<float>(levelSize) * g_playMinimapScale, static_cast<float>(levelSize) * g_playMinimapScale));
 	m_minimapBackground.setPosition(0, 0);
 	m_minimapBackground.setFillColor(sf::Color(150, 150, 150, g_playMinimapTransparency));
 
@@ -159,7 +155,7 @@ void PlayState::generateMinimap()
 			if (m_levelReader->getLevel()[y][x] > 0 && m_levelReader->getLevel()[y][x] < 9)
 			{
 				sf::RectangleShape wall(sf::Vector2f(g_playMinimapScale, g_playMinimapScale));
-				wall.setPosition(x * g_playMinimapScale, y * g_playMinimapScale);
+				wall.setPosition(static_cast<float>(x) * g_playMinimapScale, static_cast<float>(y) * g_playMinimapScale);
 				wall.setFillColor(sf::Color(0, 0, 0, g_playMinimapTransparency));
 				m_minimapWallBuffer.push_back(wall);
 			}
@@ -197,13 +193,13 @@ void PlayState::drawMinimap(sf::RenderWindow& window) const
 	window.draw(m_minimapBackground);
 
 	//draw walls
-	for (auto wall : m_minimapWallBuffer)
+	for (const auto& wall : m_minimapWallBuffer)
 	{
 		window.draw(wall);
 	}
 
 	//draw entities
-	for (auto entity : m_minimapEntityBuffer)
+	for (const auto& entity : m_minimapEntityBuffer)
 	{
 		window.draw(entity);
 	}
@@ -212,7 +208,7 @@ void PlayState::drawMinimap(sf::RenderWindow& window) const
 	window.draw(m_minimapPlayer);
 }
 
-void PlayState::drawGui(sf::RenderWindow& window)
+void PlayState::drawGui(sf::RenderWindow& window) const
 {
 
 	//draw hud clickable items
@@ -257,7 +253,7 @@ void PlayState::handleInput(const sf::Event& event, const sf::Vector2f& mousePos
 	}
 
 	//send events to player controller
-	m_inputManager->handleInput(event, mousePosition, game);
+	m_inputManager->handleInput(event);
 
 	//im shooting
 	if (m_inputManager->isShooting())
@@ -282,30 +278,6 @@ void PlayState::destroyAimedAtSprite()
 			{
 				m_levelReader->deleteSprite(clickables[i].getSpriteIndex());
 				clickables[i].setSpriteIndex(-1);
-			}
-			return;
-		}
-	}
-}
-
-void PlayState::moveAimedAtSprite(const double fts)
-{
-	auto& clickables = m_glRaycaster->getClickables();
-	auto& sprites = m_levelReader->getSprites();
-
-	for (size_t i = 0; i < clickables.size(); i++)
-	{
-		if (clickables[i].getDestructible() && clickables[i].containsVector(m_crosshair.getPosition()))
-		{
-			if (clickables[i].getSpriteIndex() != -1)
-			{
-				auto x = sprites[clickables[i].getSpriteIndex()].x;
-				auto y = sprites[clickables[i].getSpriteIndex()].y;
-
-				x -= fts * 2.0 * m_player->m_dirX;
-				y -= fts * 2.0 * m_player->m_dirY;
-
-				m_levelReader->moveSprite(clickables[i].getSpriteIndex(), x, y);
 			}
 			return;
 		}

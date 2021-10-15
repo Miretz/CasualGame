@@ -13,7 +13,7 @@ LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :
 int LevelEditorGui::addButton(const std::string & text)
 {
 	sf::Text btnText;
-	btnText.setFont(g_fontLoader->getFont());
+	btnText.setFont(g_fontLoader.getFont());
 	btnText.setString(text);
 	btnText.setCharacterSize(22);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
@@ -67,7 +67,7 @@ void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & m
 
 void LevelEditorGui::draw(sf::RenderWindow & window)
 {
-	for (auto& button : m_buttons)
+	for (const auto& button : m_buttons)
 	{
 		window.draw(button.background);
 		window.draw(button.text);

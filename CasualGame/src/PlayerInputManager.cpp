@@ -7,19 +7,12 @@
 #include <cmath>
 
 
-PlayerInputManager::PlayerInputManager() {}
-
-void PlayerInputManager::handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game)
+void PlayerInputManager::handleInput(const sf::Event& event)
 {
 
 	if (event.type == sf::Event::MouseButtonPressed)
 	{
 		handleShot();
-	}
-
-	if (event.type == sf::Event::MouseMoved)
-	{
-		//handleMouselook(event, game.getWindow());
 	}
 
 	//escape go to main menu
@@ -173,7 +166,7 @@ void PlayerInputManager::handleShot()
 }
 
 
-void PlayerInputManager::handleMouselook(const sf::Event & event, const sf::RenderWindow& window)
+void PlayerInputManager::handleMouselook(const sf::Event& event, const sf::RenderWindow& window)
 {
 	int mouseX = event.mouseMove.x;
 	int mouseY = event.mouseMove.y;
@@ -181,12 +174,12 @@ void PlayerInputManager::handleMouselook(const sf::Event & event, const sf::Rend
 	m_mouseDelta = mouseX - m_lastMouseX;
 	m_lastMouseX = mouseX;
 
-	int windowX = static_cast<int>(window.getSize().x);
-	int windowY = static_cast<int>(window.getSize().y);
+	auto windowX = static_cast<int>(window.getSize().x);
+	auto windowY = static_cast<int>(window.getSize().y);
 
 	//if mouse is out of screen, put it to the center
-	if (mouseX <= m_mouseBorder || mouseX >= windowX - m_mouseBorder ||
-		mouseY <= m_mouseBorder || mouseY >= windowY - m_mouseBorder)
+	if (mouseX <= m_mouseBorder || mouseX >= (windowX - m_mouseBorder) ||
+		mouseY <= m_mouseBorder || mouseY >= (windowY - m_mouseBorder))
 	{
 		auto centerX = windowX / 2;
 		auto centerY = windowY / 2;

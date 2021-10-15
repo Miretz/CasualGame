@@ -5,7 +5,7 @@
 class FontLoader
 {
 public:
-	FontLoader(const char* path);
+	explicit FontLoader(const char* path);
 	virtual ~FontLoader() = default;
 
 	const sf::Font& getFont() const { return m_font; }

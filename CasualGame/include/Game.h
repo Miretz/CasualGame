@@ -43,7 +43,7 @@ private:
 	void checkInput();
 	void update();
 	void draw() const;
-	void resetLevel();
+	void resetLevel() const;
 	void updateTimers();
 
 };

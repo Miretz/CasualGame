@@ -20,8 +20,8 @@ public:
 	void calculateSprites(const Player& player, const LevelReaderWriter& levelReader);
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, unsigned int style);
 	void draw(const Player& player, const LevelReaderWriter& levelReader);
-	void bindGlBuffers();
-	void cleanup();
+	void bindGlBuffers() const;
+	void cleanup() const;
 
 	std::vector<Clickable>& getClickables() { return m_clickables; }
 
@@ -37,7 +37,7 @@ private:
 
 	//it makes sense for these to be raw pointers
 	//main rendering buffer
-	unsigned char* m_buffer = NULL;
+	unsigned char* m_buffer = nullptr;
 
 	// Z buffer for sprites
 	double* m_ZBuffer;

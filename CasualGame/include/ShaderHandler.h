@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 class ShaderHandler {
 public:
@@ -12,14 +12,14 @@ private:
 
 	class ShaderObject {
 	public:
-		ShaderObject();
+		ShaderObject() = default;
 		~ShaderObject();
 		sf::Shader* getShader() const;
 		bool loadShaderFromFile(const std::string& path);
 	private:
-		sf::Shader* m_shader;
+		sf::Shader* m_shader = nullptr;
 	};
 
-	typedef std::map<std::string, ShaderObject> shadersMap_t;
+	using shadersMap_t = std::unordered_map<std::string, ShaderObject>;
 	static shadersMap_t m_shaders;
 };

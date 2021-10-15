@@ -14,7 +14,8 @@ Game::Game()
 	m_currentState = std::make_unique<MainMenuState>(g_defaultWidth, g_defaultHeight);
 	m_clock = std::make_unique<sf::Clock>();
 
-	m_window->setFramerateLimit(500);
+	m_window->setFramerateLimit(120);
+	m_window->setVerticalSyncEnabled(true);
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 	m_player = std::make_shared<Player>();
 }
@@ -71,7 +72,7 @@ void Game::updateTimers()
 	if (m_fpsShowTimer == 0)
 	{
 		m_fpsShowTimer = 2;
-		auto ftSeconds = m_lastFt / 1000.f;
+		auto ftSeconds = static_cast<float>(m_lastFt) / 1000.f;
 		if (ftSeconds > 0.f)
 		{
 			m_fps = static_cast<int>(1.f / ftSeconds);
@@ -118,7 +119,7 @@ void Game::changeState(GameStateName newState)
 	}
 }
 
-void Game::resetLevel()
+void Game::resetLevel() const
 {
 	//reset player position
 	m_player->m_posX = 22.0;

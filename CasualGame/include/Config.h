@@ -17,7 +17,7 @@ static const double g_lookSpeed = 3.0; //TODO Make configurable in game
 
 // Resources
 
-static const FontLoader* g_fontLoader = new FontLoader("resources/font/OtherF.ttf");
+static const FontLoader g_fontLoader{ "resources/font/OtherF.ttf" };
 
 static const auto g_defaultLevelFile = "resources/levels/level1.txt";
 static const auto g_defaultLevelSpriteFile = "resources/levels/level1_sprites.txt";
@@ -26,7 +26,7 @@ static const auto g_customLevelDirectory = "resources/levels/custom/";
 
 static const int g_textureCount = 13;
 
-static const std::string g_textureFiles[13] = {
+static const std::vector<std::string> g_textureFiles{
 	"resources/textures/stonebricks.png",//1
 	"resources/textures/concbase.png",//2
 	"resources/textures/metalblocks.png",//3

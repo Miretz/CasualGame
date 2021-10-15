@@ -7,11 +7,6 @@
 #include <SFML/OpenGL.hpp>
 
 
-GLRenderer::GLRenderer() : vao(0), vbo(0), ebo(0), shaderProgram(0), vertexShader(0), fragmentShader(0), tex(0)
-{
-	//Empty
-}
-
 void GLRenderer::init(unsigned char* buffer, int width, int height)
 {
 	std::string vertSrcStr = Utils::readFile(g_mainVertexShader);

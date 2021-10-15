@@ -1,10 +1,5 @@
 #include "Clickable.h"
 
-Clickable::Clickable() : m_visible(false), m_destructible(false), m_spriteIndex(-1)
-{
-	//Empty
-}
-
 void Clickable::update(const sf::Vector2f & size, const sf::Vector2f & position)
 {
 	m_shape.setSize(size);

@@ -13,9 +13,9 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_player(move(player)),
 	m_levelReader(move(levelReader))
 {
-	m_scale = float(h - 30) / m_levelReader->getLevel().size();
+	m_scale = static_cast<float>(h - 30) / static_cast<float>(m_levelReader->getLevel().size());
 
-	m_statusBar.setFont(g_fontLoader->getFont());
+	m_statusBar.setFont(g_fontLoader.getFont());
 	m_statusBar.setString(g_editorTxtModeWall);
 	m_statusBar.setCharacterSize(32);
 
@@ -58,7 +58,7 @@ void LevelEditorState::update(const float ft)
 	//Empty
 }
 
-void LevelEditorState::draw(sf::RenderWindow & window)
+void LevelEditorState::draw(sf::RenderWindow& window)
 {
 
 	window.clear();
@@ -100,7 +100,7 @@ void LevelEditorState::draw(sf::RenderWindow & window)
 
 }
 
-void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& mousepPosition, Game & game)
+void LevelEditorState::handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition, Game& game)
 {
 
 	m_mousePos = mousepPosition;
@@ -114,7 +114,7 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 
 	//gui events
 	m_gui->handleInput(event, mousepPosition);
-	
+
 	if (handleMenuCallbacks(event, game))
 	{
 		// quitting the editor
@@ -122,8 +122,8 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 	}
 
 	//is the mouse inside the editor area
-	const auto levelSize = m_levelReader->getLevel().size();
-	auto mouseInEditor = (mousepPosition.x < levelSize * m_scale);
+	const auto levelSize = static_cast<float>(m_levelReader->getLevel().size());
+	auto mouseInEditor = (mousepPosition.x < levelSize* m_scale);
 
 	//process button press
 	if (event.type == sf::Event::KeyReleased)
@@ -145,36 +145,39 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 		}
 
 		//entity move with arrow keys
-		if (m_editEntities && mouseInEditor)
+		if (m_editEntities && mouseInEditor && m_entitySelected != -1)
 		{
-			if (m_entitySelected != -1)
+
+			if (event.key.code == sf::Keyboard::Left)
 			{
-				if (event.key.code == sf::Keyboard::Left)
-				{
-					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-					m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y -= 0.1);
-				}
-				if (event.key.code == sf::Keyboard::Right)
-				{
-					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-					m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y += 0.1);
-				}
-				if (event.key.code == sf::Keyboard::Up)
-				{
-					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-					m_levelReader->moveSprite(m_entitySelected, spr.x -= 0.1, spr.y);
-				}
-				if (event.key.code == sf::Keyboard::Down)
-				{
-					Sprite spr = m_levelReader->getSprites()[m_entitySelected];
-					m_levelReader->moveSprite(m_entitySelected, spr.x += 0.1, spr.y);
-				}
-				if (event.key.code == sf::Keyboard::Delete)
-				{
-					m_levelReader->deleteSprite(m_entitySelected);
-					m_entitySelected = -1;
-				}
+				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+				spr.y -= 0.1;
+				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
 			}
+			if (event.key.code == sf::Keyboard::Right)
+			{
+				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+				spr.y += 0.1;
+				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+			}
+			if (event.key.code == sf::Keyboard::Up)
+			{
+				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+				spr.x -= 0.1;
+				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+			}
+			if (event.key.code == sf::Keyboard::Down)
+			{
+				Sprite spr = m_levelReader->getSprites()[m_entitySelected];
+				spr.x += 0.1;
+				m_levelReader->moveSprite(m_entitySelected, spr.x, spr.y);
+			}
+			if (event.key.code == sf::Keyboard::Delete)
+			{
+				m_levelReader->deleteSprite(m_entitySelected);
+				m_entitySelected = -1;
+			}
+
 		}
 	}
 
@@ -233,11 +236,11 @@ void LevelEditorState::handleInput(const sf::Event & event, const sf::Vector2f& 
 			{
 				//delete walls with right click			
 				//Do not allow to delete the level outer walls, this breaks the raycaster
-				if (xi == 0 || xi == levelSize - 1)
+				if (xi == 0 || xi == static_cast<int>(levelSize) - 1)
 				{
 					m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
 				}
-				else if (yi == 0 || yi == levelSize - 1)
+				else if (yi == 0 || yi == static_cast<int>(levelSize) - 1)
 				{
 					m_levelReader->changeLevelTile(yi, xi, m_selectedTexture);
 				}
@@ -274,7 +277,7 @@ void LevelEditorState::resetPlayer() const
 	m_player->m_planeY = 0.66;
 }
 
-void LevelEditorState::drawPlayer(sf::RenderWindow & window) const
+void LevelEditorState::drawPlayer(sf::RenderWindow& window) const
 {
 
 	const auto posX = float(m_player->m_posY) * m_scale;
@@ -298,7 +301,7 @@ void LevelEditorState::drawPlayer(sf::RenderWindow & window) const
 	window.draw(player2);
 }
 
-void LevelEditorState::drawWalls(sf::RenderWindow & window) const
+void LevelEditorState::drawWalls(sf::RenderWindow& window) const
 {
 	const auto levelSize = m_levelReader->getLevel().size();
 	for (size_t y = 0; y < levelSize; y++)
@@ -327,7 +330,7 @@ void LevelEditorState::drawWalls(sf::RenderWindow & window) const
 	}
 }
 
-void LevelEditorState::drawSprites(sf::RenderWindow & window) const
+void LevelEditorState::drawSprites(sf::RenderWindow& window) const
 {
 	const auto spritesSize = m_levelReader->getSprites().size();
 	for (size_t i = 0; i < spritesSize; i++)
@@ -366,13 +369,10 @@ void LevelEditorState::handleInputField(const sf::Event& event)
 		{
 			m_filenameMode = !m_filenameMode;
 		}
-		if (event.key.code == sf::Keyboard::BackSpace)
+		if (event.key.code == sf::Keyboard::BackSpace && m_customLevelName.size() > 0)
 		{
-			if (m_customLevelName.size() > 0)
-			{
-				m_customLevelName.erase(m_customLevelName.size() - 1, m_customLevelName.size());
-				m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
-			}
+			m_customLevelName.erase(m_customLevelName.size() - 1, m_customLevelName.size());
+			m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
 		}
 	}
 	else if (event.type == sf::Event::TextEntered)
@@ -385,7 +385,7 @@ void LevelEditorState::handleInputField(const sf::Event& event)
 	}
 }
 
-bool LevelEditorState::handleMenuCallbacks(const sf::Event & event, Game & game)
+bool LevelEditorState::handleMenuCallbacks(const sf::Event& event, Game& game)
 {
 	//process gui events first
 	if (m_gui->getPressed(g_editorTxtSwitchMode))
