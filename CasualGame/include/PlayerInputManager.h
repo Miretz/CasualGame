@@ -33,11 +33,6 @@ private:
 	double m_shotTime = -1.0;
 	double m_gunShotDelay = -1.0;
 
-	int m_mouseDelta = 0;
-	int m_lastMouseX = 0;
-	int m_mouseBorder = 100;
-
-	void handleMouselook(const sf::Event& event, const sf::RenderWindow& window);
 	void handleShot();
 	void calculateShotTime(double fts);
 

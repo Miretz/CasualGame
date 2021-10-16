@@ -27,7 +27,7 @@ void GLRaycaster::initialize(const int windowWidth, const int windowHeight, cons
 	m_clickables.resize(spriteSize);
 
 	m_ZBuffer.resize(windowWidth);
-	m_buffer.resize(windowHeight * windowWidth * 4);
+	m_buffer.resize(windowHeight * windowWidth * 3);
 
 	m_glRenderer->init(&m_buffer[0], windowWidth, windowHeight);
 

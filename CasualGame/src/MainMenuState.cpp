@@ -94,7 +94,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 }
 
-void MainMenuState::update(const float ft)
+void MainMenuState::update([[maybe_unused]] const float ft)
 {
 
 	sf::Transform rotation;
@@ -188,8 +188,8 @@ void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mous
 		game.changeState(GameStateName::QUIT);
 	}
 	//left mouse or enter button
-	else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Return) ||
-		(event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left))
+	else if (((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Return)) ||
+		((event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left)))
 	{
 		if (m_mouseOverIndex == 0)
 		{

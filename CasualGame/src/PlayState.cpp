@@ -4,7 +4,6 @@
 #include "Sprite.h"
 #include "Player.h"
 #include "LevelReaderWriter.h"
-#include "GLRenderer.h"
 #include "GLRaycaster.h"
 #include "Clickable.h"
 #include "PlayerInputManager.h"
@@ -236,7 +235,7 @@ void PlayState::drawGui(sf::RenderWindow& window) const
 	window.draw(m_crosshair);
 }
 
-void PlayState::handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game)
+void PlayState::handleInput(const sf::Event& event, [[maybe_unused]] const sf::Vector2f& mousePosition, Game& game)
 {
 	//update fps from game
 	m_fpsDisplay.setString(std::to_string(game.getFps()));
