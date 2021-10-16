@@ -10,12 +10,12 @@ LevelEditorGui::LevelEditorGui(const int x, const int y, const int width) :
 	//Empty
 }
 
-int LevelEditorGui::addButton(const std::string & text)
+int LevelEditorGui::addButton(const std::string& text)
 {
 	sf::Text btnText;
 	btnText.setFont(g_fontLoader.getFont());
 	btnText.setString(text);
-	btnText.setCharacterSize(22);
+	btnText.setCharacterSize(16);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
 	btnText.setPosition(static_cast<float>(m_xPos + m_padding) + 4.0f, float(m_yPos));
 	btnText.setFillColor(m_idleColor);
@@ -45,7 +45,7 @@ void LevelEditorGui::addSpace()
 	m_yPos += (2 * m_padding);
 }
 
-void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & mousepPosition)
+void LevelEditorGui::handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition)
 {
 	auto mousePressed = event.type == sf::Event::MouseButtonPressed;
 
@@ -65,7 +65,7 @@ void LevelEditorGui::handleInput(const sf::Event & event, const sf::Vector2f & m
 	}
 }
 
-void LevelEditorGui::draw(sf::RenderWindow & window) const
+void LevelEditorGui::draw(sf::RenderWindow& window) const
 {
 	for (const auto& button : m_buttons)
 	{
@@ -74,7 +74,7 @@ void LevelEditorGui::draw(sf::RenderWindow & window) const
 	}
 }
 
-bool LevelEditorGui::getPressed(const std::string & text)
+bool LevelEditorGui::getPressed(const std::string& text)
 {
 	for (auto& button : m_buttons)
 	{

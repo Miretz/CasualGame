@@ -51,6 +51,6 @@ private:
 	void drawMinimap(sf::RenderWindow& window) const;
 	void drawGui(sf::RenderWindow& window) const;
 
-	void destroyAimedAtSprite();
+	void destroyAimedAtSprite() const;
 
 };

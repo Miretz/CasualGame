@@ -89,11 +89,9 @@ void PlayState::update(const float ft)
 	if (m_inputManager->isMoving())
 	{
 		auto wobbleSpeed = fts * 10.0f;
-		auto newGunPos = m_gunDisplay.getPosition();
 		auto deltaHeight = static_cast<float>(sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
-		newGunPos.y += deltaHeight * 15.0f;
 		m_runningTime += wobbleSpeed;
-		m_gunDisplay.setPosition(newGunPos);
+		m_gunDisplay.setPosition(m_gunDisplay.getPosition() + sf::Vector2f{ 0.f, deltaHeight * 15.0f });
 	}
 
 	//reset gun texture
@@ -174,7 +172,7 @@ void PlayState::updateMinimapEntities()
 	auto spriteSize = m_levelReader->getSprites().size();
 	for (size_t i = 0; i < spriteSize; i++)
 	{
-		auto sprite = m_levelReader->getSprites()[i];
+		const auto& sprite = m_levelReader->getSprites()[i];
 		sf::CircleShape object(g_playMinimapScale / 4.0f);
 		object.setPosition(
 			float(sprite.y) * g_playMinimapScale,
@@ -264,20 +262,20 @@ void PlayState::handleInput(const sf::Event& event, const sf::Vector2f& mousePos
 	}
 }
 
-void PlayState::destroyAimedAtSprite()
+void PlayState::destroyAimedAtSprite() const
 {
 	auto& clickables = m_glRaycaster->getClickables();
 
-	for (size_t i = 0; i < clickables.size(); i++)
+	for (auto& clickable : clickables)
 	{
-		if (clickables[i].getDestructible() && clickables[i].containsVector(m_crosshair.getPosition()))
+		if (clickable.getDestructible() && clickable.containsVector(m_crosshair.getPosition()))
 		{
-			clickables[i].setDestructible(false);
-			clickables[i].setVisible(false);
-			if (clickables[i].getSpriteIndex() != -1)
+			clickable.setDestructible(false);
+			clickable.setVisible(false);
+			if (clickable.getSpriteIndex() != -1)
 			{
-				m_levelReader->deleteSprite(clickables[i].getSpriteIndex());
-				clickables[i].setSpriteIndex(-1);
+				m_levelReader->deleteSprite(clickable.getSpriteIndex());
+				clickable.setSpriteIndex(-1);
 			}
 			return;
 		}

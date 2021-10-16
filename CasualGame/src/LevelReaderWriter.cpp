@@ -53,11 +53,7 @@ void LevelReaderWriter::moveSprite(const int index, const double x, const double
 
 void LevelReaderWriter::createSprite(double x, double y, int texture)
 {
-	Sprite spr;
-	spr.x = x;
-	spr.y = y;
-	spr.texture = texture;
-	m_sprites.push_back(spr);
+	m_sprites.emplace_back(x, y, texture);
 }
 
 void LevelReaderWriter::deleteSprite(const int index)
@@ -87,25 +83,25 @@ void LevelReaderWriter::loadCustomLevel(const std::string& levelName)
 	loadLevel(g_customLevelDirectory + levelName, m_level, m_sprites);
 }
 
-void LevelReaderWriter::saveCustomLevel(const std::string & levelName)
+void LevelReaderWriter::saveCustomLevel(const std::string& levelName) const
 {
 
 	//warning! overwrites the file if exists
 	std::fstream file(g_customLevelDirectory + levelName, std::ios::out);
 
 	//write walls
-	for (size_t i = 0; i < m_level.size(); ++i)
+	for (const auto& line : m_level)
 	{
-		for (size_t j = 0; j < m_level[i].size(); ++j)
+		for (const auto& square : line)
 		{
-			file << m_level[i][j] << ",";
+			file << square << ",";
 		}
 		file << "\n";
 	}
 	file << "\n";
 
 	//write sprites
-	for (auto& spr : m_sprites)
+	for (const auto& spr : m_sprites)
 	{
 		file << spr.x << "," << spr.y << "," << spr.texture << "," << "\n";
 	}
@@ -175,7 +171,9 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 		std::stringstream iss(line);
 
-		Sprite spr;
+		double x = 0.0;
+		double y = 0.0;
+		int texture = 0;
 		for (auto col = 0; col < 3; col++)
 		{
 			std::string val;
@@ -187,13 +185,13 @@ void LevelReaderWriter::loadLevel(const std::string& path, std::vector<std::vect
 
 			switch (col)
 			{
-			case 0: convertor >> spr.x; break;
-			case 1: convertor >> spr.y; break;
-			case 2: convertor >> spr.texture; break;
+			case 0: convertor >> x; break;
+			case 1: convertor >> y; break;
+			case 2: convertor >> texture; break;
 			default: break;
 			}
 		}
-		sprites.push_back(spr);
+		sprites.emplace_back(x, y, texture);
 	}
 }
 

@@ -133,19 +133,19 @@ void MainMenuState::draw(sf::RenderWindow& window)
 	window.clear();
 
 	//draw followers 
-	for (const auto follower : m_followers)
+	for (const auto& follower : m_followers)
 	{
 		window.draw(follower);
 	}
 
 	//bg rectangle
-	sf::Vertex bgRect[] = {
+	std::vector<sf::Vertex> bgRect{
 		sf::Vertex(sf::Vector2f(0.f,0.f), m_bgColors[0]),
 		sf::Vertex(sf::Vector2f(0.f,static_cast<float>(m_windowHeight)), m_bgColors[1]),
 		sf::Vertex(sf::Vector2f(static_cast<float>(m_windowWidth), static_cast<float>(m_windowHeight)), m_bgColors[2]),
 		sf::Vertex(sf::Vector2f(static_cast<float>(m_windowWidth), 0.0f), m_bgColors[3])
 	};
-	window.draw(bgRect, 4, sf::Quads);
+	window.draw(&bgRect[0], 4, sf::Quads);
 
 	window.draw(m_titleText);
 
@@ -154,10 +154,14 @@ void MainMenuState::draw(sf::RenderWindow& window)
 		sf::Text item = m_menuItems[i];
 
 		sf::FloatRect boundingBox = item.getGlobalBounds();
-		sf::FloatRect boundsWithPadding(boundingBox.left - m_padding / 2.0f, boundingBox.top - m_padding / 2.0f, boundingBox.width + m_padding, boundingBox.height + m_padding);
 
 		// draw selection box
-		if (boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i)
+		if (sf::FloatRect boundsWithPadding{
+			boundingBox.left - m_padding / 2.0f,
+			boundingBox.top - m_padding / 2.0f,
+			boundingBox.width + m_padding,
+			boundingBox.height + m_padding };
+			boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i)
 		{
 			m_mouseOverIndex = static_cast<int>(i);
 
@@ -214,9 +218,8 @@ void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mous
 		if (m_mouseOverIndex < m_menuItems.size() - 1)
 			m_mouseOverIndex++;
 	}
-	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)))
+	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)) && (m_mouseOverIndex > 0))
 	{
-		if (m_mouseOverIndex > 0)
-			m_mouseOverIndex--;
+		m_mouseOverIndex--;
 	}
 }

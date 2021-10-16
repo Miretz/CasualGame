@@ -7,9 +7,9 @@ class GLRenderer
 public:
 	GLRenderer() = default;
 	virtual ~GLRenderer() = default;
-	void init(unsigned char* buffer, int width, int height);
+	void init(const unsigned char* buffer, int width, int height);
 	void cleanup() const;
-	void draw(unsigned char* buffer, int width, int height) const;
+	void draw(const unsigned char* buffer, int width, int height) const;
 	void unbindBuffers() const;
 	void bindBuffers() const;
 

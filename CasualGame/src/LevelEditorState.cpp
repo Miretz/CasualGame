@@ -13,11 +13,11 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_player(move(player)),
 	m_levelReader(move(levelReader))
 {
-	m_scale = static_cast<float>(h - 30) / static_cast<float>(m_levelReader->getLevel().size());
+	m_scale = static_cast<float>(h - 40) / static_cast<float>(m_levelReader->getLevel().size());
 
 	m_statusBar.setFont(g_fontLoader.getFont());
 	m_statusBar.setString(g_editorTxtModeWall);
-	m_statusBar.setCharacterSize(32);
+	m_statusBar.setCharacterSize(22);
 
 	m_statusBar.setPosition(10.f, float(h));
 	m_statusBar.setOrigin(0.0f, m_statusBar.getGlobalBounds().height * 2.0f);
@@ -32,7 +32,7 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_gui->addButton(g_editorTxtLoadDefault);
 
 	m_gui->addSpace();
-	for (auto& cl : m_customLevels)
+	for (const auto& cl : m_customLevels)
 	{
 		m_gui->addButton(cl);
 	}
@@ -53,7 +53,7 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_gui->get(m_spriteButtonId).background.setSize({ 100,100 });
 }
 
-void LevelEditorState::update(const float ft)
+void LevelEditorState::update([[maybe_unused]] const float ft)
 {
 	//Empty
 }
@@ -357,7 +357,7 @@ void LevelEditorState::drawSprites(sf::RenderWindow& window) const
 
 		if (m_editEntities)
 		{
-			if (i == m_entitySelected)
+			if (static_cast<int>(i) == m_entitySelected)
 			{
 				object.setOutlineColor(sf::Color(0, 255, 0, 255));
 			}
@@ -390,7 +390,7 @@ void LevelEditorState::handleInputField(const sf::Event& event)
 			m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);
 		}
 	}
-	else if (event.type == sf::Event::TextEntered && (event.text.unicode > 65 && event.text.unicode < 123) || (event.text.unicode > 48 && event.text.unicode < 58))
+	else if (event.type == sf::Event::TextEntered && ((event.text.unicode > 65 && event.text.unicode < 123) || (event.text.unicode > 48 && event.text.unicode < 58)))
 	{
 		m_customLevelName += static_cast<char>(event.text.unicode);
 		m_gui->get(m_filenameGuiIndex).text.setString(m_customLevelName);

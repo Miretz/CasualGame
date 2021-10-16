@@ -33,7 +33,7 @@ public:
 
 private:
 
-	int m_padding = 10;
+	int m_padding = 6;
 
 	int m_xPos;
 	int m_yPos;

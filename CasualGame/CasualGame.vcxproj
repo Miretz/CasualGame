@@ -34,7 +34,6 @@
     <ClInclude Include="include\PlayerInputManager.h" />
     <ClInclude Include="include\PlayState.h" />
     <ClInclude Include="include\RandomGenerator.h" />
-    <ClInclude Include="include\ShaderHandler.h" />
     <ClInclude Include="include\Sprite.h" />
     <ClInclude Include="include\Utils.h" />
   </ItemGroup>
@@ -52,7 +51,6 @@
     <ClCompile Include="src\PlayerInputManager.cpp" />
     <ClCompile Include="src\PlayState.cpp" />
     <ClCompile Include="src\RandomGenerator.cpp" />
-    <ClCompile Include="src\ShaderHandler.cpp" />
     <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
