@@ -14,7 +14,7 @@ Game::Game()
 	m_currentState = std::make_unique<MainMenuState>(g_defaultWidth, g_defaultHeight);
 	m_clock = std::make_unique<sf::Clock>();
 
-	m_window->setFramerateLimit(120);
+	m_window->setFramerateLimit(g_frameRateLimit);
 	m_window->setVerticalSyncEnabled(true);
 	m_levelReader = std::make_shared<LevelReaderWriter>();
 	m_player = std::make_shared<Player>();
@@ -148,5 +148,5 @@ void Game::switchFullscreen()
 		m_window->create(sf::VideoMode(1024, 768), g_gameTitle, sf::Style::Close);
 		m_fullscreen = false;
 	}
-	m_window->setFramerateLimit(500);
+	m_window->setFramerateLimit(g_frameRateLimit);
 }

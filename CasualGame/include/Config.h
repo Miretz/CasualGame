@@ -1,32 +1,36 @@
 #pragma once
 
 #include <string>
+#include <string_view>
+#include <array>
 
 #include "FontLoader.h"
 
-static const auto g_gameTitle = "Casual Game by Miretz";
+constexpr auto g_gameTitle = "Casual Game by Miretz";
 
-static const auto g_defaultWidth = 800;
-static const auto g_defaultHeight = 600;
+constexpr auto g_defaultWidth = 800;
+constexpr auto g_defaultHeight = 600;
 
-static const int g_textureWidth = 128;
-static const int g_textureHeight = 128;
+constexpr int g_textureWidth = 128;
+constexpr int g_textureHeight = 128;
+
+constexpr auto g_frameRateLimit = 120;
 
 //the constant value is in radians/second
-static const double g_lookSpeed = 3.0; //TODO Make configurable in game
+constexpr double g_lookSpeed = 3.0;
 
 // Resources
 
-static const FontLoader g_fontLoader{ "resources/font/OtherF.ttf" };
+const FontLoader g_fontLoader{ "resources/font/OtherF.ttf" };
 
-static const auto g_defaultLevelFile = "resources/levels/level1.txt";
-static const auto g_defaultLevelSpriteFile = "resources/levels/level1_sprites.txt";
+constexpr auto g_defaultLevelFile = "resources/levels/level1.txt";
+constexpr auto g_defaultLevelSpriteFile = "resources/levels/level1_sprites.txt";
 
-static const auto g_customLevelDirectory = "resources/levels/custom/";
+constexpr auto g_customLevelDirectory = "resources/levels/custom/";
 
-static const int g_textureCount = 13;
+constexpr int g_textureCount = 13;
 
-static const std::vector<std::string> g_textureFiles{
+constexpr std::array<std::string_view, 13> g_textureFiles{
 	"resources/textures/stonebricks.png",//1
 	"resources/textures/concbase.png",//2
 	"resources/textures/metalblocks.png",//3
@@ -42,44 +46,44 @@ static const std::vector<std::string> g_textureFiles{
 	"resources/sprites/greenlight.png"//13
 };
 
-static const std::string g_gunSprite = "resources/sprites/gun.png";
-static const std::string g_gunSprite_fire = "resources/sprites/gun_fire.png";
+constexpr auto g_gunSprite = "resources/sprites/gun.png";
+constexpr auto g_gunSprite_fire = "resources/sprites/gun_fire.png";
 
-static const std::string g_mainVertexShader = "resources/shaders/main.vert";
-static const std::string g_mainFragmentShader = "resources/shaders/main.frag";
+constexpr auto g_mainVertexShader = "resources/shaders/main.vert";
+constexpr auto g_mainFragmentShader = "resources/shaders/main.frag";
 
 //Main menu
 
-static const auto g_mainTxtTitle = "Casual Game";
-static const auto g_mainTxtStartGame = "Start Game";
-static const auto g_mainTxtRestartGame = "Restart Game";
-static const auto g_mainTxtLevelEditor = "Level Editor";
-static const auto g_mainTxtToggleFullscreen = "Toggle Fullscreen";
-static const auto g_mainTxtQuit = "Quit";
+constexpr auto g_mainTxtTitle = "Casual Game";
+constexpr auto g_mainTxtStartGame = "Start Game";
+constexpr auto g_mainTxtRestartGame = "Restart Game";
+constexpr auto g_mainTxtLevelEditor = "Level Editor";
+constexpr auto g_mainTxtToggleFullscreen = "Toggle Fullscreen";
+constexpr auto g_mainTxtQuit = "Quit";
 
 // Level Editor
 
-static const float g_editorPlayerArrowScale = 8.0f;
-static const int g_editorMenuWidth = 230;
+constexpr float g_editorPlayerArrowScale = 8.0f;
+constexpr int g_editorMenuWidth = 230;
 
-static const auto g_editorTxtSwitchMode = "Switch mode";
-static const auto g_editorTxtLoadDefault = "Load Default";
-static const auto g_editorTxtLoad = "Load";
-static const auto g_editorTxtSave = "Save";
-static const auto g_editorTxtQuit = "Back";
-static const auto g_editorTxtTexture = "Texture";
-static const auto g_editorTxtSprite = "Sprite";
+constexpr auto g_editorTxtSwitchMode = "Switch mode";
+constexpr auto g_editorTxtLoadDefault = "Load Default";
+constexpr auto g_editorTxtLoad = "Load";
+constexpr auto g_editorTxtSave = "Save";
+constexpr auto g_editorTxtQuit = "Back";
+constexpr auto g_editorTxtTexture = "Texture";
+constexpr auto g_editorTxtSprite = "Sprite";
 
-static const auto g_editorTxtModeWall = "Wall Mode (LMB - place, RMB - delete)";
-static const auto g_editorTxtModeEntity = "Entities Mode (LMB - Select/Move, RMB - place, Del - delete)";
+constexpr auto g_editorTxtModeWall = "Wall Mode (LMB - place, RMB - delete)";
+constexpr auto g_editorTxtModeEntity = "Entities Mode (LMB - Select/Move, RMB - place, Del - delete)";
 
 // Play state
 
-static const float g_playMinimapScale = 8.0f;
-static const int g_playMinimapTransparency = 140;
+constexpr float g_playMinimapScale = 8.0f;
+constexpr int g_playMinimapTransparency = 140;
 
-static const double g_Pi = 3.14159;
+constexpr double g_Pi = 3.14159;
 
-static const double g_gunShotTime = 0.15; //seconds
-static const double g_gunShotDelayTime = 0.5; //seconds
+constexpr double g_gunShotTime = 0.15; //seconds
+constexpr double g_gunShotDelayTime = 0.5; //seconds
 

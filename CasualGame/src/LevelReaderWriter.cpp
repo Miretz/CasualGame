@@ -22,10 +22,10 @@ LevelReaderWriter::LevelReaderWriter()
 	// load all textures
 	for (auto i = 0; i < g_textureCount; i++)
 	{
-		loadTexture(i, g_textureFiles[i]);
+		loadTexture(i, std::string{ g_textureFiles[i] });
 
 		sf::Image image;
-		image.loadFromFile(g_textureFiles[i]);
+		image.loadFromFile(std::string{ g_textureFiles[i] });
 		image.createMaskFromColor(sf::Color::Black);
 
 		m_sfmlTextures[i].loadFromImage(image);
