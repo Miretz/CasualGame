@@ -154,15 +154,15 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		const auto lineHeight = static_cast<int>(std::abs(m_windowHeight / perpWallDist));
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + m_windowHeight / 2;
-		if (drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + m_windowHeight / 2;
-		if (drawEnd >= m_windowHeight)drawEnd = m_windowHeight - 1;
+		const int drawStart = std::max(0, -lineHeight / 2 + m_windowHeight / 2);
+		const int drawEnd = std::min(m_windowHeight - 1, lineHeight / 2 + m_windowHeight / 2);
 
 		//x coordinate on the texture
 		auto texX = static_cast<int>(wallX * g_textureWidth);
-		if (side == 0 && rayDirX > 0) texX = g_textureWidth - texX - 1;
-		if (side == 1 && rayDirY < 0) texX = g_textureWidth - texX - 1;
+		if ((side == 0 && rayDirX > 0) || (side == 1 && rayDirY < 0))
+		{
+			texX = g_textureWidth - texX - 1;
+		}
 
 		const int texNum = level[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
 		const auto& texture = levelReader.getTexture(texNum);
@@ -181,38 +181,31 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 			}
 		}
 
-		//FLOOR CASTING
-		double floorXWall = 0.0;
-		double floorYWall = 0.0;
+		// no need to render floors and ceilings if the walls cover them
+		if (drawStart == 0 && drawEnd == m_windowHeight - 1)
+		{
+			continue;
+		}
 
-		if (side == 0 && rayDirX > 0)
+		//FLOOR CASTING
+		double floorXWall;
+		double floorYWall;
+
+		if (side == 0)
 		{
-			floorXWall = mapX;
+			floorXWall = (rayDirX > 0.0) ? mapX : mapX + 1.0;
 			floorYWall = mapY + wallX;
-		}
-		else if (side == 0 && rayDirX <= 0)
-		{
-			floorXWall = mapX + 1.0;
-			floorYWall = mapY + wallX;
-		}
-		else if (side == 1 && rayDirY > 0)
-		{
-			floorXWall = mapX + wallX;
-			floorYWall = mapY;
 		}
 		else
 		{
 			floorXWall = mapX + wallX;
-			floorYWall = mapY + 1.0;
+			floorYWall = (rayDirY > 0.0) ? mapY : mapY + 1.0;
 		}
-
-		if (drawEnd < 0) drawEnd = m_windowHeight; //becomes < 0 when the integer overflows
 
 		//draw the floor from drawEnd to the bottom of the screen
 		for (int y = drawEnd + 1; y < m_windowHeight; y++)
 		{
-
-			const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight); //you could make a small lookup table for this instead
+			const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight);
 			const double weight = currentDist / perpWallDist;
 
 			const double currentFloorX = weight * floorXWall + (1.0 - weight) * rayPosX;
