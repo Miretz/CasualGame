@@ -217,13 +217,11 @@ void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mous
 		}
 	}
 	//enable menu selection using arrow keys
-	else if (keyPress && ((keyCode == sf::Keyboard::Down) ||
-		(event.key.code == sf::Keyboard::S)) && (m_mouseOverIndex < m_menuItems.size() - 1))
+	else if (keyPress && ((keyCode == sf::Keyboard::Down) || (keyCode == sf::Keyboard::S)) && (m_mouseOverIndex < m_menuItems.size() - 1))
 	{
 		m_mouseOverIndex++;
 	}
-	else if (keyPress && ((keyCode == sf::Keyboard::Up) ||
-		(event.key.code == sf::Keyboard::W)) && (m_mouseOverIndex > 0))
+	else if (keyPress && ((keyCode == sf::Keyboard::Up) || (keyCode == sf::Keyboard::W)) && (m_mouseOverIndex > 0))
 	{
 		m_mouseOverIndex--;
 	}
