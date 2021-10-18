@@ -151,7 +151,7 @@ void MainMenuState::draw(sf::RenderWindow& window)
 
 	for (size_t i = 0; i < m_menuItems.size(); ++i)
 	{
-		sf::Text item = m_menuItems[i];
+		const auto& item = m_menuItems[i];
 
 		sf::FloatRect boundingBox = item.getGlobalBounds();
 
@@ -182,14 +182,18 @@ void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mous
 
 	m_mousePos = mousePosition;
 
+	const bool keyPress = event.type == sf::Event::KeyPressed;
+	const bool mousePress = event.type == sf::Event::MouseButtonPressed;
+	const auto keyCode = event.key.code;
+
 	//exit
-	if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))
+	if (keyPress && (keyCode == sf::Keyboard::Escape))
 	{
 		game.changeState(GameStateName::QUIT);
 	}
 	//left mouse or enter button
-	else if (((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Return)) ||
-		((event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left)))
+	else if ((keyPress && (keyCode == sf::Keyboard::Return)) ||
+		(mousePress && (event.mouseButton.button == sf::Mouse::Left)))
 	{
 		if (m_mouseOverIndex == 0)
 		{
@@ -213,12 +217,13 @@ void MainMenuState::handleInput(const sf::Event& event, const sf::Vector2f& mous
 		}
 	}
 	//enable menu selection using arrow keys
-	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Down) || (event.key.code == sf::Keyboard::S)))
+	else if (keyPress && ((keyCode == sf::Keyboard::Down) ||
+		(event.key.code == sf::Keyboard::S)) && (m_mouseOverIndex < m_menuItems.size() - 1))
 	{
-		if (m_mouseOverIndex < m_menuItems.size() - 1)
-			m_mouseOverIndex++;
+		m_mouseOverIndex++;
 	}
-	else if ((event.type == sf::Event::KeyPressed) && ((event.key.code == sf::Keyboard::Up) || (event.key.code == sf::Keyboard::W)) && (m_mouseOverIndex > 0))
+	else if (keyPress && ((keyCode == sf::Keyboard::Up) ||
+		(event.key.code == sf::Keyboard::W)) && (m_mouseOverIndex > 0))
 	{
 		m_mouseOverIndex--;
 	}
