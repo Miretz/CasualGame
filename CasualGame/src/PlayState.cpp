@@ -10,6 +10,8 @@
 #include "Utils.h"
 #include "Config.h"
 
+#include <algorithm>
+
 PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader) :
 	m_player(move(player)),
 	m_levelReader(move(levelReader))
@@ -32,7 +34,7 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 	//Health display
 	m_playerHealthDisplay.setFont(g_fontLoader.getFont());
-	m_playerHealthDisplay.setString("health");
+	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
 	m_playerHealthDisplay.setCharacterSize(40);
 	m_playerHealthDisplay.setPosition(10.0f, float(h) - m_playerHealthDisplay.getGlobalBounds().height * 3);
 	m_playerHealthDisplay.setFillColor(sf::Color::White);
@@ -61,34 +63,27 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_crosshair.setFillColor(sf::Color::White);
 
 	generateMinimap();
+
+	m_glRaycaster->update(*m_player, *m_levelReader);
 }
 
 void PlayState::update(const float ft)
 {
-	auto fts = static_cast<double>(ft / 1000.0f);
-
-	//set indestructible until render calculation
-	for (auto& outline : m_glRaycaster->getClickables())
-	{
-		outline.setDestructible(false);
-	}
-
-	//update health each frame
-	m_playerHealthDisplay.setString("+ " + std::to_string(m_player->m_health));
+	const auto fts = static_cast<double>(ft / 1000.0f);
 
 	//update player movement
 	m_inputManager->updatePlayerMovement(fts, m_player, m_levelReader->getLevel());
 
-	//update player position on minimap
-	float angle = std::atan2f(float(m_player->m_dirX), float(m_player->m_dirY));
-	m_minimapPlayer.setPosition(float(m_player->m_posY) * g_playMinimapScale, float(m_player->m_posX) * g_playMinimapScale);
-	m_minimapPlayer.setRotation((angle * 57.2957795f) + 90);
-
 	//wobble gun
 	if (m_inputManager->isMoving())
 	{
-		auto wobbleSpeed = fts * 10.0f;
-		auto deltaHeight = static_cast<float>(sin(m_runningTime + wobbleSpeed) - sin(m_runningTime));
+		//update player position on minimap
+		const auto angle = std::atan2(m_player->m_dirX, m_player->m_dirY);
+		m_minimapPlayer.setPosition(static_cast<float>(m_player->m_posY) * g_playMinimapScale, static_cast<float>(m_player->m_posX) * g_playMinimapScale);
+		m_minimapPlayer.setRotation(static_cast<float>(angle * 57.2957795) + 90.f);
+
+		const auto wobbleSpeed = fts * 10.0;
+		const auto deltaHeight = static_cast<float>(std::sin(m_runningTime + wobbleSpeed) - std::sin(m_runningTime));
 		m_runningTime += wobbleSpeed;
 		m_gunDisplay.setPosition(m_gunDisplay.getPosition() + sf::Vector2f{ 0.f, deltaHeight * 15.0f });
 	}
@@ -98,12 +93,16 @@ void PlayState::update(const float ft)
 	{
 		m_gunDisplay.setTexture(&m_textureGun);
 	}
-
 }
 
 void PlayState::draw(sf::RenderWindow& window)
 {
-	m_glRaycaster->draw(*m_player, *m_levelReader);
+	if (m_inputManager->isMoving() || m_inputManager->isShooting())
+	{
+		m_glRaycaster->update(*m_player, *m_levelReader);
+	}
+
+	m_glRaycaster->draw();
 
 	window.pushGLStates();
 
@@ -168,10 +167,10 @@ void PlayState::updateMinimapEntities()
 	std::vector<sf::CircleShape>().swap(m_minimapEntityBuffer);
 
 	// Entities on minimap
-	auto spriteSize = m_levelReader->getSprites().size();
-	for (size_t i = 0; i < spriteSize; i++)
+	for (size_t i = 0; i < m_levelReader->getSprites().size(); i++)
 	{
 		const auto& sprite = m_levelReader->getSprites()[i];
+
 		sf::CircleShape object(g_playMinimapScale / 4.0f);
 		object.setPosition(
 			float(sprite.y) * g_playMinimapScale,
@@ -214,12 +213,7 @@ void PlayState::drawGui(sf::RenderWindow& window) const
 		if (outline.containsVector(m_crosshair.getPosition()))
 		{
 			outline.draw(window);
-			break;
 		}
-	}
-	for (auto& outline : m_glRaycaster->getClickables())
-	{
-		outline.setVisible(false);
 	}
 
 	//draw gun
@@ -263,10 +257,9 @@ void PlayState::handleInput(const sf::Event& event, [[maybe_unused]] const sf::V
 
 void PlayState::destroyAimedAtSprite() const
 {
-	auto& clickables = m_glRaycaster->getClickables();
-
-	for (auto& clickable : clickables)
+	for (auto i = m_glRaycaster->getClickables().size(); i-- > 0;)
 	{
+		auto& clickable = m_glRaycaster->getClickables()[i];
 		if (clickable.getDestructible() && clickable.containsVector(m_crosshair.getPosition()))
 		{
 			clickable.setDestructible(false);

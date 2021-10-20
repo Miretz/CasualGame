@@ -14,9 +14,8 @@
 #include <iterator>
 #include <numeric>
 
-GLRaycaster::GLRaycaster()
+GLRaycaster::GLRaycaster() : m_glRenderer(std::make_unique<GLRenderer>())
 {
-	m_glRenderer = std::make_unique<GLRenderer>();
 }
 
 void GLRaycaster::initialize(const int windowWidth, const int windowHeight, const int spriteSize)
@@ -27,18 +26,21 @@ void GLRaycaster::initialize(const int windowWidth, const int windowHeight, cons
 	m_clickables.resize(spriteSize);
 
 	m_ZBuffer.resize(windowWidth);
-	m_buffer.resize(windowHeight * windowWidth * 3);
+	m_buffer.resize(static_cast<std::vector<sf::Uint8, std::allocator<sf::Uint8>>::size_type>(windowHeight) * windowWidth * 3);
 
 	m_glRenderer->init(&m_buffer[0], windowWidth, windowHeight);
 
 }
 
-void GLRaycaster::draw(const Player& player, const LevelReaderWriter& levelReader)
+void GLRaycaster::update(const Player& player, const LevelReaderWriter& levelReader)
 {
-	//calculate a new buffer
 	calculateWalls(player, levelReader);
 	calculateSprites(player, levelReader);
+}
 
+
+void GLRaycaster::draw()
+{
 	m_glRenderer->draw(&m_buffer[0], m_windowWidth, m_windowHeight);
 	m_glRenderer->unbindBuffers();
 }
@@ -137,13 +139,13 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
 		if (side == 0)
 		{
-			perpWallDist = std::abs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
-			wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2) / rayDirX) * rayDirY;
+			perpWallDist = std::abs((mapX - rayPosX + (1.0 - stepX) / 2) / rayDirX);
+			wallX = rayPosY + ((mapX - rayPosX + (1.0 - stepX) / 2) / rayDirX) * rayDirY;
 		}
 		else
 		{
-			perpWallDist = std::abs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
-			wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2) / rayDirY) * rayDirX;
+			perpWallDist = std::abs((mapY - rayPosY + (1.0 - stepY) / 2) / rayDirY);
+			wallX = rayPosX + ((mapY - rayPosY + (1.0 - stepY) / 2) / rayDirY) * rayDirX;
 		}
 		wallX -= std::floor(wallX);
 
@@ -260,7 +262,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 
 		// transformY is actually the depth inside the screen
 		const double transformY = invDet * (-player.m_planeY * spriteX + player.m_planeX * spriteY);
-		const auto spriteScreenX = static_cast<int>((m_windowWidth / 2) * (1 + transformX / transformY));
+		const auto spriteScreenX = static_cast<int>((m_windowWidth / 2.0) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen
 		//using "transformY" instead of the real distance prevents fisheye
@@ -286,6 +288,8 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 			sf::Vector2f(static_cast<float>(spriteWidth) / 2.0f, static_cast<float>(spriteHeight)),
 			sf::Vector2f(static_cast<float>(drawStartX) + static_cast<float>(spriteWidth) / 4.0f, static_cast<float>(drawStartY)));
 		m_clickables[i].setSpriteIndex(spriteOrder[i]);
+		m_clickables[i].setDestructible(false);
+		m_clickables[i].setVisible(false);
 
 		//loop through every vertical stripe of the sprite on screen
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)

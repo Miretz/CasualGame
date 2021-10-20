@@ -28,7 +28,7 @@ int RandomGenerator::randomInt(int min, int max)
 	{
 		if (max < 0)
 		{
-			std::uniform_int_distribution<int> absrInt{ std::abs(min), std::abs(max) };
+			std::uniform_int_distribution absrInt{ std::abs(min), std::abs(max) };
 			return absrInt(gen) * -1;
 		}
 		else
@@ -38,7 +38,7 @@ int RandomGenerator::randomInt(int min, int max)
 			min = 0;
 		}
 	}
-	std::uniform_int_distribution<int> rInt{ min, max };
+	std::uniform_int_distribution rInt{ min, max };
 	return rInt(gen) - lessThanZero;
 }
 

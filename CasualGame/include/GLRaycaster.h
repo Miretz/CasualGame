@@ -19,7 +19,8 @@ public:
 	void calculateWalls(const Player& player, const LevelReaderWriter& levelReader);
 	void calculateSprites(const Player& player, const LevelReaderWriter& levelReader);
 	void setPixel(int x, int y, const sf::Uint32 colorRgba, unsigned int style);
-	void draw(const Player& player, const LevelReaderWriter& levelReader);
+	void update(const Player& player, const LevelReaderWriter& levelReader);
+	void draw();
 	void bindGlBuffers() const;
 	void cleanup() const;
 

@@ -4,11 +4,10 @@
 #include <fstream>
 #include <streambuf>
 
-const sf::Vector2f Utils::normalize(const sf::Vector2f& source)
+sf::Vector2f Utils::normalize(const sf::Vector2f& source)
 {
 	sf::Vector2f result(source.x, source.y);
-	auto vecLen = length(result);
-	if (vecLen != 0)
+	if (auto vecLen = length(result); vecLen != 0)
 	{
 		result.x = result.x / vecLen;
 		result.y = result.y / vecLen;

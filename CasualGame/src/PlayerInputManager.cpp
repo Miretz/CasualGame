@@ -73,26 +73,26 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	}
 
 	// convert ms to seconds
-	double moveSpeed = fts * 5.0; //the constant value is in squares/second
-	double rotSpeed = fts * g_lookSpeed;
+	const double moveSpeed = fts * g_moveSpeed; //the constant value is in squares/second
+	const double rotSpeed = fts * g_lookSpeed;
 
 	if (m_left)
 	{
 		//both camera direction and camera plane must be rotated
-		double oldDirX = m_player->m_dirX;
+		const double oldDirX = m_player->m_dirX;
 		m_player->m_dirX = m_player->m_dirX * std::cos(rotSpeed) - m_player->m_dirY * std::sin(rotSpeed);
 		m_player->m_dirY = oldDirX * std::sin(rotSpeed) + m_player->m_dirY * std::cos(rotSpeed);
-		double oldPlaneX = m_player->m_planeX;
+		const double oldPlaneX = m_player->m_planeX;
 		m_player->m_planeX = m_player->m_planeX * std::cos(rotSpeed) - m_player->m_planeY * std::sin(rotSpeed);
 		m_player->m_planeY = oldPlaneX * std::sin(rotSpeed) + m_player->m_planeY * std::cos(rotSpeed);
 	}
 	if (m_right)
 	{
 		//both camera direction and camera plane must be rotated
-		double oldDirX = m_player->m_dirX;
+		const double oldDirX = m_player->m_dirX;
 		m_player->m_dirX = m_player->m_dirX * std::cos(-rotSpeed) - m_player->m_dirY * std::sin(-rotSpeed);
 		m_player->m_dirY = oldDirX * std::sin(-rotSpeed) + m_player->m_dirY * std::cos(-rotSpeed);
-		double oldPlaneX = m_player->m_planeX;
+		const double oldPlaneX = m_player->m_planeX;
 		m_player->m_planeX = m_player->m_planeX * std::cos(-rotSpeed) - m_player->m_planeY * std::sin(-rotSpeed);
 		m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * std::cos(-rotSpeed);
 	}
@@ -113,8 +113,8 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	if (m_stepLeft)
 	{
 		// rotate vector in 90 ccw use Vector(-y, x)
-		auto dirX = -m_player->m_dirY;
-		auto dirY = m_player->m_dirX;
+		const auto dirX = -m_player->m_dirY;
+		const auto dirY = m_player->m_dirX;
 
 		if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
 			m_player->m_posX += dirX * moveSpeed;
@@ -124,8 +124,8 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	if (m_stepRight)
 	{
 		// rotate vector in 90 cw use Vector(y, -x)
-		auto dirX = m_player->m_dirY;
-		auto dirY = -m_player->m_dirX;
+		const auto dirX = m_player->m_dirY;
+		const auto dirY = -m_player->m_dirX;
 
 		if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
 			m_player->m_posX += dirX * moveSpeed;
@@ -134,7 +134,7 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	}
 }
 
-void PlayerInputManager::calculateShotTime(double fts)
+void PlayerInputManager::calculateShotTime(const double fts)
 {
 	if (m_shotTime < 0.0)
 	{

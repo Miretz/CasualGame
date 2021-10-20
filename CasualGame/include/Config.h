@@ -18,6 +18,7 @@ constexpr auto g_frameRateLimit = 120;
 
 //the constant value is in radians/second
 constexpr double g_lookSpeed = 3.0;
+constexpr double g_moveSpeed = 5.0;
 
 // Resources
 

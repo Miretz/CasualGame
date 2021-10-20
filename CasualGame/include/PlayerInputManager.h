@@ -34,6 +34,6 @@ private:
 	double m_gunShotDelay = -1.0;
 
 	void handleShot();
-	void calculateShotTime(double fts);
+	void calculateShotTime(const double fts);
 
 };
