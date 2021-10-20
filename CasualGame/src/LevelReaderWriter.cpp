@@ -6,7 +6,6 @@
 #include <filesystem>
 
 #include "Config.h"
-#include "Sprite.h"
 
 namespace fs = std::filesystem;
 

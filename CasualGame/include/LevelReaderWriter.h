@@ -1,14 +1,12 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-
-struct Sprite;
+#include "Sprite.h"
 
 class LevelReaderWriter
 {
 public:
 	LevelReaderWriter();
-	virtual ~LevelReaderWriter() = default;
 
 	const std::vector<std::vector<int> >& getLevel() const { return m_level; }
 	const std::vector<Sprite>& getSprites() const { return m_sprites; };

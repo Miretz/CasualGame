@@ -5,8 +5,6 @@ using GLuint = unsigned int;
 class GLRenderer
 {
 public:
-	GLRenderer() = default;
-	virtual ~GLRenderer() = default;
 	void init(const unsigned char* buffer, int width, int height);
 	void cleanup() const;
 	void draw(const unsigned char* buffer, int width, int height) const;

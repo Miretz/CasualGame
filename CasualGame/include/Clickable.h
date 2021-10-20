@@ -5,9 +5,6 @@
 class Clickable
 {
 public:
-	Clickable() = default;
-	virtual ~Clickable() = default;
-
 	void update(const sf::Vector2f& size, const sf::Vector2f& position);
 	void draw(sf::RenderWindow& window);
 	bool containsVector(const sf::Vector2f& position) const;

@@ -14,9 +14,6 @@
 #include <iterator>
 #include <numeric>
 
-GLRaycaster::GLRaycaster() : m_glRenderer(std::make_unique<GLRenderer>())
-{
-}
 
 void GLRaycaster::initialize(const int windowWidth, const int windowHeight, const int spriteSize)
 {

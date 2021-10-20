@@ -9,7 +9,6 @@ class MainMenuState : public GameState
 {
 public:
 	MainMenuState(const int w, const int h);
-	~MainMenuState() override = default;
 
 	void update(const float ft, Game& game) override;
 	void draw(sf::RenderWindow& window) override;

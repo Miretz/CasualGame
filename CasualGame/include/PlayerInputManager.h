@@ -9,9 +9,6 @@ struct Player;
 class PlayerInputManager
 {
 public:
-	PlayerInputManager() = default;
-	virtual ~PlayerInputManager() = default;
-
 	void handleInput(const sf::Event& event);
 	void updatePlayerMovement(const double fts, std::shared_ptr<Player> m_player, const std::vector<std::vector<int> >& m_levelRef);
 

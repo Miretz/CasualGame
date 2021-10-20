@@ -13,7 +13,6 @@ class PlayState : public GameState
 {
 public:
 	PlayState(const int w, const int h, std::shared_ptr<Player> player, std::shared_ptr<LevelReaderWriter> levelReader);
-	~PlayState() override = default;
 
 	void update(const float ft, Game& game) override;
 	void draw(sf::RenderWindow& window) override;

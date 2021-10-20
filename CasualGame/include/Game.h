@@ -12,7 +12,6 @@ class Game
 {
 public:
 	Game();
-	virtual ~Game() = default;
 
 	void run();
 	void changeState(GameStateName newState);
