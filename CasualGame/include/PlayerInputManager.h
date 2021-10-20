@@ -15,8 +15,8 @@ public:
 	void handleInput(const sf::Event& event);
 	void updatePlayerMovement(const double fts, std::shared_ptr<Player> m_player, const std::vector<std::vector<int> >& m_levelRef);
 
-	bool isShooting() const { return m_shooting; };
-	bool isMoving() const { return m_forward || m_backward || m_left || m_right || m_stepLeft || m_stepRight; }
+	constexpr bool isShooting() const { return m_shooting; };
+	constexpr bool isMoving() const { return m_forward || m_backward || m_left || m_right || m_stepLeft || m_stepRight; }
 
 private:
 

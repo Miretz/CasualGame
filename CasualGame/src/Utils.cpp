@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <cmath>
 
 sf::Vector2f Utils::normalize(const sf::Vector2f& source)
 {
@@ -17,7 +18,7 @@ sf::Vector2f Utils::normalize(const sf::Vector2f& source)
 
 float Utils::length(const sf::Vector2f& source)
 {
-	return sqrt((source.x * source.x) + (source.y * source.y));
+	return std::sqrt((source.x * source.x) + (source.y * source.y));
 }
 
 //sort algorithm

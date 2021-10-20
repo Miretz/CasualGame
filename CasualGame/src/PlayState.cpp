@@ -27,10 +27,11 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 
 	//Fps display
 	m_fpsDisplay.setFont(g_fontLoader.getFont());
-	m_fpsDisplay.setString("fps");
+	m_fpsDisplay.setString("999");
 	m_fpsDisplay.setCharacterSize(32);
 	m_fpsDisplay.setPosition(float(w) - 10.0f, 0.0f);
 	m_fpsDisplay.setFillColor(sf::Color::Yellow);
+	m_fpsDisplay.setOrigin(m_fpsDisplay.getGlobalBounds().width, 0.0f);
 
 	//Health display
 	m_playerHealthDisplay.setFont(g_fontLoader.getFont());
@@ -67,9 +68,12 @@ PlayState::PlayState(const int w, const int h, std::shared_ptr<Player> player, s
 	m_glRaycaster->update(*m_player, *m_levelReader);
 }
 
-void PlayState::update(const float ft)
+void PlayState::update(const float ft, Game& game)
 {
 	const auto fts = static_cast<double>(ft / 1000.0f);
+
+	//update fps from game
+	m_fpsDisplay.setString(std::to_string(game.getFps()));
 
 	//update player movement
 	m_inputManager->updatePlayerMovement(fts, m_player, m_levelReader->getLevel());
@@ -136,7 +140,7 @@ void PlayState::generateMinimap()
 
 	m_minimapPlayer.setFillColor(sf::Color(255, 255, 255, g_playMinimapTransparency));
 
-	auto levelSize = m_levelReader->getLevel().size();
+	const auto levelSize = m_levelReader->getLevel().size();
 
 	//Minimap background
 	m_minimapBackground.setSize(sf::Vector2f(static_cast<float>(levelSize) * g_playMinimapScale, static_cast<float>(levelSize) * g_playMinimapScale));
@@ -231,9 +235,6 @@ void PlayState::drawGui(sf::RenderWindow& window) const
 
 void PlayState::handleInput(const sf::Event& event, [[maybe_unused]] const sf::Vector2f& mousePosition, Game& game)
 {
-	//update fps from game
-	m_fpsDisplay.setString(std::to_string(game.getFps()));
-	m_fpsDisplay.setOrigin(m_fpsDisplay.getGlobalBounds().width, 0.0f);
 
 	//escape to quit to main menu
 	if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)

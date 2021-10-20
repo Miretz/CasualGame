@@ -94,7 +94,7 @@ MainMenuState::MainMenuState(const int w, const int h) :
 
 }
 
-void MainMenuState::update([[maybe_unused]] const float ft)
+void MainMenuState::update([[maybe_unused]] const float ft, [[maybe_unused]] Game& game)
 {
 
 	sf::Transform rotation;
@@ -157,10 +157,10 @@ void MainMenuState::draw(sf::RenderWindow& window)
 
 		// draw selection box
 		if (sf::FloatRect boundsWithPadding{
-			boundingBox.left - m_padding / 2.0f,
-			boundingBox.top - m_padding / 2.0f,
-			boundingBox.width + m_padding,
-			boundingBox.height + m_padding };
+			boundingBox.left - g_mainMenuPadding / 2.0f,
+			boundingBox.top - g_mainMenuPadding / 2.0f,
+			boundingBox.width + g_mainMenuPadding,
+			boundingBox.height + g_mainMenuPadding };
 			boundsWithPadding.contains(m_mousePos) || m_mouseOverIndex == i)
 		{
 			m_mouseOverIndex = static_cast<int>(i);

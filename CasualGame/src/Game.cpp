@@ -56,7 +56,7 @@ void Game::update()
 	m_currentSlice += m_lastFt;
 	for (; m_currentSlice >= 1; m_currentSlice -= 1)
 	{
-		m_currentState->update(1.0f);
+		m_currentState->update(1.0f, *this);
 	}
 }
 
@@ -71,7 +71,7 @@ void Game::updateTimers()
 
 	if (m_fpsShowTimer == 0)
 	{
-		m_fpsShowTimer = 2;
+		m_fpsShowTimer = 4;
 		auto ftSeconds = static_cast<float>(m_lastFt) / 1000.f;
 		if (ftSeconds > 0.f)
 		{

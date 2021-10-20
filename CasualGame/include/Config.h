@@ -62,10 +62,13 @@ constexpr auto g_mainTxtLevelEditor = "Level Editor";
 constexpr auto g_mainTxtToggleFullscreen = "Toggle Fullscreen";
 constexpr auto g_mainTxtQuit = "Quit";
 
+constexpr auto g_mainMenuPadding = 20.0f;
+
 // Level Editor
 
 constexpr float g_editorPlayerArrowScale = 8.0f;
 constexpr int g_editorMenuWidth = 230;
+constexpr int g_editorPadding = 6;
 
 constexpr auto g_editorTxtSwitchMode = "Switch mode";
 constexpr auto g_editorTxtLoadDefault = "Load Default";

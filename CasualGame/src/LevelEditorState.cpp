@@ -53,7 +53,7 @@ LevelEditorState::LevelEditorState(const int w, const int h, std::shared_ptr<Pla
 	m_gui->get(m_spriteButtonId).background.setSize({ 100,100 });
 }
 
-void LevelEditorState::update([[maybe_unused]] const float ft)
+void LevelEditorState::update([[maybe_unused]] const float ft, [[maybe_unused]] Game& game)
 {
 	//Empty
 }

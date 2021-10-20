@@ -17,18 +17,18 @@ int LevelEditorGui::addButton(const std::string& text)
 	btnText.setString(text);
 	btnText.setCharacterSize(16);
 	btnText.setOrigin(0.0f, btnText.getGlobalBounds().height / 2.0f);
-	btnText.setPosition(static_cast<float>(m_xPos + m_padding) + 4.0f, float(m_yPos));
+	btnText.setPosition(static_cast<float>(m_xPos + g_editorPadding) + 4.0f, float(m_yPos));
 	btnText.setFillColor(m_idleColor);
 
-	sf::RectangleShape rectShape(sf::Vector2f(float(m_width - 2 * m_padding), btnText.getGlobalBounds().height * 2.0f));
-	rectShape.setPosition(float(m_xPos + m_padding), float(m_yPos));
+	sf::RectangleShape rectShape(sf::Vector2f(float(m_width - 2 * g_editorPadding), btnText.getGlobalBounds().height * 2.0f));
+	rectShape.setPosition(float(m_xPos + g_editorPadding), float(m_yPos));
 	rectShape.setOutlineThickness(1);
 	rectShape.setOutlineColor(m_idleColor);
 	rectShape.setFillColor(sf::Color(0, 0, 0, 0));
 
 	m_buttons.emplace_back(btnText, rectShape);
 
-	m_yPos = m_yPos + m_padding + int(rectShape.getGlobalBounds().height);
+	m_yPos = m_yPos + g_editorPadding + int(rectShape.getGlobalBounds().height);
 
 	return static_cast<int>(m_buttons.size()) - 1;
 }
@@ -42,7 +42,7 @@ void LevelEditorGui::setTexturedButton(const int index, const sf::Texture* textu
 
 void LevelEditorGui::addSpace()
 {
-	m_yPos += (2 * m_padding);
+	m_yPos += (2 * g_editorPadding);
 }
 
 void LevelEditorGui::handleInput(const sf::Event& event, const sf::Vector2f& mousepPosition)

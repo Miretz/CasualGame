@@ -11,7 +11,7 @@ public:
 	MainMenuState(const int w, const int h);
 	~MainMenuState() override = default;
 
-	void update(const float ft) override;
+	void update(const float ft, Game& game) override;
 	void draw(sf::RenderWindow& window) override;
 	void handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game) override;
 
@@ -26,7 +26,6 @@ private:
 	sf::Text m_titleText;
 	sf::Vector2f m_mousePos;
 
-	const float m_padding = 20.0f;
 	unsigned int m_mouseOverIndex = 0;
 
 	std::vector<sf::Color> m_bgColors;

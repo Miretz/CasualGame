@@ -16,10 +16,10 @@ public:
 
 	void run();
 	void changeState(GameStateName newState);
-	bool isRunning() const { return m_running; };
+	constexpr bool isRunning() const { return m_running; };
 	void switchFullscreen();
 
-	int getFps() const { return m_fps; }
+	constexpr int getFps() const { return m_fps; }
 
 	sf::RenderWindow& getWindow() const { return *m_window; }
 

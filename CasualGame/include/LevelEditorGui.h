@@ -28,12 +28,10 @@ public:
 
 	GuiButton& get(const int index) { return m_buttons[index]; };
 
-	int getWidth() const { return m_width; };
-	int getNumButtons() const { return (int)m_buttons.size(); };
+	constexpr int getWidth() const { return m_width; };
+	const int getNumButtons() const { return (int)m_buttons.size(); };
 
 private:
-
-	int m_padding = 6;
 
 	int m_xPos;
 	int m_yPos;

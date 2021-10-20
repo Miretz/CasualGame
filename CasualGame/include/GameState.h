@@ -20,7 +20,7 @@ class GameState
 public:
 	GameState() = default;
 
-	virtual void update(const float ft) = 0;
+	virtual void update(const float ft, Game& game) = 0;
 	virtual void draw(sf::RenderWindow& window) = 0;
 	virtual void handleInput(const sf::Event& event, const sf::Vector2f& mousePosition, Game& game) = 0;
 
