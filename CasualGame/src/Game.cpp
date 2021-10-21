@@ -145,7 +145,7 @@ void Game::switchFullscreen()
 	else
 	{
 		m_window->close();
-		m_window->create(sf::VideoMode(1024, 768), g_gameTitle, sf::Style::Close);
+		m_window->create(sf::VideoMode(g_defaultWidth, g_defaultHeight), g_gameTitle, sf::Style::Close);
 		m_fullscreen = false;
 	}
 	m_window->setFramerateLimit(g_frameRateLimit);
