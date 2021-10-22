@@ -39,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Clickable.cpp" />
-    <ClCompile Include="src\FontLoader.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GLRaycaster.cpp" />
     <ClCompile Include="src\GLRenderer.cpp" />
