@@ -55,8 +55,8 @@ void GLRaycaster::cleanup() const
 void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& levelReader)
 {
 
-	const double rayPosX = player.m_posX;
-	const double rayPosY = player.m_posY;
+	const double rayPosX = player.position.x;
+	const double rayPosY = player.position.y;
 
 	double perpWallDist;
 	double wallX; //where exactly the wall was hit
@@ -73,8 +73,8 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		//calculate ray position and direction
 		const double cameraX = 2.0 * x / m_windowWidth - 1.0; //x-coordinate in camera space
 
-		const double rayDirX = player.m_dirX + player.m_planeX * cameraX;
-		const double rayDirY = player.m_dirY + player.m_planeY * cameraX;
+		const double rayDirX = player.direction.x + player.plane.x * cameraX;
+		const double rayDirY = player.direction.y + player.plane.y * cameraX;
 
 		//length of ray from one x or y-side to next x or y-side
 		const double deltaDistX = std::sqrt(1.0 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
@@ -238,8 +238,8 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 		std::back_inserter(spriteDistance),
 		[player](const auto& sprite)
 		{
-			return ((player.m_posX - sprite.x) * (player.m_posX - sprite.x) +
-				(player.m_posY - sprite.y) * (player.m_posY - sprite.y));
+			return ((player.position.x - sprite.x) * (player.position.x - sprite.x) +
+				(player.position.y - sprite.y) * (player.position.y - sprite.y));
 		});
 
 	Utils::combSort(spriteOrder, spriteDistance, static_cast<int>(sprites.size()));
@@ -250,15 +250,15 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 		const auto& sprite = sprites[spriteOrder[i]];
 
 		//translate sprite position to relative to camera
-		const double spriteX = sprite.x - player.m_posX;
-		const double spriteY = sprite.y - player.m_posY;
+		const double spriteX = sprite.x - player.position.x;
+		const double spriteY = sprite.y - player.position.y;
 
 		//required for correct matrix multiplication
-		const double invDet = 1.0 / (player.m_planeX * player.m_dirY - player.m_dirX * player.m_planeY);
-		const double transformX = invDet * (player.m_dirY * spriteX - player.m_dirX * spriteY);
+		const double invDet = 1.0 / (player.plane.x * player.direction.y - player.direction.x * player.plane.y);
+		const double transformX = invDet * (player.direction.y * spriteX - player.direction.x * spriteY);
 
 		// transformY is actually the depth inside the screen
-		const double transformY = invDet * (-player.m_planeY * spriteX + player.m_planeX * spriteY);
+		const double transformY = invDet * (-player.plane.y * spriteX + player.plane.x * spriteY);
 		const auto spriteScreenX = static_cast<int>((m_windowWidth / 2.0) * (1 + transformX / transformY));
 
 		//calculate height of the sprite on screen

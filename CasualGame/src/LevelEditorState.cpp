@@ -282,19 +282,16 @@ void LevelEditorState::toggleMode()
 
 void LevelEditorState::resetPlayer() const
 {
-	m_player->m_posX = 22.0;
-	m_player->m_posY = 11.5;
-	m_player->m_dirX = -1.0;
-	m_player->m_dirY = 0.0;
-	m_player->m_planeX = 0.0;
-	m_player->m_planeY = 0.66;
+	m_player->position = { 22.0, 11.5 };
+	m_player->direction = { -1.0, 0.0 };
+	m_player->plane = { 0.0, 0.66 };
 }
 
 void LevelEditorState::drawPlayer(sf::RenderWindow& window) const
 {
 
-	const auto posX = float(m_player->m_posY) * m_scale;
-	const auto posY = float(m_player->m_posX) * m_scale;
+	const auto posX = float(m_player->position.x) * m_scale;
+	const auto posY = float(m_player->position.y) * m_scale;
 
 	sf::CircleShape player(g_editorPlayerArrowScale, 3);
 	player.setPosition(posX, posY);
@@ -306,7 +303,7 @@ void LevelEditorState::drawPlayer(sf::RenderWindow& window) const
 	player2.setFillColor(sf::Color(255, 255, 255, 255));
 	player2.setOrigin(g_editorPlayerArrowScale / 4.0f, -g_editorPlayerArrowScale / 2.0f);
 
-	auto angle = std::atan2f(float(m_player->m_dirX), float(m_player->m_dirY));
+	auto angle = std::atan2f(float(m_player->direction.x), float(m_player->direction.y));
 	player.setRotation((angle * 57.2957795f) + 90.0f);
 	player2.setRotation((angle * 57.2957795f) + 90.0f);
 

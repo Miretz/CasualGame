@@ -79,58 +79,58 @@ void PlayerInputManager::updatePlayerMovement(const double fts, std::shared_ptr<
 	if (m_left)
 	{
 		//both camera direction and camera plane must be rotated
-		const double oldDirX = m_player->m_dirX;
-		m_player->m_dirX = m_player->m_dirX * std::cos(rotSpeed) - m_player->m_dirY * std::sin(rotSpeed);
-		m_player->m_dirY = oldDirX * std::sin(rotSpeed) + m_player->m_dirY * std::cos(rotSpeed);
-		const double oldPlaneX = m_player->m_planeX;
-		m_player->m_planeX = m_player->m_planeX * std::cos(rotSpeed) - m_player->m_planeY * std::sin(rotSpeed);
-		m_player->m_planeY = oldPlaneX * std::sin(rotSpeed) + m_player->m_planeY * std::cos(rotSpeed);
+		const double oldDirX = m_player->direction.x;
+		m_player->direction.x = m_player->direction.x * std::cos(rotSpeed) - m_player->direction.y * std::sin(rotSpeed);
+		m_player->direction.y = oldDirX * std::sin(rotSpeed) + m_player->direction.y * std::cos(rotSpeed);
+		const double oldPlaneX = m_player->plane.x;
+		m_player->plane.x = m_player->plane.x * std::cos(rotSpeed) - m_player->plane.y * std::sin(rotSpeed);
+		m_player->plane.y = oldPlaneX * std::sin(rotSpeed) + m_player->plane.y * std::cos(rotSpeed);
 	}
 	if (m_right)
 	{
 		//both camera direction and camera plane must be rotated
-		const double oldDirX = m_player->m_dirX;
-		m_player->m_dirX = m_player->m_dirX * std::cos(-rotSpeed) - m_player->m_dirY * std::sin(-rotSpeed);
-		m_player->m_dirY = oldDirX * std::sin(-rotSpeed) + m_player->m_dirY * std::cos(-rotSpeed);
-		const double oldPlaneX = m_player->m_planeX;
-		m_player->m_planeX = m_player->m_planeX * std::cos(-rotSpeed) - m_player->m_planeY * std::sin(-rotSpeed);
-		m_player->m_planeY = oldPlaneX * sin(-rotSpeed) + m_player->m_planeY * std::cos(-rotSpeed);
+		const double oldDirX = m_player->direction.x;
+		m_player->direction.x = m_player->direction.x * std::cos(-rotSpeed) - m_player->direction.y * std::sin(-rotSpeed);
+		m_player->direction.y = oldDirX * std::sin(-rotSpeed) + m_player->direction.y * std::cos(-rotSpeed);
+		const double oldPlaneX = m_player->plane.x;
+		m_player->plane.x = m_player->plane.x * std::cos(-rotSpeed) - m_player->plane.y * std::sin(-rotSpeed);
+		m_player->plane.y = oldPlaneX * sin(-rotSpeed) + m_player->plane.y * std::cos(-rotSpeed);
 	}
 	if (m_forward)
 	{
-		if (m_levelRef[int(m_player->m_posX + m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0)
-			m_player->m_posX += m_player->m_dirX * moveSpeed;
-		if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + m_player->m_dirY * moveSpeed)] == 0)
-			m_player->m_posY += m_player->m_dirY * moveSpeed;
+		if (m_levelRef[int(m_player->position.x + m_player->direction.x * moveSpeed)][int(m_player->position.y)] == 0)
+			m_player->position.x += m_player->direction.x * moveSpeed;
+		if (m_levelRef[int(m_player->position.x)][int(m_player->position.y + m_player->direction.y * moveSpeed)] == 0)
+			m_player->position.y += m_player->direction.y * moveSpeed;
 	}
 	if (m_backward)
 	{
-		if (m_levelRef[int(m_player->m_posX - m_player->m_dirX * moveSpeed)][int(m_player->m_posY)] == 0)
-			m_player->m_posX -= m_player->m_dirX * moveSpeed;
-		if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY - m_player->m_dirY * moveSpeed)] == 0)
-			m_player->m_posY -= m_player->m_dirY * moveSpeed;
+		if (m_levelRef[int(m_player->position.x - m_player->direction.x * moveSpeed)][int(m_player->position.y)] == 0)
+			m_player->position.x -= m_player->direction.x * moveSpeed;
+		if (m_levelRef[int(m_player->position.x)][int(m_player->position.y - m_player->direction.y * moveSpeed)] == 0)
+			m_player->position.y -= m_player->direction.y * moveSpeed;
 	}
 	if (m_stepLeft)
 	{
 		// rotate vector in 90 ccw use Vector(-y, x)
-		const auto dirX = -m_player->m_dirY;
-		const auto dirY = m_player->m_dirX;
+		const auto dirX = -m_player->direction.y;
+		const auto dirY = m_player->direction.x;
 
-		if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
-			m_player->m_posX += dirX * moveSpeed;
-		if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + dirY * moveSpeed)] == 0)
-			m_player->m_posY += dirY * moveSpeed;
+		if (m_levelRef[int(m_player->position.x + dirX * moveSpeed)][int(m_player->position.y)] == 0)
+			m_player->position.x += dirX * moveSpeed;
+		if (m_levelRef[int(m_player->position.x)][int(m_player->position.y + dirY * moveSpeed)] == 0)
+			m_player->position.y += dirY * moveSpeed;
 	}
 	if (m_stepRight)
 	{
 		// rotate vector in 90 cw use Vector(y, -x)
-		const auto dirX = m_player->m_dirY;
-		const auto dirY = -m_player->m_dirX;
+		const auto dirX = m_player->direction.y;
+		const auto dirY = -m_player->direction.x;
 
-		if (m_levelRef[int(m_player->m_posX + dirX * moveSpeed)][int(m_player->m_posY)] == 0)
-			m_player->m_posX += dirX * moveSpeed;
-		if (m_levelRef[int(m_player->m_posX)][int(m_player->m_posY + dirY * moveSpeed)] == 0)
-			m_player->m_posY += dirY * moveSpeed;
+		if (m_levelRef[int(m_player->position.x + dirX * moveSpeed)][int(m_player->position.y)] == 0)
+			m_player->position.x += dirX * moveSpeed;
+		if (m_levelRef[int(m_player->position.x)][int(m_player->position.y + dirY * moveSpeed)] == 0)
+			m_player->position.y += dirY * moveSpeed;
 	}
 }
 

@@ -82,8 +82,8 @@ void PlayState::update(const float ft, Game& game)
 	if (m_inputManager->isMoving())
 	{
 		//update player position on minimap
-		const auto angle = std::atan2(m_player->m_dirX, m_player->m_dirY);
-		m_minimapPlayer.setPosition(static_cast<float>(m_player->m_posY) * g_playMinimapScale, static_cast<float>(m_player->m_posX) * g_playMinimapScale);
+		const auto angle = std::atan2(m_player->direction.x, m_player->direction.y);
+		m_minimapPlayer.setPosition(static_cast<float>(m_player->position.x) * g_playMinimapScale, static_cast<float>(m_player->position.y) * g_playMinimapScale);
 		m_minimapPlayer.setRotation(static_cast<float>(angle * 57.2957795) + 90.f);
 
 		const auto wobbleSpeed = fts * 10.0;

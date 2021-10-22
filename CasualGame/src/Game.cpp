@@ -122,12 +122,9 @@ void Game::changeState(GameStateName newState)
 void Game::resetLevel() const
 {
 	//reset player position
-	m_player->m_posX = 22.0;
-	m_player->m_posY = 11.5;
-	m_player->m_dirX = -1.0;
-	m_player->m_dirY = 0.0;
-	m_player->m_planeX = 0.0;
-	m_player->m_planeY = 0.66;
+	m_player->position = { 22.0, 11.5 };
+	m_player->direction = { -1.0, 0.0 };
+	m_player->plane = { 0.0, 0.66 };
 
 	//reload level
 	m_levelReader->loadDefaultLevel();
