@@ -83,7 +83,7 @@ void PlayState::update(const float ft, Game& game)
 	{
 		//update player position on minimap
 		const auto angle = std::atan2(m_player->direction.x, m_player->direction.y);
-		m_minimapPlayer.setPosition(static_cast<float>(m_player->position.x) * g_playMinimapScale, static_cast<float>(m_player->position.y) * g_playMinimapScale);
+		m_minimapPlayer.setPosition(static_cast<float>(m_player->position.y) * g_playMinimapScale, static_cast<float>(m_player->position.x) * g_playMinimapScale);
 		m_minimapPlayer.setRotation(static_cast<float>(angle * 57.2957795) + 90.f);
 
 		const auto wobbleSpeed = fts * 10.0;
@@ -126,17 +126,12 @@ void PlayState::draw(sf::RenderWindow& window)
 void PlayState::generateMinimap()
 {
 	// Minimap player arrow
-	// resize it to 5 points
-	m_minimapPlayer.setPointCount(7);
+	m_minimapPlayer.setPointCount(3);
 
 	// define the points
 	m_minimapPlayer.setPoint(0, sf::Vector2f(0, 0));
-	m_minimapPlayer.setPoint(1, sf::Vector2f(10, 10));
-	m_minimapPlayer.setPoint(2, sf::Vector2f(5, 10));
-	m_minimapPlayer.setPoint(3, sf::Vector2f(5, 15));
-	m_minimapPlayer.setPoint(4, sf::Vector2f(-5, 15));
-	m_minimapPlayer.setPoint(5, sf::Vector2f(-5, 10));
-	m_minimapPlayer.setPoint(6, sf::Vector2f(-10, 10));
+	m_minimapPlayer.setPoint(1, sf::Vector2f(5, 10));
+	m_minimapPlayer.setPoint(2, sf::Vector2f(-5, 10));
 
 	m_minimapPlayer.setFillColor(sf::Color(255, 255, 255, g_playMinimapTransparency));
 
@@ -171,10 +166,8 @@ void PlayState::updateMinimapEntities()
 	std::vector<sf::CircleShape>().swap(m_minimapEntityBuffer);
 
 	// Entities on minimap
-	for (size_t i = 0; i < m_levelReader->getSprites().size(); i++)
+	for (const auto& sprite : m_levelReader->getSprites())
 	{
-		const auto& sprite = m_levelReader->getSprites()[i];
-
 		sf::CircleShape object(g_playMinimapScale / 4.0f);
 		object.setPosition(
 			float(sprite.y) * g_playMinimapScale,

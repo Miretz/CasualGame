@@ -20,11 +20,14 @@ Download GLEW from here:
 
 https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip/download
 
-Unzip both zip files into the CasualGame/libraries folder.
+Create a new folder in ```CasualGame``` called ```libraries```.
+Unzip both zip files into the newly created ```CasualGame/libraries``` folder.
+
+Launch the solution in Visual Studio 2019. 
 
 Build should now work.
 
-To run:
+To run the build these libraries need to be copied:
 
-- Copy the *.dll files* from SFML and GLEW bin/ folders to the folder with CasualGame.exe
-- Copy the *CasualGame/resources* folder to the folder with CasualGame.exe
+- Copy the *.dll files* from SFML and GLEW bin/ folders to the folder with CasualGame.exe (x64/Debug or x64/Release)
+- Copy the *CasualGame/resources* folder to the folder with CasualGame.exe (x64/Debug or x64/Release)

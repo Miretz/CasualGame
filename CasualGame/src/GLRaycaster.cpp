@@ -67,7 +67,7 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 	const auto& tex9 = levelReader.getTexture(9);//ceiling
 	const auto& level = levelReader.getLevel();
 
-	for (int x = 0; x < m_windowWidth; x++)
+	for (int x = 0; x < m_windowWidth; ++x)
 	{
 
 		//calculate ray position and direction
@@ -168,11 +168,11 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		const auto texSize = static_cast<int>(texture.size());
 
 		// draw the vertical stripe
-		for (int y = drawStart; y < drawEnd + 1; y++)
+		for (int y = drawStart; y < drawEnd + 1; ++y)
 		{
-			int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
-			int texY = ((d * g_textureHeight) / lineHeight) / 256;
-			int texNumY = g_textureHeight * texX + texY;
+			const int d = y * 256 - m_windowHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+			const int texY = ((d * g_textureHeight) / lineHeight) / 256;
+			const int texNumY = g_textureHeight * texX + texY;
 
 			if (texNumY < texSize && texNumY >= 0)
 			{
@@ -202,7 +202,7 @@ void GLRaycaster::calculateWalls(const Player& player, const LevelReaderWriter& 
 		}
 
 		//draw the floor from drawEnd to the bottom of the screen
-		for (int y = drawEnd + 1; y < m_windowHeight; y++)
+		for (int y = drawEnd + 1; y < m_windowHeight; ++y)
 		{
 			const double currentDist = m_windowHeight / (2.0 * y - m_windowHeight);
 			const double weight = currentDist / perpWallDist;
@@ -245,7 +245,7 @@ void GLRaycaster::calculateSprites(const Player& player, const LevelReaderWriter
 	Utils::combSort(spriteOrder, spriteDistance, static_cast<int>(sprites.size()));
 
 	//after sorting the sprites, do the projection and draw them
-	for (size_t i = 0; i < sprites.size(); i++)
+	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		const auto& sprite = sprites[spriteOrder[i]];
 
@@ -343,13 +343,11 @@ void GLRaycaster::drawSpriteVerticalStripe(int x, int start, int end, int sprite
 }
 
 
-
 void GLRaycaster::setPixel(int x, int y, const sf::Uint32 colorRgba, unsigned int style)
 {
-	auto colors = (sf::Uint8*)&colorRgba;
 	const int index = (y * m_windowWidth + x) * 3;
-	m_buffer[index] = colors[0] >> style;
-	m_buffer[index + 1] = colors[1] >> style;
-	m_buffer[index + 2] = colors[2] >> style;
+	m_buffer[index] = (colorRgba & 0x000000ff) >> style;
+	m_buffer[index + 1] = ((colorRgba & 0x0000ff00) >> 8) >> style;
+	m_buffer[index + 2] = ((colorRgba & 0x00ff0000) >> 16) >> style;
 }
 

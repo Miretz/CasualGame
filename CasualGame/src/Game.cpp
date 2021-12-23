@@ -35,7 +35,7 @@ void Game::run()
 
 void Game::checkInput()
 {
-	auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*m_window));
+	const auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*m_window));
 
 	sf::Event event;
 	while (m_window->pollEvent(event))
@@ -72,7 +72,7 @@ void Game::updateTimers()
 	if (m_fpsShowTimer == 0)
 	{
 		m_fpsShowTimer = 4;
-		auto ftSeconds = static_cast<float>(m_lastFt) / 1000.f;
+		const auto ftSeconds = static_cast<float>(m_lastFt) / 1000.f;
 		if (ftSeconds > 0.f)
 		{
 			m_fps = static_cast<int>(1.f / ftSeconds);
